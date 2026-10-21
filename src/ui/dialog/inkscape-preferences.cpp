@@ -83,6 +83,7 @@
 #include "ui/themes.h"
 #include "ui/tool/manipulator.h"
 #include "ui/tool/path-manipulator.h"
+#include "ui/toolbar/property-bar-context.h"
 #include "ui/toolbar/tool-toolbar.h"
 #include "ui/toolbar/toolbox-groups.h"
 #include "ui/toolbar/toolbar-constants.h"
@@ -2032,6 +2033,12 @@ void InkscapePreferences::initPageUI()
         layout->init(Inkscape::UI::Toolbar::toolbox_layout_path, layout_labels, layout_values, "corel");
         _page_toolbars.add_line(false, _("Toolbox layout:"), *layout, "",
                                 _("Group related tools behind flyout buttons like CorelDRAW, or show every tool in a grid. Applies to new windows."));
+
+        auto const object_sections = Gtk::make_managed<UI::Widget::PrefCheckButton>();
+        object_sections->init(_("Show object properties for the selection"),
+                              Inkscape::UI::Toolbar::object_sections_pref_path, true);
+        _page_toolbars.add_line(false, "", *object_sections, "",
+                                _("With the Select or Node tool, add the selected rectangle, ellipse, star, spiral or text controls to the tool controls bar (CorelDRAW-style property bar)."));
 
         struct tbar_info {const char* label; const char* prefs;} toolbars[] = {
             {_("Toolbox icon size:"),     Inkscape::UI::Toolbar::tools_icon_size},

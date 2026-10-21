@@ -14,11 +14,18 @@
 #ifndef SEEN_TOOLBARS_H
 #define SEEN_TOOLBARS_H
 
+#include <memory>
 #include <string>
 #include <unordered_map>
 #include <gtkmm/box.h>
+#include <sigc++/scoped_connection.h>
+
+#include "preferences.h"
 
 class SPDesktop;
+namespace Gtk {
+class Separator;
+}
 namespace Inkscape::UI::Tools { class ToolBase; }
 namespace Inkscape::Util { class Unit; }
 
@@ -44,6 +51,21 @@ public:
 private:
     std::unordered_map<std::string, std::unique_ptr<Toolbar>> _toolbars;
     Toolbar *_current_toolbar = nullptr;
+
+    // Rosepen 04-02: the object section shown next to the current toolbar
+    // (CorelDRAW-style property bar). One section at most; hidden sections
+    // hold no desktop and thus no selection connections.
+    std::unordered_map<std::string, std::unique_ptr<Toolbar>> _sections;
+    Toolbar *_current_section = nullptr;
+    std::string _section_path;
+    Gtk::Separator *_section_separator = nullptr;
+    std::string _tool_path;
+    SPDesktop *_desktop = nullptr;
+    sigc::scoped_connection _selection_changed_conn;
+    Inkscape::PrefObserver _sections_pref_observer;
+
+    void _updateSection();
+    void _showSection(std::string const &path);
 };
 
 } // namespace Inkscape::UI::Toolbar

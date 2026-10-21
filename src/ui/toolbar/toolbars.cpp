@@ -18,7 +18,16 @@
 
 #include "toolbars.h"
 
+#include <gtkmm/separator.h>
+
+#include "desktop.h"
+#include "object/sp-namedview.h"
+#include "preferences.h"
+#include "selection.h"
+#include "ui/toolbar/property-bar-context.h"
+#include "ui/toolbar/toolbar-constants.h"
 #include "ui/shortcuts.h"
+#include "ui/util.h"
 
 // For creating toolbars
 #include "ui/toolbar/arc-toolbar.h"
@@ -95,13 +104,29 @@ auto const toolbar_data = std::unordered_map<std::string, ToolbarData>{
 } // namespace
 
 Toolbars::Toolbars()
-    : Gtk::Box{Gtk::Orientation::VERTICAL}
+    : Gtk::Box{Gtk::Orientation::HORIZONTAL}
 {
     set_name("Toolbars");
+
+    // Rosepen 04-02: separator between the current toolbar and the object
+    // section; visible only while a section is shown. Margins instead of CSS
+    // classes, so the classic bar is untouched when no section is visible.
+    _section_separator = Gtk::make_managed<Gtk::Separator>(Gtk::Orientation::VERTICAL);
+    _section_separator->set_margin_start(4);
+    _section_separator->set_margin_end(4);
+    _section_separator->set_visible(false);
+    append(*_section_separator);
+
+    _sections_pref_observer = Preferences::get()->createObserver(object_sections_pref_path,
+                                                                 [this] { _updateSection(); });
 }
 
 Toolbars::~Toolbars()
 {
+    _selection_changed_conn = sigc::connection{};
+    if (_current_section) {
+        _current_section->setDesktop(nullptr);
+    }
     if (_current_toolbar) {
         _current_toolbar->setDesktop(nullptr);
     }
@@ -143,6 +168,19 @@ void Toolbars::setTool(Tools::ToolBase *tool)
         // Tool has stayed the same but desktop has changed.
         _current_toolbar->setDesktop(tool->getDesktop());
     }
+
+    // Rosepen 04-02: track the active tool and desktop for the object section.
+    _tool_path = tool ? tool->getPrefsPath() : "";
+    auto *desktop = tool ? tool->getDesktop() : nullptr;
+    if (desktop != _desktop) {
+        _selection_changed_conn = sigc::connection{}; // disconnects the old slot
+        if (desktop) {
+            _selection_changed_conn = desktop->getSelection()->connectChanged(
+                [this](Selection *) { _updateSection(); });
+        }
+        _desktop = desktop;
+    }
+    _updateSection();
 }
 
 void Toolbars::setActiveUnit(Util::Unit const *unit)
@@ -150,11 +188,83 @@ void Toolbars::setActiveUnit(Util::Unit const *unit)
     if (_current_toolbar) {
         _current_toolbar->setActiveUnit(unit);
     }
+    if (_current_section) {
+        _current_section->setActiveUnit(unit);
+    }
 }
 
 Toolbar *Toolbars::get_current_toolbar()
 {
     return _current_toolbar;
+}
+
+void Toolbars::_updateSection()
+{
+    if (!_desktop) {
+        _showSection({});
+        return;
+    }
+
+    // Classify the selection; a mixed or non-sectionable selection shows no
+    // section at all, so bail out at the first mismatch.
+    std::vector<ObjectKind> kinds;
+    kinds.reserve(8);
+    for (auto item : _desktop->getSelection()->items()) {
+        auto const kind = classify_object(item);
+        if (kind == ObjectKind::Other || (!kinds.empty() && kinds.front() != kind)) {
+            kinds.clear();
+            break;
+        }
+        kinds.push_back(kind);
+    }
+
+    auto const path = object_section_for(_tool_path, common_kind(kinds),
+                                         Preferences::get()->getBool(object_sections_pref_path, true));
+    _showSection(std::string{path});
+}
+
+void Toolbars::_showSection(std::string const &path)
+{
+    if (path == _section_path && (!_current_section || _current_section->getDesktop() == _desktop)) {
+        return; // nothing to swap; the section updates itself on selection changes
+    }
+
+    if (_current_section) {
+        _current_section->set_visible(false);
+        _current_section->setDesktop(nullptr); // drops its selection connections
+        _current_section = nullptr;
+    }
+    _section_path = path;
+
+    if (path.empty()) {
+        _section_separator->set_visible(false);
+        return;
+    }
+
+    auto &section = _sections[path];
+    if (!section) {
+        // Lazily create the section from the same factory as the primaries.
+        auto const &data = toolbar_data.at(path);
+        section = data.create();
+        section->set_name("PropertyBar" + data.name + "Section");
+        section->set_hexpand(false);
+        Shortcuts::getInstance().update_gui_text_recursive(section.get());
+        append(*section);
+
+        // apply_ctrlbar_settings() runs only on tool changes, but a section can
+        // be created at any time: give it the current control-bar icon size.
+        auto *prefs = Preferences::get();
+        int const min = Inkscape::UI::Toolbar::min_pixel_size;
+        int const max = Inkscape::UI::Toolbar::max_pixel_size;
+        int const size = prefs->getIntLimited(Inkscape::UI::Toolbar::ctrlbars_icon_size, min, min, max);
+        Inkscape::UI::set_icon_sizes(section.get(), size);
+    }
+
+    _current_section = section.get();
+    _current_section->setDesktop(_desktop); // synthesizes _selectionChanged inside
+    _current_section->setActiveUnit(_desktop->getNamedView()->getDisplayUnit());
+    _current_section->set_visible(true);
+    _section_separator->set_visible(true);
 }
 
 
