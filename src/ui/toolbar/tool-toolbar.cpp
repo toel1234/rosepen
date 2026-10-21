@@ -22,6 +22,8 @@
 #include <gtkmm/separator.h>
 
 #include "tool-toolbar.h"
+#include "ui/toolbar/flyout-toolbox.h"
+#include "ui/toolbar/toolbox-groups.h"
 #include "actions/actions-tools.h" // Function to open tool preferences.
 #include "ui/builder-utils.h"
 #include "ui/controller.h"
@@ -36,13 +38,21 @@ ToolToolbar::ToolToolbar(InkscapeWindow *window)
 {
     set_name("ToolToolbar");
 
-    auto builder = Inkscape::UI::create_builder("toolbar-tool.ui");
-    auto &tool_toolbar = UI::get_widget<Gtk::ScrolledWindow>(builder, "tool-toolbar");
+    _classic_builder = Inkscape::UI::create_builder("toolbar-tool.ui");
+    auto &tool_toolbar = UI::get_widget<Gtk::ScrolledWindow>(_classic_builder, "tool-toolbar");
     tool_toolbar.set_halign(Gtk::Align::FILL);
 
-    attachHandlers(builder, window);
+    attachHandlers(_classic_builder, window);
 
-    _popoverbin.setChild(&tool_toolbar);
+    if (use_flyout_layout() && !toolbox_groups().empty()) {
+        auto const flyout = Gtk::make_managed<FlyoutToolbox>(window, toolbox_groups(),
+            [this, window](Gtk::Button &button, Glib::ustring const &tool_name) {
+                showContextMenu(window, button, tool_name);
+            });
+        _popoverbin.setChild(flyout);
+    } else {
+        _popoverbin.setChild(&tool_toolbar);
+    }
     _popoverbin.setPopover(_context_menu.get());
     _popoverbin.set_hexpand(true);
     append(_popoverbin);

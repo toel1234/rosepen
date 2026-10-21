@@ -84,6 +84,7 @@
 #include "ui/tool/manipulator.h"
 #include "ui/tool/path-manipulator.h"
 #include "ui/toolbar/tool-toolbar.h"
+#include "ui/toolbar/toolbox-groups.h"
 #include "ui/toolbar/toolbar-constants.h"
 #include "ui/util.h"
 #include "ui/widget/desktop-widget.h"
@@ -2024,6 +2025,13 @@ void InkscapePreferences::initPageUI()
         });
 
         _page_toolbars.add_line(false, "", toolbox, "", _("Select visible tool buttons"), true);
+
+        Glib::ustring layout_labels[] = {_("Corel-style flyout groups"), _("Classic grid")};
+        Glib::ustring layout_values[] = {"corel", "classic"};
+        auto const layout = Gtk::make_managed<UI::Widget::PrefCombo>();
+        layout->init(Inkscape::UI::Toolbar::toolbox_layout_path, layout_labels, layout_values, "corel");
+        _page_toolbars.add_line(false, _("Toolbox layout:"), *layout, "",
+                                _("Group related tools behind flyout buttons like CorelDRAW, or show every tool in a grid. Applies to new windows."));
 
         struct tbar_info {const char* label; const char* prefs;} toolbars[] = {
             {_("Toolbox icon size:"),     Inkscape::UI::Toolbar::tools_icon_size},

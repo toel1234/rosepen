@@ -52,6 +52,7 @@
 #include "ui/toolbar/command-toolbar.h"
 #include "ui/toolbar/snap-toolbar.h"
 #include "ui/toolbar/tool-toolbar.h"
+#include "ui/toolbar/toolbox-groups.h"
 #include "ui/toolbar/toolbar-constants.h"
 #include "ui/toolbar/toolbars.h"
 #include "ui/tools/tool-base.h"
@@ -148,6 +149,8 @@ SPDesktopWidget::SPDesktopWidget(InkscapeWindow *inkscape_window)
     _tbbox->set_start_child(*tool_toolbox);
     _tbbox->set_resize_start_child(false);
     _tbbox->set_shrink_start_child(false);
+    // Same per-window decision as ToolToolbar; the layout pref applies to new windows only.
+    bool const flyout_layout = Inkscape::UI::Toolbar::use_flyout_layout() && !Inkscape::UI::Toolbar::toolbox_groups().empty();
     auto adjust_pos = [=, this](){
         int minimum_width, natural_width;
         int ignore;
@@ -155,7 +158,7 @@ SPDesktopWidget::SPDesktopWidget(InkscapeWindow *inkscape_window)
         if (minimum_width > 0) {
             int pos = _tbbox->get_position();
             int new_pos = pos + minimum_width / 2;
-            const auto max = 5; // max buttons in a row
+            const auto max = flyout_layout ? 1 : 5; // max buttons in a row
             new_pos = std::min(new_pos - new_pos % minimum_width, max * minimum_width);
             if (pos != new_pos) _tbbox->set_position(new_pos);
         }

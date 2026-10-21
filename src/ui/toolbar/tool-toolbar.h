@@ -11,6 +11,7 @@
 #ifndef SEEN_TOOLBAR_TOOL_H
 #define SEEN_TOOLBAR_TOOL_H
 
+#include <glibmm/refptr.h>
 #include <gtkmm/box.h>
 
 #include "preferences.h"
@@ -53,6 +54,9 @@ private:
     std::unique_ptr<UI::Widget::PopoverMenu> _context_menu;
     Glib::ustring _context_menu_tool_name;
     UI::Widget::PopoverBin _popoverbin;
+    // Keeps the classic toolbox alive in the flyout layout, where it is not
+    // parented but still feeds the visibility observer.
+    Glib::RefPtr<Gtk::Builder> _classic_builder;
 
     Inkscape::PrefObserver buttons_pref_observer;
 };
