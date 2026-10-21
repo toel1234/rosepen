@@ -51,6 +51,7 @@
 #include "display/control/canvas-item-group.h"
 #include "display/translucency-group.h"
 #include "io/fix-broken-links.h"
+#include "object/master-layer-display.h"
 #include "object/sp-namedview.h"
 #include "object/sp-root.h"
 #include "ui/dialog/dialog-container.h"
@@ -1466,6 +1467,8 @@ void SPDesktop::_attachDocument()
         drawing->root()->prependChild(drawing_item);
     }
 
+    _master_layer_display = std::make_unique<Inkscape::MasterLayerDisplay>(*document, dkey);
+
     namedview = document->getNamedView();
     namedview->viewcount++;
     namedview->show(this);
@@ -1497,6 +1500,8 @@ void SPDesktop::_attachDocument()
 
 void SPDesktop::_detachDocument()
 {
+    _master_layer_display.reset();
+
     namedview->hide(this);
     document->getRoot()->invoke_hide(dkey);
 

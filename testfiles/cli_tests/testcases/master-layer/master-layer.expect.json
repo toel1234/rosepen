@@ -1,0 +1,400 @@
+{
+  "_comment": "03-02 task 2 master-layer render lock. Expectations are spec-derived from .paul/phases/03-multipage-pdfx/03-02-PLAN.md (task 2) and the 03-01 page semantics; observed output never weakens them. Sample points are page-relative millimetres: bg=(20,80), hdr=(50,14), content=(33,33), badge=(43,43), out=(2,2), wide=(120,50) on 150mm-wide pages. layer/offset lines are the exact app.layer-master-list stdout (positions 1-based, offsets in user units = mm).",
+  "colors": {
+    "bg": [51, 204, 51],
+    "c1": [204, 51, 51],
+    "c2": [51, 51, 204],
+    "hdr": [34, 34, 136],
+    "badge": [255, 204, 0],
+    "white": [255, 255, 255]
+  },
+  "scenarios": {
+    "flags-in-file": {
+      "actions": "",
+      "model": {
+        "layers": [
+          "layer\tmaster-bg\tMaster BG\t1\tvisible",
+          "layer\tmaster-top\tMaster Top\t3\tvisible"
+        ],
+        "offsets": [
+          "offset\t2\t110.000\t0.000",
+          "offset\t3\t220.000\t0.000"
+        ]
+      },
+      "svg": {
+        "pages": 3,
+        "master_layers": ["master-bg", "master-top"],
+        "children": {
+          "master-bg": ["bg"],
+          "master-top": ["hdr", "badge"]
+        },
+        "absent": []
+      },
+      "png": [
+        {
+          "page": 1,
+          "samples": {"bg": "bg", "hdr": "hdr", "content": "c1", "badge": "badge", "out": "white"}
+        },
+        {
+          "page": 2,
+          "samples": {"bg": "bg", "hdr": "hdr", "content": "c2", "badge": "badge", "out": "white"}
+        },
+        {
+          "page": 3,
+          "samples": {"bg": "bg", "hdr": "hdr", "content": "bg", "badge": "badge", "out": "white", "wide": "white"}
+        }
+      ],
+      "pdf": {
+        "pages": 3,
+        "png": [
+          {
+            "page": 1,
+            "samples": {"bg": "bg", "hdr": "hdr", "content": "c1", "badge": "badge", "out": "white"}
+          },
+          {
+            "page": 2,
+            "samples": {"bg": "bg", "hdr": "hdr", "content": "c2", "badge": "badge", "out": "white"}
+          },
+          {
+            "page": 3,
+            "samples": {"bg": "bg", "hdr": "hdr", "content": "bg", "badge": "badge", "out": "white", "wide": "white"}
+          }
+        ]
+      }
+    },
+    "set-via-action": {
+      "actions": "layer-master-set:master-bg,off;layer-master-set:master-top,off;layer-master-set:master-bg,on;layer-master-set:master-top,on",
+      "model": {
+        "layers": [
+          "layer\tmaster-bg\tMaster BG\t1\tvisible",
+          "layer\tmaster-top\tMaster Top\t3\tvisible"
+        ],
+        "offsets": [
+          "offset\t2\t110.000\t0.000",
+          "offset\t3\t220.000\t0.000"
+        ]
+      },
+      "svg": {
+        "pages": 3,
+        "master_layers": ["master-bg", "master-top"],
+        "children": {
+          "master-bg": ["bg"],
+          "master-top": ["hdr", "badge"]
+        },
+        "absent": []
+      },
+      "png": [
+        {
+          "page": 1,
+          "samples": {"bg": "bg", "hdr": "hdr", "content": "c1", "badge": "badge", "out": "white"}
+        },
+        {
+          "page": 2,
+          "samples": {"bg": "bg", "hdr": "hdr", "content": "c2", "badge": "badge", "out": "white"}
+        },
+        {
+          "page": 3,
+          "samples": {"bg": "bg", "hdr": "hdr", "content": "bg", "badge": "badge", "out": "white", "wide": "white"}
+        }
+      ],
+      "pdf": {
+        "pages": 3,
+        "png": [
+          {
+            "page": 1,
+            "samples": {"bg": "bg", "hdr": "hdr", "content": "c1", "badge": "badge", "out": "white"}
+          },
+          {
+            "page": 2,
+            "samples": {"bg": "bg", "hdr": "hdr", "content": "c2", "badge": "badge", "out": "white"}
+          },
+          {
+            "page": 3,
+            "samples": {"bg": "bg", "hdr": "hdr", "content": "bg", "badge": "badge", "out": "white", "wide": "white"}
+          }
+        ]
+      }
+    },
+    "clear-top": {
+      "actions": "layer-master-set:master-top,off",
+      "model": {
+        "layers": [
+          "layer\tmaster-bg\tMaster BG\t1\tvisible"
+        ],
+        "offsets": [
+          "offset\t2\t110.000\t0.000",
+          "offset\t3\t220.000\t0.000"
+        ]
+      },
+      "svg": {
+        "pages": 3,
+        "master_layers": ["master-bg"],
+        "children": {
+          "master-bg": ["bg"],
+          "master-top": ["hdr", "badge"]
+        },
+        "absent": []
+      },
+      "png": [
+        {
+          "page": 1,
+          "samples": {"bg": "bg", "hdr": "hdr", "content": "c1", "badge": "badge", "out": "white"}
+        },
+        {
+          "page": 2,
+          "samples": {"bg": "bg", "hdr": "bg", "content": "c2", "badge": "c2", "out": "white"}
+        },
+        {
+          "page": 3,
+          "samples": {"bg": "bg", "hdr": "bg", "content": "bg", "badge": "bg", "out": "white"}
+        }
+      ]
+    },
+    "hidden-master": {
+      "actions": "select-by-id:master-top;object-set-attribute:style,display:none",
+      "model": {
+        "layers": [
+          "layer\tmaster-bg\tMaster BG\t1\tvisible",
+          "layer\tmaster-top\tMaster Top\t3\thidden"
+        ],
+        "offsets": [
+          "offset\t2\t110.000\t0.000",
+          "offset\t3\t220.000\t0.000"
+        ]
+      },
+      "svg": {
+        "pages": 3,
+        "master_layers": ["master-bg", "master-top"],
+        "children": {
+          "master-bg": ["bg"],
+          "master-top": ["hdr", "badge"]
+        },
+        "absent": []
+      },
+      "png": [
+        {
+          "page": 1,
+          "samples": {"bg": "bg", "hdr": "bg", "content": "c1", "badge": "c1", "out": "white"}
+        },
+        {
+          "page": 2,
+          "samples": {"bg": "bg", "hdr": "bg", "content": "c2", "badge": "c2", "out": "white"}
+        },
+        {
+          "page": 3,
+          "samples": {"bg": "bg", "hdr": "bg", "content": "bg", "badge": "bg", "out": "white"}
+        }
+      ],
+      "pdf": {
+        "pages": 3,
+        "png": [
+          {
+            "page": 1,
+            "samples": {"bg": "bg", "hdr": "bg", "content": "c1", "badge": "c1", "out": "white"}
+          },
+          {
+            "page": 2,
+            "samples": {"bg": "bg", "hdr": "bg", "content": "c2", "badge": "c2", "out": "white"}
+          },
+          {
+            "page": 3,
+            "samples": {"bg": "bg", "hdr": "bg", "content": "bg", "badge": "bg", "out": "white"}
+          }
+        ]
+      }
+    },
+    "insert-end": {
+      "actions": "page-goto:3;page-insert:end",
+      "model": {
+        "layers": [
+          "layer\tmaster-bg\tMaster BG\t1\tvisible",
+          "layer\tmaster-top\tMaster Top\t3\tvisible"
+        ],
+        "offsets": [
+          "offset\t2\t110.000\t0.000",
+          "offset\t3\t220.000\t0.000",
+          "offset\t4\t380.000\t0.000"
+        ]
+      },
+      "svg": {
+        "pages": 4,
+        "master_layers": ["master-bg", "master-top"],
+        "children": {
+          "master-bg": ["bg"],
+          "master-top": ["hdr", "badge"]
+        },
+        "absent": []
+      },
+      "png": [
+        {
+          "page": 4,
+          "samples": {"bg": "bg", "hdr": "hdr", "content": "bg", "badge": "badge", "out": "white"}
+        }
+      ]
+    },
+    "delete-first": {
+      "actions": "page-goto:1;page-remove:contents",
+      "model": {
+        "layers": [
+          "layer\tmaster-bg\tMaster BG\t1\tvisible",
+          "layer\tmaster-top\tMaster Top\t3\tvisible"
+        ],
+        "offsets": [
+          "offset\t2\t110.000\t0.000"
+        ]
+      },
+      "svg": {
+        "pages": 2,
+        "master_layers": ["master-bg", "master-top"],
+        "children": {
+          "master-bg": ["bg"],
+          "master-top": ["hdr", "badge"]
+        },
+        "absent": ["c1"]
+      },
+      "png": [
+        {
+          "page": 1,
+          "samples": {"bg": "bg", "hdr": "hdr", "content": "c2", "badge": "badge", "out": "white"}
+        },
+        {
+          "page": 2,
+          "samples": {"bg": "bg", "hdr": "hdr", "content": "bg", "badge": "badge", "out": "white", "wide": "white"}
+        }
+      ],
+      "pdf": {
+        "pages": 2,
+        "png": [
+          {
+            "page": 1,
+            "samples": {"bg": "bg", "hdr": "hdr", "content": "c2", "badge": "badge", "out": "white"}
+          },
+          {
+            "page": 2,
+            "samples": {"bg": "bg", "hdr": "hdr", "content": "bg", "badge": "badge", "out": "white", "wide": "white"}
+          }
+        ]
+      }
+    },
+    "move-first": {
+      "actions": "page-goto:1;page-move-to:2",
+      "model": {
+        "layers": [
+          "layer\tmaster-bg\tMaster BG\t1\tvisible",
+          "layer\tmaster-top\tMaster Top\t3\tvisible"
+        ],
+        "offsets": [
+          "offset\t2\t110.000\t0.000",
+          "offset\t3\t220.000\t0.000"
+        ]
+      },
+      "svg": {
+        "pages": 3,
+        "master_layers": ["master-bg", "master-top"],
+        "children": {
+          "master-bg": ["bg"],
+          "master-top": ["hdr", "badge"]
+        },
+        "absent": []
+      },
+      "png": [
+        {
+          "page": 1,
+          "samples": {"bg": "bg", "hdr": "hdr", "content": "c2", "badge": "badge", "out": "white"}
+        },
+        {
+          "page": 2,
+          "samples": {"bg": "bg", "hdr": "hdr", "content": "c1", "badge": "badge", "out": "white"}
+        },
+        {
+          "page": 3,
+          "samples": {"bg": "bg", "hdr": "hdr", "content": "bg", "badge": "badge", "out": "white", "wide": "white"}
+        }
+      ]
+    },
+    "duplicate-page": {
+      "actions": "page-goto:2;page-duplicate-after",
+      "model": {
+        "layers": [
+          "layer\tmaster-bg\tMaster BG\t1\tvisible",
+          "layer\tmaster-top\tMaster Top\t3\tvisible"
+        ],
+        "offsets": [
+          "offset\t2\t110.000\t0.000",
+          "offset\t3\t220.000\t0.000",
+          "offset\t4\t380.000\t0.000"
+        ]
+      },
+      "svg": {
+        "pages": 4,
+        "master_layers": ["master-bg", "master-top"],
+        "children": {
+          "master-bg": ["bg"],
+          "master-top": ["hdr", "badge"]
+        },
+        "absent": [],
+        "counts": {"bg": 1, "hdr": 1, "badge": 1}
+      },
+      "png": [
+        {
+          "page": 3,
+          "samples": {"bg": "bg", "hdr": "hdr", "content": "c2", "badge": "badge", "out": "white"}
+        },
+        {
+          "page": 4,
+          "samples": {"bg": "bg", "hdr": "hdr", "content": "bg", "badge": "badge", "out": "white", "wide": "white"}
+        }
+      ]
+    },
+    "no-master": {
+      "actions": "layer-master-set:master-bg,off;layer-master-set:master-top,off",
+      "model": {
+        "layers": [],
+        "offsets": [
+          "offset\t2\t110.000\t0.000",
+          "offset\t3\t220.000\t0.000"
+        ]
+      },
+      "svg": {
+        "pages": 3,
+        "master_layers": [],
+        "children": {
+          "master-bg": ["bg"],
+          "master-top": ["hdr", "badge"]
+        },
+        "absent": []
+      },
+      "png": [
+        {
+          "page": 1,
+          "samples": {"bg": "bg", "hdr": "hdr", "content": "c1", "badge": "badge", "out": "white"}
+        },
+        {
+          "page": 2,
+          "samples": {"bg": "white", "hdr": "white", "content": "c2", "badge": "c2", "out": "white"}
+        },
+        {
+          "page": 3,
+          "samples": {"bg": "white", "hdr": "white", "content": "white", "badge": "white", "out": "white", "wide": "white"}
+        }
+      ],
+      "pdf": {
+        "pages": 3,
+        "png": [
+          {
+            "page": 1,
+            "samples": {"bg": "bg", "hdr": "hdr", "content": "c1", "badge": "badge", "out": "white"}
+          },
+          {
+            "page": 2,
+            "samples": {"bg": "white", "hdr": "white", "content": "c2", "badge": "c2", "out": "white"}
+          },
+          {
+            "page": 3,
+            "samples": {"bg": "white", "hdr": "white", "content": "white", "badge": "white", "out": "white", "wide": "white"}
+          }
+        ]
+      }
+    }
+  }
+}

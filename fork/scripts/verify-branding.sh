@@ -122,6 +122,28 @@ ALLOW=(
     "src/ui/dialog/inkscape-preferences.cpp"
     "testfiles/src/toolbox-groups-test.cpp"
     "testfiles/cli_tests/check_toolbox_groups.py"
+    # 04-02 Corel property bar
+    "src/ui/toolbar/property-bar-context.h"
+    "src/ui/toolbar/property-bar-context.cpp"
+    "src/ui/toolbar/toolbars.h"
+    "src/ui/toolbar/toolbars.cpp"
+    "testfiles/src/property-bar-context-test.cpp"
+    # 03-02 master layer
+    "src/object/master-layer.h"
+    "src/object/master-layer.cpp"
+    "src/object/master-layer-display.h"
+    "src/object/master-layer-display.cpp"
+    "src/object/CMakeLists.txt"
+    "src/actions/actions-master-layer.h"
+    "src/actions/actions-master-layer.cpp"
+    "src/page-manager.cpp"
+    "src/object/sp-page.cpp"
+    "src/desktop.h"
+    "src/desktop.cpp"
+    "src/helper/png-write.cpp"
+    "src/extension/internal/pdfoutput/pdf-output.cpp"
+    "src/extension/internal/pdfoutput/build-page.h"
+    "src/extension/internal/pdfoutput/build-page.cpp"
 )
 
 # ---------------------------------------------------------------------------

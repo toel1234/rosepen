@@ -35,7 +35,10 @@
 
 #include "desktop.h"
 #include "document.h"
+#include "object/master-layer.h"
+#include "object/sp-item-group.h"
 #include "object/sp-page.h"
+#include "object/sp-root.h"
 #include "page-manager.h"
 #include "util/paper.h"
 #include "util/units.h"
@@ -197,6 +200,27 @@ PageManagerPanel::PageManagerPanel()
 
     auto *bottom_sep = Gtk::make_managed<Gtk::Separator>(Gtk::Orientation::HORIZONTAL);
     append(*bottom_sep);
+
+    // -- Master layers section -----------------------------------------------
+    _master_section = Gtk::make_managed<Gtk::Box>(Gtk::Orientation::VERTICAL, 0);
+    _master_section->set_margin_top(6);
+    _master_section->set_margin_start(6);
+    _master_section->set_margin_end(6);
+    _master_section->set_margin_bottom(6);
+
+    auto *master_title = Gtk::make_managed<Gtk::Label>(_("Master Layers"), false);
+    master_title->set_halign(Gtk::Align::START);
+    master_title->set_tooltip_text(_("Show this layer's content on every page, positioned relative to page 1"));
+    _master_section->append(*master_title);
+
+    // Rows are (re)built by update_master_section().
+    _master_box = Gtk::make_managed<Gtk::Box>(Gtk::Orientation::VERTICAL, 0);
+    _master_section->append(*_master_box);
+
+    append(*_master_section);
+
+    auto *master_sep = Gtk::make_managed<Gtk::Separator>(Gtk::Orientation::HORIZONTAL);
+    append(*master_sep);
 
     // -- Per-page size section ---------------------------------------------
     _size_box = Gtk::make_managed<Gtk::Box>(Gtk::Orientation::VERTICAL, 6);
@@ -433,6 +457,7 @@ void PageManagerPanel::rebuild()
 
     update_sensitive();
     update_size_section();
+    update_master_section();
 }
 
 void PageManagerPanel::update_sensitive()
@@ -449,6 +474,7 @@ void PageManagerPanel::update_sensitive()
     _remove_btn->set_sensitive(can_remove);
     _remove_menu_btn->set_sensitive(can_remove);
     _list_scroll->set_sensitive(have_document);
+    _master_section->set_sensitive(have_document);
 
     update_order_buttons();
 }
@@ -469,6 +495,87 @@ void PageManagerPanel::update_order_buttons()
 
     _order_backwards_btn->set_sensitive(backwards);
     _order_forwards_btn->set_sensitive(forwards);
+}
+
+/*
+ * Master layers section
+ */
+
+/**
+ * One row per top-level layer, document z-order top first (Objects-dialog
+ * order). The check state is the plain `inkscape:master-layer` flag; a
+ * toggle only activates the machine-tested `app.layer-master-set` action —
+ * the copies on the other pages are drawn by the canvas, never managed
+ * here. The idle-coalesced rebuild's document-modified trigger covers
+ * undo/redo and external toggles; the guard keeps the programmatic state
+ * updates below from re-entering the action.
+ */
+void PageManagerPanel::update_master_section()
+{
+    _updating_master_ui = true;
+
+    while (auto *child = _master_box->get_first_child()) {
+        _master_box->remove(*child);
+    }
+
+    std::vector<SPObject *> layers;
+    if (auto const document = getDocument()) {
+        for (auto child : document->getRoot()->childList(false)) {
+            if (SP_IS_LAYER(child)) {
+                layers.push_back(child);
+            }
+        }
+    }
+
+    if (layers.empty()) {
+        auto *hint = Gtk::make_managed<Gtk::Label>(_("No layers"));
+        hint->set_halign(Gtk::Align::START);
+        hint->set_sensitive(false); // dimmed placeholder, not a click target
+        _master_box->append(*hint);
+    } else {
+        for (auto it = layers.rbegin(); it != layers.rend(); ++it) {
+            auto *layer = *it;
+            auto const *layer_label = layer->label();
+            auto const *id = layer->getId();
+            auto const name = Glib::ustring((layer_label && layer_label[0]) ? layer_label : (id ? id : ""));
+
+            auto *row = Gtk::make_managed<Gtk::Box>(Gtk::Orientation::HORIZONTAL, 6);
+            row->set_margin_start(4);
+            row->set_margin_end(4);
+            row->set_margin_top(2);
+            row->set_margin_bottom(2);
+
+            auto *name_label = Gtk::make_managed<Gtk::Label>(name);
+            name_label->set_halign(Gtk::Align::START);
+            name_label->set_hexpand();
+            name_label->set_ellipsize(Pango::EllipsizeMode::END);
+            row->append(*name_label);
+
+            auto *check = Gtk::make_managed<Gtk::CheckButton>(_("All pages"));
+            check->set_active(Inkscape::MasterLayer::is_master(layer));
+            check->set_tooltip_text(_("Show this layer's content on every page, positioned relative to page 1"));
+            if (id && id[0]) {
+                // The action addresses the layer by id; without one the
+                // empty-id form would target the current layer instead.
+                check->signal_toggled().connect([this, check, id = Glib::ustring(id)] {
+                    if (_updating_master_ui) {
+                        return;
+                    }
+                    auto const spec = Glib::ustring::compose("%1,%2", id, check->get_active() ? "on" : "off");
+                    activate_app_action("layer-master-set", Glib::Variant<Glib::ustring>::create(spec));
+                    // A refused toggle records no document change: snap back.
+                    schedule_rebuild();
+                });
+            } else {
+                check->set_sensitive(false);
+            }
+            row->append(*check);
+
+            _master_box->append(*row);
+        }
+    }
+
+    _updating_master_ui = false;
 }
 
 /*

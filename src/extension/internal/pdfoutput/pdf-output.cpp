@@ -12,6 +12,8 @@
 
 #include "pdf-output.h"
 
+#include <map>
+
 #include "build-document.h"
 #include "build-page.h"
 #include "document.h"
@@ -20,6 +22,8 @@
 #include "extension/output.h"
 #include "extension/system.h"
 #include "inkscape-version.h"
+#include "object/master-layer.h"
+#include "object/sp-item.h"
 #include "object/sp-page.h"
 #include "object/sp-root.h"
 #include "page-manager.h"
@@ -80,10 +84,28 @@ void PdfOutput::save(Inkscape::Extension::Output *mod, SPDocument *doc, char con
         }
     }
 
+    // Master layers are repeated on every page. With two or more pages and at
+    // least one master layer, each page paints the root's top-level children
+    // one by one so the master layers can be shifted by their page offset.
+    // Two or more pages already exist as page objects, so this needs no enablePages().
+    bool const paint_masters =
+        !MasterLayer::master_layers(doc).empty() && doc->getPageManager().getPageCount() >= 2;
+
+    std::map<SPPage *, Geom::Point> master_offsets;
+    if (paint_masters) {
+        for (auto const &[master_page, offset] : MasterLayer::page_offsets(doc)) {
+            master_offsets.emplace(master_page, offset);
+        }
+    }
+
     // Step 1. Render EVERYTHING in the document out to a single PDF TransparencyGroup
     // This allows the page "positions" to be stored by the offset of the group.
-    auto group_ctx = PdfBuilder::ItemContext(pdf, root);
-    auto drawing_id = pdf.add_group(group_ctx);
+    // On the master path the per-item groups are created while painting each page.
+    std::optional<CapyPDF_TransparencyGroupId> drawing_id;
+    if (!paint_masters) {
+        auto group_ctx = PdfBuilder::ItemContext(pdf, root);
+        drawing_id = pdf.add_group(group_ctx);
+    }
 
     // FUTURE: If in the future we want PDF files where the items on a page are rendered only
     // in the group for that page, then we have two mechanisms for page separation.
@@ -110,7 +132,14 @@ void PdfOutput::save(Inkscape::Extension::Output *mod, SPDocument *doc, char con
             pdf.set_label(page, label);
         }
 
-        if (drawing_id) {
+        if (paint_masters) {
+            auto const found = master_offsets.find(svg_page);
+            auto const offset = found == master_offsets.end() ? Geom::Point(0, 0) : found->second;
+            pdf_page.paint_root_children(root, [&](SPItem const *item) {
+                return MasterLayer::is_master(item) ? Geom::Affine(Geom::Translate(offset))
+                                                    : Geom::Affine(Geom::identity());
+            });
+        } else if (drawing_id) {
             pdf_page.paint_drawing(*drawing_id, doc->getRoot()->c2p);
         }
         // Page links / anchors / annotations are added in post processing.

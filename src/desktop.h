@@ -99,6 +99,7 @@ struct InkscapeApplication;
 namespace Inkscape {
 struct CanvasEvent;
 class LayerManager;
+class MasterLayerDisplay;
 class PageManager;
 class MessageContext;
 class MessageStack;
@@ -182,6 +183,7 @@ private:
     std::unique_ptr<Inkscape::Display::TemporaryItemList> _temporary_item_list;
     std::unique_ptr<Inkscape::Display::TranslucencyGroups> _translucency_groups;
     std::unique_ptr<Inkscape::Display::SnapIndicator> _snapindicator;
+    std::unique_ptr<Inkscape::MasterLayerDisplay> _master_layer_display;
 
     SPNamedView *namedview = nullptr;
     int _view_number{};

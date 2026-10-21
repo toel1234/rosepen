@@ -95,7 +95,11 @@ set(TEST_SOURCES
     object-style-test
     page-management
     page-manager-ops-test
+    # 03-02 master layer
+    master-layer-test
+    master-layer-display-test
     toolbox-groups-test
+    property-bar-context-test
     path-reverse-lpe-test
     preferences-test
     rebase-hrefs-test

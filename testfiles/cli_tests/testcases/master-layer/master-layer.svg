@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!--
+  Invariants of this fixture (03-02 task 2, do not casually change):
+
+  * Millimetre document: width/height 100mm over viewBox "0 0 100 100", i.e.
+    1 user unit = 1 mm; page sizes in user units equal millimetres.
+  * Page 1 "One" (p1) is the viewport page at the origin (0,0,100,100) and its
+    viewBox equals the root viewBox (the viewport page constraint).
+    Page 2 "Two" (p2) is 100x100 at x=110.  Page 3 "Three" (p3) is the wide
+    150x100 page at x=220, so pages mix sizes.
+  * Three top-level layers, bottom to top: master-bg (flagged master, rect bg),
+    content (c1 on page 1, c2 on page 2) and master-top (flagged master,
+    header hdr and badge over the content).  Master content is authored on
+    page 1 in real coordinates; page k>=2 shows it at page_k.origin - p1.origin,
+    anchored top-left, with no scaling on mixed page sizes.
+  * Colours are flat sRGB so every pixel sample is unambiguous:
+    bg #33cc33, c1 #cc3333, c2 #3333cc, hdr #222288, badge #ffcc00.
+  * The expectations in master-layer.expect.json are spec-derived from
+    .paul/phases/03-multipage-pdfx/03-02-PLAN.md (task 2) and its design
+    notes; contradicting observed output is a finding, never a reason to
+    loosen the checker.
+-->
+<svg
+   width="100mm"
+   height="100mm"
+   viewBox="0 0 100 100"
+   version="1.1"
+   id="master-layer"
+   inkscape:docname="master-layer.svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd">
+  <sodipodi:namedview
+     id="namedview1"
+     inkscape:document-units="mm"
+     pagecolor="#ffffff"
+     inkscape:pageopacity="1"
+     showgrid="false" />
+  <defs
+     id="defs1">
+    <view
+       id="p1"
+       viewBox="0 0 100 100"
+       inkscape:label="One" />
+    <view
+       id="p2"
+       viewBox="110 0 100 100"
+       inkscape:label="Two" />
+    <view
+       id="p3"
+       viewBox="220 0 150 100"
+       inkscape:label="Three" />
+  </defs>
+  <g
+     inkscape:groupmode="layer"
+     inkscape:master-layer="true"
+     inkscape:label="Master BG"
+     id="master-bg">
+    <rect
+       id="bg"
+       x="5"
+       y="5"
+       width="90"
+       height="90"
+       fill="#33cc33" />
+  </g>
+  <g
+     inkscape:groupmode="layer"
+     inkscape:label="Content"
+     id="content">
+    <rect
+       id="c1"
+       x="30"
+       y="30"
+       width="20"
+       height="20"
+       fill="#cc3333" />
+    <rect
+       id="c2"
+       x="140"
+       y="30"
+       width="20"
+       height="20"
+       fill="#3333cc" />
+  </g>
+  <g
+     inkscape:groupmode="layer"
+     inkscape:master-layer="true"
+     inkscape:label="Master Top"
+     id="master-top">
+    <rect
+       id="hdr"
+       x="10"
+       y="10"
+       width="80"
+       height="8"
+       fill="#222288" />
+    <rect
+       id="badge"
+       x="40"
+       y="40"
+       width="6"
+       height="6"
+       fill="#ffcc00" />
+  </g>
+</svg>

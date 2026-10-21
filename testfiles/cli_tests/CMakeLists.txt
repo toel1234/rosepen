@@ -1280,6 +1280,47 @@ add_page_ops_test(remove-contents)
 add_page_ops_test(remove-last-refused)
 add_page_ops_test(resize-all)
 
+#############################################################################################
+### master-layer render lock (03-02 task 2)                                                 ###
+#############################################################################################
+
+# Headless master-layer lock: every scenario in master-layer.expect.json flags
+# or unflags top-level layers through app.layer-master-* and page ops, exports
+# the result as SVG, then proves the model (layer-master-list), the saved flag
+# and geometry, and pixels on every page of the per-page PNG export.  With
+# capypdf the PDF stage exports the same SVG to PDF and rasterizes each page
+# through Rosepen's own PDF import, so master copies must survive the real
+# export path.  Samples are page-relative fixture millimetres; expectations
+# are spec-derived, see the plan and the fixture's invariant comment.
+function(add_master_layer_test scenario)
+    set(SOURCE_SVG "${CMAKE_CURRENT_SOURCE_DIR}/testcases/master-layer/master-layer.svg")
+    set(EXPECT_JSON "${CMAKE_CURRENT_SOURCE_DIR}/testcases/master-layer/master-layer.expect.json")
+    # Watching fixture + expectations means changes re-run cmake on change
+    watch("${SOURCE_SVG}" "${EXPECT_JSON}")
+    add_test(NAME cli_master-layer-${scenario}
+        COMMAND python3 -I ${CMAKE_CURRENT_SOURCE_DIR}/check_master_layer.py
+                $<TARGET_FILE:inkscape>
+                ${SOURCE_SVG}
+                ${EXPECT_JSON}
+                ${CMAKE_CURRENT_BINARY_DIR}/master-layer/${scenario}
+                ${scenario}
+                $<$<BOOL:${WITH_CAPYPDF}>:--pdf>)
+    set_tests_properties(cli_master-layer-${scenario} PROPERTIES
+        ENVIRONMENT "${INKSCAPE_TEST_PROFILE_DIR_ENV}/cli_master-layer-${scenario};${CMAKE_CTEST_ENV}"
+        LABELS master-layer
+        RUN_SERIAL TRUE)
+endfunction()
+
+add_master_layer_test(flags-in-file)
+add_master_layer_test(set-via-action)
+add_master_layer_test(clear-top)
+add_master_layer_test(hidden-master)
+add_master_layer_test(insert-end)
+add_master_layer_test(delete-first)
+add_master_layer_test(move-first)
+add_master_layer_test(duplicate-page)
+add_master_layer_test(no-master)
+
 # 04-01 Corel toolbox: validate the shipped group data against the upstream toolbar (orchestrator integration point)
 add_test(NAME cli_toolbox-groups
          COMMAND python3 -I ${CMAKE_CURRENT_SOURCE_DIR}/check_toolbox_groups.py

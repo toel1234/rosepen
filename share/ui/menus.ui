@@ -704,6 +704,10 @@
           <attribute name="label" translatable="yes">_Lock/Unlock Current Layer</attribute>
           <attribute name="action">win.layer-lock-toggle</attribute>
         </item>
+        <item>
+          <attribute name="label" translatable="yes">_Master Layer (All Pages)</attribute>
+          <attribute name="action">app.layer-master-toggle</attribute>
+        </item>
       </section>
       <section>
         <item>

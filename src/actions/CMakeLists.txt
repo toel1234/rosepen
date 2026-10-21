@@ -84,6 +84,8 @@ target_sources(inkscape_base PRIVATE
   actions-pages.cpp
   actions-page-manager.h
   actions-page-manager.cpp
+  actions-master-layer.h
+  actions-master-layer.cpp
   actions-svg-processing.h
   actions-svg-processing.cpp
 )

@@ -31,6 +31,7 @@
 
 #include "io/sys.h"
 
+#include "object/master-layer-display.h"
 #include "object/sp-defs.h"
 #include "object/sp-item.h"
 #include "object/sp-root.h"
@@ -455,6 +456,13 @@ ExportResult sp_export_png_file(SPDocument *doc, gchar const *filename,
 
     ebp.drawing = &drawing;
 
+    // Master layers are shown on every page; on this drawing they exist once
+    // per page after the first. Object-only exports keep the plain view.
+    std::optional<Inkscape::MasterLayerDisplay> masters;
+    if (items_only.empty()) {
+        masters.emplace(*doc, dkey);
+    }
+
     // We show all and then hide all items we don't want, instead of showing only requested items,
     // because that would not work if the shown item references something in defs
     if (!items_only.empty()) {
@@ -473,6 +481,9 @@ ExportResult sp_export_png_file(SPDocument *doc, gchar const *filename,
         write_status = sp_png_write_rgba_striped(doc, filename, width, height, xdpi, ydpi, sp_export_get_rows, &ebp, interlace, color_type, bit_depth, zlib);
         g_free(ebp.px);
     }
+
+    // Master copies must go before the root views are released.
+    masters.reset();
 
     // Hide items, this releases arenaitem
     doc->getRoot()->invoke_hide(dkey);

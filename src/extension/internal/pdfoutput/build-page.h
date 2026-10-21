@@ -13,7 +13,11 @@
 #ifndef EXTENSION_INTERNAL_PDFOUTPUT_BUILD_PAGE_H
 #define EXTENSION_INTERNAL_PDFOUTPUT_BUILD_PAGE_H
 
+#include <functional>
+
 #include "build-drawing.h"
+
+class SPRoot;
 
 namespace Inkscape::Extension::Internal::PdfBuilder {
 
@@ -26,6 +30,7 @@ public:
 
     void set_pagebox(CapyPDF_Page_Box type, Geom::Rect const &size);
     void paint_drawing(CapyPDF_TransparencyGroupId drawing_id, Geom::Affine const &affine);
+    void paint_root_children(SPRoot const *root, std::function<Geom::Affine(SPItem const *)> const &extra);
 
     void add_anchors_for_page(SPPage const *page);
     void annotate(CapyPDF_AnnotationId aid);

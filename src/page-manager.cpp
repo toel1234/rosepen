@@ -16,6 +16,7 @@
 #include "display/control/canvas-page.h"
 #include "document.h"
 #include "extension/template.h"
+#include "object/master-layer.h"
 #include "object/object-set.h"
 #include "object/sp-item.h"
 #include "object/sp-defs.h"
@@ -256,13 +257,14 @@ SPPage *PageManager::newDocumentPage(Geom::Rect rect, bool first_page)
 void PageManager::deletePage(SPPage *page, bool content)
 {
     if (page) {
+        MasterLayer::reanchor_before_delete(_document, page);
         if (content) {
-            auto const exclusive_items = page->getExclusiveItems();
+            auto const exclusive_items = MasterLayer::without_master(page->getExclusiveItems());
 
             ObjectSet items_to_delete{_document};
             items_to_delete.add(exclusive_items.begin(), exclusive_items.end());
 
-            for (auto *item : page->getOverlappingItems()) {
+            for (auto *item : MasterLayer::without_master(page->getOverlappingItems())) {
                 // Only delete objects when they rest on one page.
                 if (getPagesFor(item, false).size() == 1) {
                     items_to_delete.add(item);
@@ -303,7 +305,7 @@ SPPage *PageManager::duplicatePage()
     enablePages();
 
     auto contents = ObjectSet(_document);
-    contents.setList(_selected_page->getOverlappingItems());
+    contents.setList(MasterLayer::without_master(_selected_page->getOverlappingItems()));
 
     auto rect = _selected_page->getRect();
 
@@ -654,7 +656,7 @@ void PageManager::rotatePage(int turns)
 
     auto contents = ObjectSet();
     if (_selected_page) {
-        contents.setList(_selected_page->getOverlappingItems());
+        contents.setList(MasterLayer::without_master(_selected_page->getOverlappingItems()));
     } else {
         contents.setList(_document->getRoot()->item_list());
     }
@@ -689,7 +691,7 @@ void PageManager::fitToSelection(ObjectSet *selection, bool add_margins)
         } else {
             // This allows the pages to be resized around the items related to the page only.
             auto contents = ObjectSet();
-            contents.setList(getOverlappingItems(desktop, _selected_page));
+            contents.setList(MasterLayer::without_master(getOverlappingItems(desktop, _selected_page)));
             if (contents.isEmpty()) {
                 fitToRect(_document->getRoot()->documentPreferredBounds(), _selected_page, add_margins);
             } else {

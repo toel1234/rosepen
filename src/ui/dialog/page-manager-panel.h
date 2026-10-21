@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 /** @file
- * @brief Pages docker: a page list plus per-page size controls, driving the
- * headless app.page-* actions.
+ * @brief Pages docker: a page list plus per-page size and master-layer
+ * controls, driving the headless app actions.
  */
 /*
  * Copyright (C) 2026 Authors
@@ -40,6 +40,10 @@ class PageRow;
  *
  * The panel holds no page logic of its own: every operation activates a
  * machine-tested `app.page-*` action, exactly like the command line does.
+ *
+ * A "Master layers" section lists the top-level layers with an "All pages"
+ * check that flags a layer as master via `app.layer-master-set`; the copies
+ * on the other pages are drawn by the canvas, not managed here.
  */
 class PageManagerPanel final : public DialogBase
 {
@@ -57,6 +61,7 @@ private:
     bool is_editing() const;
     void update_sensitive();
     void update_size_section();
+    void update_master_section();
     void update_order_buttons();
 
     void on_row_selected(Gtk::ListBoxRow *row);
@@ -96,6 +101,11 @@ private:
     Gtk::Button *_apply_btn = nullptr;
     Glib::ustring _size_unit = "px"; // unit the W/H values are currently in
     bool _updating_size_ui = false;
+
+    // Master layers section
+    Gtk::Box *_master_section = nullptr;
+    Gtk::Box *_master_box = nullptr;
+    bool _updating_master_ui = false;
 
     // Live update connections, rebound per document.
     sigc::scoped_connection _pages_changed;

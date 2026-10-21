@@ -12,6 +12,7 @@
 
 #include "sp-page.h"
 #include "page-manager.h"
+#include "master-layer.h"
 
 #include <glibmm/i18n.h>
 
@@ -508,8 +509,13 @@ void SPPage::movePage(Geom::Affine translate, bool with_objects)
 {
     if (translate.isTranslation()) {
         if (with_objects) {
-            // Move each item that is overlapping this page too
-            moveItems(translate, getOverlappingItems());
+            // Move each item that is overlapping this page too. Master content only
+            // follows the first page: it is anchored to page 1, not to any other page.
+            auto items = getOverlappingItems();
+            if (getPagePosition() != 1) {
+                items = Inkscape::MasterLayer::without_master(items);
+            }
+            moveItems(translate, items);
         }
         setDesktopRect(getDesktopRect() * translate);
     }
