@@ -14,6 +14,8 @@
 #define SEEN_SP_COLOR_NOTEBOOK_H
 
 #include <gtkmm/grid.h>         // for Grid
+#include <sigc++/scoped_connection.h>
+#include <vector>
 
 #include "colors/color-set.h"
 #include "preferences.h"        // for PrefObserver
@@ -43,7 +45,7 @@ public:
 
 protected:
     void _initUI();
-    void _addPageForSpace(std::shared_ptr<Colors::Space::AnySpace> space);
+    Gtk::Widget *_addPageForSpace(std::shared_ptr<Colors::Space::AnySpace> space, bool is_document_page = false);
     void setDocument(SPDocument *document);
 
     static void _onPickerClicked(GtkWidget *widget, ColorNotebook *colorbook);
@@ -70,11 +72,23 @@ protected:
     IconComboBox* _combo = nullptr;
 
 private:
+    struct DocPage {
+        int combo_id;
+        Gtk::Widget *widget;
+    };
+
+    void _rebuildDocPages();
+    void _removeDocPages();
+
     PrefObserver _observer;
     std::vector<PrefObserver> _visibility_observers;
 
     SPDocument *_document = nullptr;
     sigc::connection _doc_replaced_connection;
+    sigc::scoped_connection _cms_changed;
+    std::vector<DocPage> _doc_pages;
+    int _next_doc_page_id = 1000;
+    bool _rebuilding_doc_pages = false;
 };
 
 } // namespace Inkscape::UI::Widget

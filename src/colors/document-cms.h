@@ -72,6 +72,10 @@ public:
 
     std::shared_ptr<Space::CMS> getSpace(std::string const &name) const;
 
+    std::shared_ptr<Space::CMS> getOutputSpace() const;
+    bool setOutputProfile(std::string const &name);
+    std::optional<Color> convertToOutputSpace(Color const &color) const;
+
     ColorProfile *getColorProfileForSpace(std::string const &name) const;
     ColorProfile *getColorProfileForSpace(std::shared_ptr<Space::CMS> space) const;
 

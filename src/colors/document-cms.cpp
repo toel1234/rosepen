@@ -18,7 +18,9 @@
 #include "io/sys.h"
 #include "object/color-profile.h"
 #include "object/sp-defs.h"
+#include "object/sp-namedview.h"
 #include "object/sp-root.h"
+#include "xml/node.h"
 
 namespace Inkscape::Colors {
 
@@ -232,8 +234,26 @@ void DocumentCMS::removeProfile(std::shared_ptr<Space::CMS> space)
 {
     auto result = std::find_if(_spaces.begin(), _spaces.end(), [space](const auto &it) { return it.second == space; });
 
-    if (result != _spaces.end())
+    if (result != _spaces.end()) {
+        bool is_output = false;
+        if (_document && space) {
+            if (auto nv = _document->getNamedView()) {
+                if (auto repr = nv->getRepr()) {
+                    if (auto name = repr->attribute("inkscape:output-profile")) {
+                        is_output = name == space->getName();
+                    }
+                }
+            }
+        }
         _spaces.erase(result);
+
+        if (is_output) {
+            if (auto nv = _document->getNamedView()) {
+                if (auto repr = nv->getRepr())
+                    repr->removeAttribute("inkscape:output-profile");
+            }
+        }
+    }
 }
 
 /**
@@ -323,6 +343,88 @@ std::shared_ptr<Space::CMS> DocumentCMS::getSpace(std::string const &name) const
     if (it != _spaces.end())
         return it->second;
     return nullptr;
+}
+
+/**
+ * Get the document's output (CMYK) color space.
+ *
+ * Reads the raw inkscape:output-profile attribute from the namedview. When the
+ * attribute is missing or does not resolve to a CMYK space, the first attached
+ * CMYK space is used as a fallback. Returns nullptr when the document has none.
+ */
+std::shared_ptr<Space::CMS> DocumentCMS::getOutputSpace() const
+{
+    if (_document) {
+        if (auto nv = _document->getNamedView()) {
+            if (auto repr = nv->getRepr()) {
+                if (auto name = repr->attribute("inkscape:output-profile")) {
+                    if (auto space = getSpace(name)) {
+                        if (space->getComponentType() == Space::Type::CMYK)
+                            return space;
+                    }
+                }
+            }
+        }
+    }
+
+    for (auto &space : getSpaces()) {
+        if (space->getComponentType() == Space::Type::CMYK)
+            return space;
+    }
+    return nullptr;
+}
+
+/**
+ * Set the document's output color space.
+ *
+ * @arg name - The document color space name; must resolve to a CMYK profile.
+ *             An empty name removes the output profile attribute.
+ *
+ * @returns true when the output profile was set or removed, false otherwise.
+ */
+bool DocumentCMS::setOutputProfile(std::string const &name)
+{
+    if (!_document)
+        return false;
+    auto nv = _document->getNamedView();
+    if (!nv)
+        return false;
+    auto repr = nv->getRepr();
+    if (!repr)
+        return false;
+
+    if (name.empty()) {
+        repr->removeAttribute("inkscape:output-profile");
+        _changed_signal.emit();
+        return true;
+    }
+
+    auto space = getSpace(name);
+    if (!space || space->getComponentType() != Space::Type::CMYK)
+        return false;
+
+    repr->setAttribute("inkscape:output-profile", name.c_str());
+    _changed_signal.emit();
+    return true;
+}
+
+/**
+ * Convert a color into the document's output color space.
+ *
+ * Returns {} when the document has no output space. Colors already in the
+ * output space are returned unchanged.
+ */
+std::optional<Color> DocumentCMS::convertToOutputSpace(Color const &color) const
+{
+    auto output = getOutputSpace();
+    if (!output)
+        return {};
+
+    auto current = color.getSpace();
+    if (current && (current == output || current->getName() == output->getName()))
+        return color;
+
+    return color.converted(output);
 }
 
 /**

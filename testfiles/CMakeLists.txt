@@ -69,6 +69,7 @@ set(TEST_SOURCES
     boolop-attr-test
     colors/cms-system-test
     colors/document-cms-test
+    colors/document-output-profile-test
     colors/dragndrop-test
     colors/color-set-test
     colors/xml-color-test

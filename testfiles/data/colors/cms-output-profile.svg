@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg" width="100mm" height="80mm" viewBox="0 0 100 80" version="1.1" id="svg1">
+  <sodipodi:namedview id="namedview1" showgrid="false" inkscape:document-units="mm" />
+  <defs id="defs1">
+    <color-profile name="cmyk-out" xlink:href="default_cmyk.icc" id="profile1" />
+  </defs>
+  <rect style="fill:#ff0000;stroke:device-cmyk(0 0 0 1)" id="r1" width="20" height="20" x="10" y="10" />
+  <rect style="fill:#907f6f icc-color(cmyk-out, 0.1, 0.2, 0.3, 0.4)" id="r2" width="20" height="20" x="40" y="10" />
+</svg>

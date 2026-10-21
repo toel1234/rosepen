@@ -50,18 +50,24 @@
 #include <thread>
 
 #include <giomm/file.h>
+#include <glibmm/fileutils.h>
 #include <glibmm/i18n.h>  // Internationalization
 #include <gtkmm/application.h>
 
 #include "inkscape-version-info.h"
 #include "inkscape-window.h"
 #include "auto-save.h"              // Auto-save
+#include "colors/document-cms.h"
+#include "colors/spaces/enum.h"
 #include "desktop.h"                // Access to window
 #include "document.h"
+#include "document-undo.h"
 #include "document-update.h"
 #include "file.h"                   // sp_file_convert_dpi
 #include "inkscape.h"               // Inkscape::Application
+#include "object/color-profile.h"
 #include "object/sp-namedview.h"
+#include "preferences.h"
 #include "selection.h"
 #include "path-prefix.h"            // Data directory
 
@@ -150,6 +156,19 @@ SPDocument *InkscapeApplication::document_new(std::string const &template_filena
     }
 
     auto doc = document_add(std::move(doc_uniq));
+
+    // Attach the preferred default output profile to the new document.
+    auto prefs = Inkscape::Preferences::get();
+    auto output_profile = prefs->getString("/options/document/outputprofile/uri");
+    if (!output_profile.empty() && Glib::file_test(output_profile, Glib::FileTest::EXISTS)) {
+        Inkscape::DocumentUndo::ScopedInsensitive no_undo(doc);
+        auto intent = static_cast<Inkscape::Colors::RenderingIntent>(
+            prefs->getInt("/options/document/outputprofile/intent"));
+        auto &cms = doc->getDocumentCMS();
+        if (auto name = cms.attachProfileToDoc(output_profile.raw(), Inkscape::ColorProfileStorage::HREF_FILE, intent)) {
+            cms.setOutputProfile(*name);
+        }
+    }
 
     // Set viewBox if it doesn't exist.
     if (!doc->getRoot()->viewBox_set) {

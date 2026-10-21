@@ -29,6 +29,7 @@
 
 #include "colors/cms/profile.h"
 #include "colors/document-cms.h"
+#include "colors/spaces/cms.h"
 #include "inkscape-window.h"
 #include "object/color-profile.h"
 #include "object/sp-guide.h"
@@ -711,6 +712,57 @@ void DocumentProperties::populate_linked_profiles_box()
             row[_LinkedProfilesListColumns.nameColumn] = profile->getName();
         }
     }
+    populate_output_profile_list();
+}
+
+/// Populates the output profile combo box with the document's CMYK profiles.
+void DocumentProperties::populate_output_profile_list()
+{
+    _updating_output_profile = true;
+    _OutputProfileList.remove_all();
+    _OutputProfileNames.clear();
+    _OutputProfileList.append(_("None"));
+
+    int active_row = 0;
+    if (auto document = getDocument()) {
+        auto &cms = document->getDocumentCMS();
+        auto output = cms.getOutputSpace();
+        for (auto &space : cms.getSpaces()) {
+            if (space->getComponentType() != Inkscape::Colors::Space::Type::CMYK) {
+                continue;
+            }
+            auto const &name = space->getName();
+            _OutputProfileNames.push_back(name);
+            _OutputProfileList.append(name);
+            if (output && name == output->getName()) {
+                active_row = _OutputProfileNames.size();
+            }
+        }
+    }
+    _OutputProfileList.set_active(active_row);
+    _updating_output_profile = false;
+}
+
+void DocumentProperties::onOutputProfileChange()
+{
+    if (_updating_output_profile) {
+        return;
+    }
+    auto document = getDocument();
+    if (!document) {
+        return;
+    }
+    int row = _OutputProfileList.get_active_row_number();
+    if (row < 0) {
+        return;
+    }
+    std::string name;
+    if (row > 0 && static_cast<std::size_t>(row) <= _OutputProfileNames.size()) {
+        name = _OutputProfileNames[row - 1];
+    }
+    if (document->getDocumentCMS().setOutputProfile(name)) {
+        DocumentUndo::done(document, RC_("Undo", "Set Output Profile"), "");
+    }
 }
 
 void DocumentProperties::onColorProfileSelectRow()
@@ -799,6 +851,19 @@ void DocumentProperties::build_cms()
     _unlink_btn.set_valign(Gtk::Align::CENTER);
     _page_cms->table().attach(_unlink_btn, 2, row, 1, 1);
 
+    row++;
+
+    auto const label_output = Gtk::make_managed<Gtk::Label>("", Gtk::Align::START);
+    label_output->set_text(_("Output (CMYK) profile:"));
+    label_output->set_hexpand();
+    label_output->set_halign(Gtk::Align::START);
+    label_output->set_valign(Gtk::Align::CENTER);
+    _page_cms->table().attach(*label_output, 0, row, 1, 1);
+
+    _OutputProfileList.set_hexpand();
+    _OutputProfileList.set_valign(Gtk::Align::CENTER);
+    _page_cms->table().attach(_OutputProfileList, 1, row, 2, 1);
+
     // Set up the Available Profiles combo box
     _AvailableProfilesListStore = Gtk::ListStore::create(_AvailableProfilesListColumns);
     _AvailableProfilesList.set_model(_AvailableProfilesListStore);
@@ -824,6 +889,8 @@ void DocumentProperties::build_cms()
     _unlink_btn.signal_clicked().connect(sigc::mem_fun(*this, &DocumentProperties::removeSelectedProfile));
 
     _LinkedProfilesList.get_selection()->signal_changed().connect( sigc::mem_fun(*this, &DocumentProperties::onColorProfileSelectRow) );
+
+    _OutputProfileList.signal_changed().connect( sigc::mem_fun(*this, &DocumentProperties::onOutputProfileChange) );
 
     connect_remove_popup_menu(_LinkedProfilesList, _popoverbin, sigc::mem_fun(*this, &DocumentProperties::removeSelectedProfile));
 }

@@ -11,13 +11,20 @@
 #include <giomm.h>  // Not <gtkmm.h>! To eventually allow a headless version!
 #include <glibmm/i18n.h>
 
+#include <functional>
+
 #include "actions-object.h"
 #include "actions-helper.h"
+#include "colors/document-cms.h"
 #include "document-undo.h"
 #include "inkscape-application.h"
+#include "object/sp-item-group.h"
+#include "object/sp-item.h"
 #include "object/sp-star.h"
 #include "preferences.h"
 #include "selection.h"
+#include "style.h"
+#include "xml/repr.h"
 
 #include "live_effects/effect.h"
 #include "live_effects/lpe-powerclip.h"
@@ -508,6 +515,63 @@ object_stroke_to_path(InkscapeApplication *app)
     selection->strokesToPaths();
 }
 
+void
+object_convert_to_output_profile(InkscapeApplication *app)
+{
+    auto selection = app->get_active_selection();
+    if (!selection || selection->isEmpty()) {
+        show_output("action:object_convert_to_output_profile: selection empty!");
+        return;
+    }
+
+    auto document = selection->document();
+    if (!document) {
+        return;
+    }
+
+    auto &cms = document->getDocumentCMS();
+    if (!cms.getOutputSpace()) {
+        show_output(_("No output (CMYK) profile is set for this document."));
+        return;
+    }
+
+    auto convert_paint = [&](SPItem *item, SPIPaint const &paint, char const *property) {
+        if (!paint.isColor()) {
+            return;
+        }
+        auto color = cms.convertToOutputSpace(paint.getColor());
+        if (!color) {
+            return;
+        }
+        SPCSSAttr *css = sp_repr_css_attr(item->getRepr(), "style");
+        sp_repr_css_set_property(css, property, color->toString().c_str());
+        sp_repr_css_change(item->getRepr(), css, "style");
+        sp_repr_css_attr_unref(css);
+    };
+
+    std::function<void(SPItem *)> convert_item = [&](SPItem *item) {
+        if (!item || !item->style) {
+            return;
+        }
+        convert_paint(item, item->style->fill, "fill");
+        convert_paint(item, item->style->stroke, "stroke");
+
+        if (auto group = cast<SPGroup>(item)) {
+            for (auto &child : group->children) {
+                if (auto child_item = cast<SPItem>(&child)) {
+                    convert_item(child_item);
+                }
+            }
+        }
+    };
+
+    for (auto item : selection->items()) {
+        convert_item(item);
+    }
+
+    Inkscape::DocumentUndo::done(document, RC_("Undo", "Convert to output profile"), "");
+}
+
 const Glib::ustring SECTION = NC_("Action Section", "Object");
 
 std::vector<std::vector<Glib::ustring>> raw_data_object =
@@ -522,6 +586,7 @@ std::vector<std::vector<Glib::ustring>> raw_data_object =
 
     {"app.object-unlink-clones",      N_("Unlink Clones"),           SECTION, N_("Unlink clones and symbols")},
     {"app.object-to-path",            N_("Object to Path"),          SECTION, N_("Convert shapes to paths")},
+    {"app.object-convert-to-output-profile", N_("Convert to Output Profile"), SECTION, N_("Convert flat fill and stroke colors of selected objects into the document output (CMYK) ICC profile")},
     {"app.object-add-corners-lpe",    N_("Add Corners LPE"),         SECTION, N_("Add Corners Live Path Effect to path")},
     {"app.object-stroke-to-path",     N_("Stroke to Path"),          SECTION, N_("Convert strokes to paths")},
 
@@ -572,6 +637,7 @@ add_actions_object(InkscapeApplication* app)
 
     gapp->add_action(                "object-unlink-clones",            sigc::bind(sigc::ptr_fun(&object_unlink_clones),          app));
     gapp->add_action(                "object-to-path",                  sigc::bind(sigc::ptr_fun(&object_to_path),                app));
+    gapp->add_action(                "object-convert-to-output-profile", sigc::bind(sigc::ptr_fun(&object_convert_to_output_profile), app));
     gapp->add_action(                "object-add-corners-lpe",          sigc::bind(sigc::ptr_fun(&object_add_corners_lpe),        app));
     gapp->add_action(                "object-stroke-to-path",           sigc::bind(sigc::ptr_fun(&object_stroke_to_path),         app));
 

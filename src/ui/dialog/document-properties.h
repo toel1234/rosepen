@@ -29,6 +29,7 @@
 #include <gtkmm/listbox.h>
 #include <gtkmm/sizegroup.h>
 #include <gtkmm/combobox.h>
+#include <gtkmm/comboboxtext.h>
 #include <gtkmm/notebook.h>
 #include <gtkmm/scrolledwindow.h>
 #include <gtkmm/textview.h>
@@ -93,6 +94,8 @@ private:
     virtual void  on_response (int);
     void  populate_available_profiles();
     void  populate_linked_profiles_box();
+    void  populate_output_profile_list();
+    void  onOutputProfileChange();
     void  linkSelectedProfile();
     void  removeSelectedProfile();
     void  onColorProfileSelectRow();
@@ -172,6 +175,10 @@ private:
     Glib::RefPtr<Gtk::ListStore> _LinkedProfilesListStore;
     Gtk::TreeView _LinkedProfilesList;
     Gtk::ScrolledWindow _LinkedProfilesListScroller;
+
+    Gtk::ComboBoxText _OutputProfileList;
+    std::vector<std::string> _OutputProfileNames;
+    bool _updating_output_profile = false;
 
     //---------------------------------------------------------------
     Gtk::Button         _external_add_btn;

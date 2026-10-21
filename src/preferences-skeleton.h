@@ -287,6 +287,9 @@ static char const preferences_skeleton[] =
        gamutwarn="0"
        bpc="0"
        uri="" />
+    <group id="document">
+      <group id="outputprofile" uri="" intent="0"/>
+    </group>
     <group id="savewindowgeometry" value="1"/>
     <group id="defaultoffsetwidth" value="2px"/>
     <group id="defaultscale" value="2px"/>

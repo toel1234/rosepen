@@ -16,13 +16,17 @@
 #undef SPCS_PREVIEW
 #define noDUMP_CHANGE_INFO
 
+#include <algorithm>
 #include <glibmm/i18n.h>
 #include <gtkmm/stackswitcher.h>
 
 #include "desktop.h"
+#include "document.h"
 #include "inkscape.h"
+#include "colors/document-cms.h"
 #include "colors/manager.h"
 #include "colors/spaces/base.h"
+#include "colors/spaces/cms.h"
 #include "ui/dialog-events.h"
 #include "ui/icon-loader.h"
 #include "ui/pack.h"
@@ -61,8 +65,69 @@ ColorNotebook::~ColorNotebook()
 
 void ColorNotebook::setDocument(SPDocument *document)
 {
+    _cms_changed.disconnect();
     _document = document;
-    // XXX Watch for new icc spaces here using the profile tracker
+    _rebuildDocPages();
+
+    if (_document) {
+        _cms_changed = _document->getDocumentCMS().connectChanged(
+            sigc::mem_fun(*this, &ColorNotebook::_rebuildDocPages));
+    }
+}
+
+void ColorNotebook::_rebuildDocPages()
+{
+    if (_rebuilding_doc_pages) {
+        return;
+    }
+    _rebuilding_doc_pages = true;
+
+    _removeDocPages();
+
+    if (_document) {
+        auto &cms = _document->getDocumentCMS();
+        auto output = cms.getOutputSpace();
+        auto spaces = cms.getSpaces();
+
+        auto add_page = [this](std::shared_ptr<Colors::Space::CMS> const &space) {
+            if (!space || !space->hasValidCmsProfile()) {
+                return;
+            }
+            Glib::ustring name = space->getName();
+            // Don't shadow one of the universal pages with a profile of the same name.
+            if (_book->get_child_by_name(name)) {
+                return;
+            }
+            auto *page = _addPageForSpace(space, true);
+            _doc_pages.push_back({_next_doc_page_id - 1, page});
+        };
+
+        // The document output profile gets the first page.
+        if (output) {
+            add_page(output);
+        }
+
+        for (auto const &space : spaces) {
+            if (output && (space == output || space->getName() == output->getName())) {
+                continue;
+            }
+            add_page(space);
+        }
+    }
+
+    _rebuilding_doc_pages = false;
+}
+
+void ColorNotebook::_removeDocPages()
+{
+    for (auto const &page : _doc_pages) {
+        // IconComboBox has no row removal API, so hide the row instead.
+        _combo->set_row_visible(page.combo_id, false);
+        if (page.widget && page.widget->get_parent() == _book) {
+            _book->remove(*page.widget);
+        }
+    }
+    _doc_pages.clear();
 }
 
 void ColorNotebook::set_label(const Glib::ustring& label) {
@@ -108,7 +173,20 @@ void ColorNotebook::_initUI()
     _label->set_margin_end(XPAD);
     UI::pack_start(*_buttonbox, *_label, true, true);
     UI::pack_end(*_buttonbox, *_combo, false, false);
-    _combo->signal_changed().connect([this](int id){ _setCurrentPage(id, false); });
+    _combo->signal_changed().connect([this](int id){
+        if (_rebuilding_doc_pages) {
+            return;
+        }
+        for (auto const &page : _doc_pages) {
+            if (page.combo_id == id) {
+                if (page.widget) {
+                    _book->set_visible_child(*page.widget);
+                }
+                return;
+            }
+        }
+        _setCurrentPage(id, false);
+    });
 
     _buttonbox->set_margin_start(XPAD);
     _buttonbox->set_margin_end(XPAD);
@@ -199,9 +277,12 @@ void ColorNotebook::_initUI()
 
     // remember the page we switched to
     _book->property_visible_child_name().signal_changed().connect([this]() {
-        // We don't want to remember auto cms selection
+        // We don't want to remember auto cms selection or per-document profile pages
         Glib::ustring name = _book->get_visible_child_name();
-        if (get_visible() && !name.empty() && name != "CMS") {
+        auto *visible_page = _book->get_visible_child();
+        bool is_doc_page = std::any_of(_doc_pages.begin(), _doc_pages.end(),
+                                       [visible_page](DocPage const &page) { return page.widget == visible_page; });
+        if (get_visible() && !name.empty() && name != "CMS" && !is_doc_page) {
             Inkscape::Preferences *prefs = Inkscape::Preferences::get();
             prefs->setString("/colorselector/page", name);
         }
@@ -289,11 +370,18 @@ void ColorNotebook::_setCurrentPage(int i, bool sync_combo)
 
     _book->set_visible_child(*page);
     if (sync_combo) {
-        _combo->set_active_by_id(i);
+        int combo_id = i;
+        for (auto const &doc_page : _doc_pages) {
+            if (doc_page.widget == page) {
+                combo_id = doc_page.combo_id;
+                break;
+            }
+        }
+        _combo->set_active_by_id(combo_id);
     }
 }
 
-void ColorNotebook::_addPageForSpace(std::shared_ptr<Colors::Space::AnySpace> space)
+Gtk::Widget *ColorNotebook::_addPageForSpace(std::shared_ptr<Colors::Space::AnySpace> space, bool is_document_page)
 {
     auto selector_widget = Gtk::make_managed<ColorPage>(space, _colors);
     auto mode_name = space->getName();
@@ -301,7 +389,14 @@ void ColorNotebook::_addPageForSpace(std::shared_ptr<Colors::Space::AnySpace> sp
 
     auto const n_pages = UI::get_n_children(*_book);
     auto const page_num = n_pages - 1;
-    _combo->add_row(space->getIcon(), mode_name, page_num);
+    // Document pages get a stable id so re-adding them never collides with a hidden row.
+    int const combo_id = is_document_page ? _next_doc_page_id++ : static_cast<int>(page_num);
+    _combo->add_row(space->getIcon(), mode_name, combo_id);
+
+    if (is_document_page) {
+        // No per-profile preference node; the document drives these pages.
+        return selector_widget;
+    }
 
     auto prefs = Inkscape::Preferences::get();
     auto obs = prefs->createObserver(space->getPrefsPath() + "visible", [this,selector_widget,page_num](const Preferences::Entry& value) {
@@ -310,6 +405,8 @@ void ColorNotebook::_addPageForSpace(std::shared_ptr<Colors::Space::AnySpace> sp
     });
     obs->call();
     _visibility_observers.emplace_back(std::move(obs));
+
+    return selector_widget;
 }
 
 void ColorNotebook::setCurrentColor(std::shared_ptr<Colors::ColorSet> colors)
