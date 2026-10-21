@@ -65,7 +65,7 @@ public:
     /* Configuration */
 
     // Desktop (Todo: Remove.)
-    void set_desktop(SPDesktop *desktop) { _desktop = desktop; }
+    void set_desktop(SPDesktop *desktop);
     SPDesktop *get_desktop() const { return _desktop; }
 
     // Drawing
@@ -98,7 +98,7 @@ public:
     void set_antialiasing_enabled(bool enabled);
 
     // CMS
-    void set_cms_active(bool active) { _cms_active = active; }
+    void set_cms_active(bool active);
     bool get_cms_active() const { return _cms_active; }
 
     /* Observers */
@@ -203,6 +203,9 @@ private:
     bool _cms_active = false;
     std::shared_ptr<Colors::CMS::TransformSurface> _cms_transform; ///< The lcms transform to apply to canvas.
     void set_cms_transform(); ///< Set the lcms transform.
+    void connect_output_profile(); ///< Track the current document's output profile.
+    sigc::scoped_connection _document_replaced_connection;
+    sigc::scoped_connection _output_profile_connection;
 
     /* Internal state */
 

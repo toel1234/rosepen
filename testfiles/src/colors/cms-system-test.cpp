@@ -11,6 +11,8 @@
 
 #include "colors/cms/profile.h"
 #include "colors/cms/system.h"
+#include "colors/cms/transform-surface.h"
+#include "colors/spaces/enum.h"
 #include "preferences.h"
 
 static std::string icc_dir = INKSCAPE_TESTS_DIR "/data/colors/";
@@ -38,7 +40,21 @@ protected:
         prefs->setString("/options/displayprofile/uri", display_profile);
         prefs->setBool("/options/displayprofile/enabled", true);
     }
-    void TearDown() override {}
+    void TearDown() override
+    {
+        Inkscape::Preferences *prefs = Inkscape::Preferences::get();
+        prefs->setBool("/options/softproof/enable", false);
+        prefs->setBool("/options/softproof/gamutwarn", false);
+        prefs->setString("/options/softproof/gamutcolor", "#808080");
+        prefs->setInt("/options/softproof/intent", 0);
+        prefs->setBool("/options/softproof/bpc", false);
+        prefs->setString("/options/softproof/uri", "");
+    }
+
+    std::shared_ptr<Inkscape::Colors::CMS::Profile> cmykProfile()
+    {
+        return cms->getProfile("Artifex CMYK SWOP Profile");
+    }
     Inkscape::Colors::CMS::System *cms = nullptr;
 };
 
@@ -130,6 +146,141 @@ TEST_F(ColorCmsSystem, refreshProfiles)
     cms->clearDirectoryPaths();
     cms->refreshProfiles();
     ASSERT_GE(cms->getDirectoryPaths().size(), 5);
+}
+
+// ================= Soft proofing ================= //
+
+TEST_F(ColorCmsSystem, selectProofProfileDisabled)
+{
+    auto document_output = cmykProfile();
+    ASSERT_TRUE(document_output);
+
+    ProofSettings settings;
+    settings.enabled = false;
+    settings.uri = grb_profile;
+
+    auto by_uri = [](std::string const &) -> std::shared_ptr<Profile> { return nullptr; };
+    EXPECT_EQ(System::selectProofProfile(settings, document_output, by_uri), nullptr);
+}
+
+TEST_F(ColorCmsSystem, selectProofProfileDocumentWins)
+{
+    auto document_output = cmykProfile();
+    auto uri_profile = cms->getProfile("Swapped Red and Green");
+    ASSERT_TRUE(document_output);
+    ASSERT_TRUE(uri_profile);
+
+    ProofSettings settings;
+    settings.enabled = true;
+    settings.uri = grb_profile;
+
+    auto by_uri = [&](std::string const &uri) -> std::shared_ptr<Profile> {
+        return uri == grb_profile ? uri_profile : nullptr;
+    };
+    EXPECT_EQ(System::selectProofProfile(settings, document_output, by_uri), document_output);
+}
+
+TEST_F(ColorCmsSystem, selectProofProfileFromUri)
+{
+    auto uri_profile = cmykProfile();
+    ASSERT_TRUE(uri_profile);
+
+    ProofSettings settings;
+    settings.enabled = true;
+    settings.uri = uri_profile->getPath();
+
+    auto by_uri = [&](std::string const &uri) -> std::shared_ptr<Profile> {
+        return uri == settings.uri ? uri_profile : nullptr;
+    };
+    EXPECT_EQ(System::selectProofProfile(settings, nullptr, by_uri), uri_profile);
+}
+
+TEST_F(ColorCmsSystem, selectProofProfileUnresolved)
+{
+    ProofSettings settings;
+    settings.enabled = true;
+    settings.uri = "/does/not/exist.icc";
+
+    auto by_uri = [](std::string const &) -> std::shared_ptr<Profile> { return nullptr; };
+    EXPECT_EQ(System::selectProofProfile(settings, nullptr, by_uri), nullptr);
+}
+
+TEST_F(ColorCmsSystem, getProofTransform)
+{
+    Inkscape::Preferences *prefs = Inkscape::Preferences::get();
+    prefs->setBool("/options/softproof/enable", true);
+
+    auto document_output = cmykProfile();
+    ASSERT_TRUE(document_output);
+
+    auto proof = cms->getProofTransform(document_output);
+    ASSERT_TRUE(proof);
+    EXPECT_TRUE(proof->isValid());
+
+    auto display = cms->getDisplayTransform();
+    ASSERT_TRUE(display);
+    EXPECT_NE(proof.get(), display.get());
+}
+
+TEST_F(ColorCmsSystem, getProofTransformWithoutProofIsDisplay)
+{
+    Inkscape::Preferences *prefs = Inkscape::Preferences::get();
+    prefs->setBool("/options/softproof/enable", false);
+
+    auto display = cms->getDisplayTransform();
+    auto no_proof = cms->getProofTransform(cmykProfile());
+    EXPECT_EQ(no_proof.get(), display.get());
+}
+
+TEST_F(ColorCmsSystem, getProofTransformGamutAlarm)
+{
+    Inkscape::Preferences *prefs = Inkscape::Preferences::get();
+    prefs->setBool("/options/softproof/enable", true);
+    prefs->setBool("/options/softproof/gamutwarn", true);
+    prefs->setString("/options/softproof/gamutcolor", "#00ff00");
+
+    auto document_output = cmykProfile();
+    ASSERT_TRUE(document_output);
+
+    auto proof = cms->getProofTransform(document_output);
+    ASSERT_TRUE(proof);
+    ASSERT_TRUE(proof->isValid());
+
+    // Pure blue is outside the CMYK output gamut -> alarm colour.
+    uint8_t const input[4] = {0, 0, 255, 255};
+    uint8_t alarm[4] = {};
+    proof->do_transform(1, 1, input, alarm);
+    EXPECT_NEAR(alarm[0], 0, 1);
+    EXPECT_NEAR(alarm[1], 255, 1);
+    EXPECT_NEAR(alarm[2], 0, 1);
+    EXPECT_NEAR(alarm[3], 255, 1);
+
+    prefs->setBool("/options/softproof/gamutwarn", false);
+    auto proof_plain = cms->getProofTransform(document_output);
+    ASSERT_TRUE(proof_plain);
+    uint8_t plain[4] = {};
+    proof_plain->do_transform(1, 1, input, plain);
+    EXPECT_FALSE(plain[0] == 0 && plain[1] == 255 && plain[2] == 0);
+}
+
+TEST_F(ColorCmsSystem, getProofTransformCache)
+{
+    Inkscape::Preferences *prefs = Inkscape::Preferences::get();
+    prefs->setBool("/options/softproof/enable", true);
+
+    auto document_output = cmykProfile();
+    ASSERT_TRUE(document_output);
+
+    auto first = cms->getProofTransform(document_output);
+    auto second = cms->getProofTransform(document_output);
+    ASSERT_TRUE(first);
+    ASSERT_TRUE(second);
+    EXPECT_EQ(first.get(), second.get());
+
+    prefs->setInt("/options/softproof/intent", 1);
+    auto third = cms->getProofTransform(document_output);
+    ASSERT_TRUE(third);
+    EXPECT_NE(first.get(), third.get());
 }
 
 } // namespace

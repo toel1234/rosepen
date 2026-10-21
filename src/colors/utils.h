@@ -9,6 +9,7 @@
 
 #include <algorithm>
 #include <cstdint>
+#include <memory>
 #include <optional>
 #include <span>
 #include <string>
@@ -81,6 +82,20 @@ constexpr uint32_t compose_argb32(double a, double r, double g, double b) {
 namespace Inkscape::Colors {
 
 class Color;
+namespace Space {
+class AnySpace;
+} // namespace Space
+
+/**
+ * Warnings about how a color behaves in a document's output color space.
+ */
+struct GamutStatus
+{
+    bool out_of_gamut = false;
+    bool over_inked = false;
+};
+
+GamutStatus gamut_status(Color const &color, std::shared_ptr<Space::AnySpace> const &output);
 
 uint32_t hex_to_rgba(std::string const &value);
 std::vector<double> rgba_to_values(uint32_t rgba, bool opacity);

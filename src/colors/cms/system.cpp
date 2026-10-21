@@ -10,9 +10,11 @@
 
 #include "system.h"
 
+#include <array>
 #include <glibmm.h> // home-dir and filename building
 #include <iomanip>
 
+#include "colors/color.h"
 #include "io/resource.h"
 #include "profile.h"
 #include "transform-surface.h"
@@ -39,8 +41,33 @@ System::System()
     _prefs_observer = prefs->createObserver("/options/displayprofile", [this]() {
         _display_profile.reset();
         _display_transform.reset();
+        _proof_key.reset();
     });
 }
+
+namespace {
+
+RenderingIntent intent_from_pref(int value)
+{
+    switch (value) {
+        case 1:
+            return RenderingIntent::RELATIVE_COLORIMETRIC;
+        case 2:
+            return RenderingIntent::SATURATION;
+        case 3:
+            return RenderingIntent::ABSOLUTE_COLORIMETRIC;
+        default:
+            return RenderingIntent::PERCEPTUAL;
+    }
+}
+
+bool is_proofing_profile(Profile const &profile)
+{
+    auto const profile_class = profile.getProfileClass();
+    return profile_class == cmsSigOutputClass || profile_class == cmsSigColorSpaceClass;
+}
+
+} // namespace
 
 /**
  * Search for system ICC profile files and add them to list.
@@ -279,6 +306,128 @@ const std::shared_ptr<TransformSurface> &System::getDisplayTransform()
         }
     }
     return _display_transform;
+}
+
+/**
+ * Read the soft-proofing preferences, applying the same defaults as the
+ * preferences skeleton.
+ */
+ProofSettings System::readProofSettings()
+{
+    Inkscape::Preferences *prefs = Inkscape::Preferences::get();
+
+    ProofSettings settings;
+    settings.enabled = prefs->getBool("/options/softproof/enable", false);
+    settings.gamut_warn = prefs->getBool("/options/softproof/gamutwarn", false);
+    settings.gamut_color = prefs->getColor("/options/softproof/gamutcolor", "#808080").toRGBA();
+    settings.intent = intent_from_pref(prefs->getIntLimited("/options/softproof/intent", 0, 0, 3));
+    settings.bpc = prefs->getBool("/options/softproof/bpc", false);
+    settings.uri = prefs->getString("/options/softproof/uri");
+    return settings;
+}
+
+/**
+ * Pick the profile used to proof the document output.
+ *
+ * The document's output profile takes precedence over the profile selected in
+ * the preferences. A disabled setting or an unresolved profile means proofing
+ * is silently off.
+ */
+std::shared_ptr<Profile>
+System::selectProofProfile(ProofSettings const &settings, std::shared_ptr<Profile> const &document_output,
+                           std::function<std::shared_ptr<Profile>(std::string const &)> const &by_uri)
+{
+    if (!settings.enabled)
+        return nullptr;
+
+    if (document_output)
+        return document_output;
+
+    if (!settings.uri.empty() && by_uri) {
+        if (auto profile = by_uri(settings.uri); profile && is_proofing_profile(*profile)) {
+            return profile;
+        }
+    }
+    return nullptr;
+}
+
+/**
+ * Get the transform which simulates the document output on the display.
+ *
+ * This is the display transform with a proofing step appended. When no proof
+ * profile can be resolved the plain display transform is returned so behaviour
+ * is unchanged. The transform is cached until the settings or profiles change.
+ */
+std::shared_ptr<TransformSurface> System::getProofTransform(std::shared_ptr<Profile> const &document_output)
+{
+    auto const settings = readProofSettings();
+
+    auto by_uri = [](std::string const &uri) { return Profile::create_from_uri(uri, false); };
+    auto proof_profile = selectProofProfile(settings, document_output, by_uri);
+
+    if (!proof_profile) {
+        return getDisplayTransform();
+    }
+
+    Inkscape::Preferences *prefs = Inkscape::Preferences::get();
+    bool const display_enabled = prefs->getIntLimited("/options/displayprofile/enabled", false);
+    int const display_intent = prefs->getIntLimited("/options/displayprofile/intent", 0, 0, 3);
+    auto const display_uri = prefs->getString("/options/displayprofile/uri");
+
+    bool updated = false;
+    auto display_profile = display_enabled ? getDisplayProfile(updated) : nullptr;
+    if (!display_profile) {
+        display_profile = Profile::create_srgb();
+    }
+
+    ProofCacheKey key{
+        settings,
+        proof_profile->getId() + ':' + proof_profile->getChecksum(),
+        display_enabled,
+        display_intent,
+        display_uri,
+    };
+
+    if (_proof_key && *_proof_key == key) {
+        if (_proof_transform && _proof_transform->isValid()) {
+            return _proof_transform;
+        }
+        return getDisplayTransform();
+    }
+
+    if (settings.gamut_warn) {
+        std::array<cmsUInt16Number, cmsMAXCHANNELS> codes{};
+        auto const color = settings.gamut_color;
+        codes[0] = ((color >> 24) & 0xff) * 257;
+        codes[1] = ((color >> 16) & 0xff) * 257;
+        codes[2] = ((color >> 8) & 0xff) * 257;
+        cmsSetAlarmCodesTHR(TransformSurface::get_context(), codes.data());
+    }
+
+    TransformSurface::Format in = {
+        .profile = Profile::create_srgb(),
+        .byte_count = sizeof(char),
+        .integral = true,
+    };
+    TransformSurface::Format out = {
+        .profile = display_profile,
+        .byte_count = sizeof(char),
+        .integral = true,
+    };
+
+    auto transform = std::make_shared<TransformSurface>(in, out, intent_from_pref(display_intent), proof_profile,
+                                                        settings.intent, settings.gamut_warn, settings.bpc);
+
+    _proof_key = key;
+    _proof_transform = transform;
+
+    if (!transform->isValid()) {
+        g_warning("System::getProofTransform: lcms failed to build the proofing transform for '%s'",
+                  proof_profile->getName().c_str());
+        return getDisplayTransform();
+    }
+
+    return transform;
 }
 
 } // namespace Inkscape::Colors::CMS

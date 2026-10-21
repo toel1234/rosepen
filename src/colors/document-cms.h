@@ -58,6 +58,10 @@ public:
     void removeProfile(std::shared_ptr<Space::CMS> space);
 
     sigc::connection connectChanged(const sigc::slot<void()> &slot) { return _changed_signal.connect(slot); }
+    sigc::connection connectOutputProfileChanged(const sigc::slot<void()> &slot)
+    {
+        return _output_profile_changed.connect(slot);
+    }
     sigc::connection connectModified(const sigc::slot<void(std::shared_ptr<Space::AnySpace>)> &slot)
     {
         return _modified_signal.connect(slot);
@@ -91,6 +95,7 @@ private:
 
     sigc::scoped_connection _resource_connection;
     sigc::signal<void()> _changed_signal;
+    sigc::signal<void()> _output_profile_changed;
 
     mutable std::map<std::string, std::shared_ptr<Space::CMS>> _spaces;
 

@@ -9,6 +9,10 @@
 
 #include <gtest/gtest.h>
 
+#include <algorithm>
+#include <sstream>
+
+#include "../test-utils.h"
 #include "colors/cms/profile.h"
 #include "colors/color.h"
 #include "colors/manager.h"
@@ -216,6 +220,107 @@ TEST(ColorsSpacesCms, overInk)
     space = CMS(4, Space::Type::RGB);
     ASSERT_FALSE(space.testOverInk(0.21));
     ASSERT_FALSE(space.testOverInk(0.19));
+}
+
+/**
+ * Policy (1): opacity is never part of the icc-color string or its hex fallback.
+ */
+TEST(ColorsSpacesCms, opacityPolicy)
+{
+    auto cmyk_profile = Inkscape::Colors::CMS::Profile::create_from_uri(cmyk_icc);
+    auto cmyk = std::make_shared<CMS>(cmyk_profile);
+
+    auto color = Color(cmyk, {0.1, 0.2, 0.3, 0.4});
+    EXPECT_FALSE(color.hasOpacity());
+    color.addOpacity(0.5);
+    EXPECT_TRUE(color.hasOpacity());
+
+    auto const with_opacity = color.toString(true);
+    auto const without_opacity = color.toString(false);
+
+    // Requesting opacity does not change the string.
+    EXPECT_EQ(with_opacity, without_opacity);
+
+    auto const space_at = with_opacity.find(' ');
+    ASSERT_NE(space_at, std::string::npos);
+
+    // The fallback hex is #rrggbb, never #rrggbbaa.
+    auto const hex = with_opacity.substr(0, space_at);
+    EXPECT_EQ(hex.size(), 7u);
+    EXPECT_EQ(hex.front(), '#');
+
+    // Profile name plus exactly four icc channels.
+    auto const icc = with_opacity.substr(space_at + 1);
+    EXPECT_EQ(icc.rfind("icc-color(", 0), 0u);
+    EXPECT_EQ(std::count(icc.begin(), icc.end(), ','), 4);
+}
+
+/**
+ * Round-trip at the Color plus separate-opacity level: the icc channels survive
+ * while opacity is carried by the sibling *-opacity property (SPStyle is not
+ * part of this unit target).
+ */
+TEST(ColorsSpacesCms, opacityRoundTrip)
+{
+    auto cmyk_profile = Inkscape::Colors::CMS::Profile::create_from_uri(cmyk_icc);
+    auto cmyk = std::make_shared<CMS>(cmyk_profile);
+
+    std::vector<double> const channels{0.1, 0.2, 0.3, 0.4};
+    auto color = Color(cmyk, channels);
+    color.addOpacity(0.5);
+
+    auto const css = color.toString(false);
+    ASSERT_EQ(css.find("0.5"), std::string::npos);
+
+    auto const pos = css.find("icc-color(");
+    ASSERT_NE(pos, std::string::npos);
+
+    Space::CMS::CmsParser parser;
+    std::istringstream ss(css.substr(pos + std::string("icc-color(").size()));
+    std::vector<double> values;
+    bool more = false;
+    auto const name = parser.parseColor(ss, values, more);
+
+    EXPECT_EQ(name, cmyk->getName());
+    ASSERT_EQ(values.size(), channels.size());
+    EXPECT_TRUE(VectorIsNear(values, channels, 1e-6));
+
+    auto reborn = Color(cmyk, values);
+    EXPECT_FALSE(reborn.hasOpacity());
+    reborn.addOpacity(0.5);
+    EXPECT_EQ(reborn.getOpacity(), 0.5);
+}
+
+/**
+ * Third-party #rrggbbaa icc-color input: the parser reads the alpha, but the
+ * current Color behavior drops it. Asserted here so a future change is visible.
+ */
+TEST(ColorsSpacesCms, thirdPartyAlphaHexIccParse)
+{
+    auto cmyk_profile = Inkscape::Colors::CMS::Profile::create_from_uri(cmyk_icc);
+    auto cmyk = std::make_shared<CMS>(cmyk_profile);
+
+    std::string const input = "#11223380 icc-color(" + cmyk->getName() + ", 0.1, 0.2, 0.3, 0.4)";
+
+    Space::Type type = Space::Type::RGB;
+    std::string cms_name;
+    std::vector<double> values;
+    std::vector<double> fallback;
+    ASSERT_TRUE(Parsers::get().parse(input, type, cms_name, values, fallback));
+
+    EXPECT_EQ(type, Space::Type::CMS);
+    EXPECT_EQ(cms_name, cmyk->getName());
+    ASSERT_EQ(values.size(), 4u);
+    EXPECT_TRUE(VectorIsNear(values, std::vector<double>{0.1, 0.2, 0.3, 0.4}, 1e-6));
+
+    // The parser does see the #rrggbbaa fallback with its alpha (0x80 = 0.502).
+    ASSERT_EQ(fallback.size(), 4u);
+    EXPECT_TRUE(VectorIsNear(fallback, std::vector<double>{0x11 / 255.0, 0x22 / 255.0, 0x33 / 255.0, 0x80 / 255.0}, 1e-6));
+
+    // But the alpha is dropped: the color carries the icc channels only.
+    auto color = Color(cmyk, values);
+    EXPECT_FALSE(color.hasOpacity());
+    EXPECT_EQ(color.getOpacity(), 1.0);
 }
 
 }; // namespace

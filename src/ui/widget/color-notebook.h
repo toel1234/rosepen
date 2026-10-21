@@ -79,6 +79,7 @@ private:
 
     void _rebuildDocPages();
     void _removeDocPages();
+    void _updateIndicators();
 
     PrefObserver _observer;
     std::vector<PrefObserver> _visibility_observers;
@@ -86,6 +87,8 @@ private:
     SPDocument *_document = nullptr;
     sigc::connection _doc_replaced_connection;
     sigc::scoped_connection _cms_changed;
+    sigc::scoped_connection _output_profile_changed;
+    sigc::scoped_connection _colors_changed;
     std::vector<DocPage> _doc_pages;
     int _next_doc_page_id = 1000;
     bool _rebuilding_doc_pages = false;

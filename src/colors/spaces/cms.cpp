@@ -128,9 +128,20 @@ std::string CMS::CmsParser::parseColor(std::istringstream &ss, std::vector<doubl
 /**
  * Output these values into this CMS space.
  *
+ * Rosepen ICC opacity policy: opacity is never written into icc-color and the
+ * fallback hex always stays six digits (#rrggbb). SVG 1.1's
+ * icc-color(name, c...) grammar has no alpha slot, so an extra numeric
+ * argument would be read as one more colorant and corrupt the color, while an
+ * #rrggbbaa fallback would double-apply alpha in renderers that honor both.
+ * Opacity therefore travels in the separate fill-opacity, stroke-opacity,
+ * stop-opacity and flood-opacity properties. This matches upstream Inkscape,
+ * which ignores opacity here on purpose.
+ *
+ * Third-party input may still use #rrggbbaa; the alpha is not carried into the
+ * icc color (see the round-trip tests in spaces-cms-test.cpp).
+ *
  * @args values - The values for each channel in the icc profile.
- * @args opacity - Should opacity be included. This is ignored since cms
- *                 output is ALWAYS without opacity.
+ * @args opacity - Ignored, kept only for the AnySpace interface.
  *
  * @returns the string suitable for css and style use.
  */

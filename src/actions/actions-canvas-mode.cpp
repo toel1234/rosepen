@@ -250,7 +250,6 @@ canvas_color_manage_toggle(InkscapeWindow *win)
     SPDesktop* dt = win->get_desktop();
     auto canvas = dt->getCanvas();
     canvas->set_cms_active(state);
-    canvas->redraw_all();
 }
 
 const Glib::ustring SECTION = NC_("Action Section", "Canvas Display");

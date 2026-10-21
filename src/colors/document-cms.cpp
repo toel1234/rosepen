@@ -250,6 +250,7 @@ void DocumentCMS::removeProfile(std::shared_ptr<Space::CMS> space)
                 if (auto repr = nv->getRepr())
                     repr->removeAttribute("inkscape:output-profile");
             }
+            _output_profile_changed.emit();
         }
     }
 }
@@ -392,6 +393,7 @@ bool DocumentCMS::setOutputProfile(std::string const &name)
     if (name.empty()) {
         repr->removeAttribute("inkscape:output-profile");
         _changed_signal.emit();
+        _output_profile_changed.emit();
         return true;
     }
 
@@ -401,6 +403,7 @@ bool DocumentCMS::setOutputProfile(std::string const &name)
 
     repr->setAttribute("inkscape:output-profile", name.c_str());
     _changed_signal.emit();
+    _output_profile_changed.emit();
     return true;
 }
 

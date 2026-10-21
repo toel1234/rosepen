@@ -28,9 +28,9 @@ class Transform
 public:
     explicit Transform(cmsHTRANSFORM handle, bool global = false)
         : _handle(handle)
-        , _context(!global ? cmsGetTransformContextID(handle) : nullptr)
-        , _format_in(cmsGetTransformInputFormat(handle))
-        , _format_out(cmsGetTransformOutputFormat(handle))
+        , _context(handle && !global ? cmsGetTransformContextID(handle) : nullptr)
+        , _format_in(handle ? cmsGetTransformInputFormat(handle) : 0)
+        , _format_out(handle ? cmsGetTransformOutputFormat(handle) : 0)
         , _channels_in(T_CHANNELS(_format_in))
         , _channels_out(T_CHANNELS(_format_out))
     {

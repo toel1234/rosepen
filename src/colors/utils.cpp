@@ -20,6 +20,29 @@
 namespace Inkscape::Colors {
 
 /**
+ * Report whether a color falls outside the gamut of, or would use too much
+ * ink in, the given output color space.
+ *
+ * Over-inking is checked on the color converted into the output space; the
+ * space itself decides whether over-ink is meaningful (only CMYK profiles
+ * currently report it). A null output space has no output profile to warn
+ * about, so both flags stay false.
+ */
+GamutStatus gamut_status(Color const &color, std::shared_ptr<Space::AnySpace> const &output)
+{
+    GamutStatus status;
+    if (!output) {
+        return status;
+    }
+
+    status.out_of_gamut = color.isOutOfGamut(output);
+    if (auto converted = color.converted(output)) {
+        status.over_inked = converted->isOverInked();
+    }
+    return status;
+}
+
+/**
  * Parse a color directly without any CSS or CMS support. This function is ONLY
  * intended to parse values stored in inkscape specific screen-attributes and
  * preferences.

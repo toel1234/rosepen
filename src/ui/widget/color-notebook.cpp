@@ -27,6 +27,7 @@
 #include "colors/manager.h"
 #include "colors/spaces/base.h"
 #include "colors/spaces/cms.h"
+#include "colors/utils.h"
 #include "ui/dialog-events.h"
 #include "ui/icon-loader.h"
 #include "ui/pack.h"
@@ -48,7 +49,7 @@ ColorNotebook::ColorNotebook(std::shared_ptr<Colors::ColorSet> colors)
 
     _initUI();
 
-    //_colors->signal_changed.connect(sigc::mem_fun(*this, &ColorNotebook::_onSelectedColorChanged));
+    _colors_changed = _colors->signal_changed.connect(sigc::mem_fun(*this, &ColorNotebook::_updateIndicators));
 
     auto desktop = SP_ACTIVE_DESKTOP;
     _doc_replaced_connection = desktop->connectDocumentReplaced(sigc::hide<0>(sigc::mem_fun(*this, &ColorNotebook::setDocument)));
@@ -66,13 +67,17 @@ ColorNotebook::~ColorNotebook()
 void ColorNotebook::setDocument(SPDocument *document)
 {
     _cms_changed.disconnect();
+    _output_profile_changed.disconnect();
     _document = document;
     _rebuildDocPages();
 
     if (_document) {
-        _cms_changed = _document->getDocumentCMS().connectChanged(
-            sigc::mem_fun(*this, &ColorNotebook::_rebuildDocPages));
+        auto &cms = _document->getDocumentCMS();
+        _cms_changed = cms.connectChanged(sigc::mem_fun(*this, &ColorNotebook::_rebuildDocPages));
+        _output_profile_changed = cms.connectOutputProfileChanged(sigc::mem_fun(*this, &ColorNotebook::_updateIndicators));
     }
+
+    _updateIndicators();
 }
 
 void ColorNotebook::_rebuildDocPages()
@@ -116,6 +121,8 @@ void ColorNotebook::_rebuildDocPages()
     }
 
     _rebuilding_doc_pages = false;
+
+    _updateIndicators();
 }
 
 void ColorNotebook::_removeDocPages()
@@ -128,6 +135,42 @@ void ColorNotebook::_removeDocPages()
         }
     }
     _doc_pages.clear();
+}
+
+/**
+ * Update the gamut and over-ink warnings against the document's output space.
+ *
+ * Without an output profile (the common sRGB workflow) neither warning is
+ * meaningful, so both icons stay hidden.
+ */
+void ColorNotebook::_updateIndicators()
+{
+    bool out_of_gamut = false;
+    bool over_inked = false;
+    Glib::ustring profile_name;
+
+    if (_document && !_colors->isEmpty()) {
+        if (auto output = _document->getDocumentCMS().getOutputSpace()) {
+            auto status = Colors::gamut_status(_colors->getAverage(), output);
+            out_of_gamut = status.out_of_gamut;
+            over_inked = status.over_inked;
+            profile_name = output->getName();
+        }
+    }
+
+    if (out_of_gamut) {
+        auto *tip = g_strdup_printf(_("Out of gamut for output profile %s"), profile_name.c_str());
+        gtk_widget_set_tooltip_text(_outofgamut, tip);
+        g_free(tip);
+    }
+    if (over_inked) {
+        auto *tip = g_strdup_printf(_("Over-inked for output profile %s"), profile_name.c_str());
+        gtk_widget_set_tooltip_text(_toomuchink, tip);
+        g_free(tip);
+    }
+
+    gtk_widget_set_visible(_outofgamut, out_of_gamut);
+    gtk_widget_set_visible(_toomuchink, over_inked);
 }
 
 void ColorNotebook::set_label(const Glib::ustring& label) {
@@ -230,12 +273,10 @@ void ColorNotebook::_initUI()
 
     _outofgamut = sp_get_icon_image("out-of-gamut-icon", GTK_ICON_SIZE_NORMAL);
     gtk_widget_set_tooltip_text(_outofgamut, _("Out of gamut!"));
-    gtk_widget_set_sensitive(_outofgamut, false);
     gtk_box_append(rgbabox_box, _outofgamut);
 
     _toomuchink = sp_get_icon_image("too-much-ink-icon", GTK_ICON_SIZE_NORMAL);
     gtk_widget_set_tooltip_text(_toomuchink, _("Too much ink!"));
-    gtk_widget_set_sensitive(_toomuchink, false);
     gtk_box_append(rgbabox_box, _toomuchink);
 
     /* Color picker */
@@ -266,7 +307,8 @@ void ColorNotebook::_initUI()
     gtk_box_append(rgbabox_box, rgba_entry_widget);
     gtk_label_set_mnemonic_widget(GTK_LABEL(_rgbal), rgba_entry_widget);
 
-    // the "too much ink" icon is initially hidden
+    // the gamut and ink warnings are initially hidden until a color is checked
+    gtk_widget_set_visible(_outofgamut, false);
     gtk_widget_set_visible(_toomuchink, false);
 
     gtk_widget_set_margin_start(rgbabox, XPAD);

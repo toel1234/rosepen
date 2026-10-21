@@ -36,6 +36,8 @@
 #include "canvas/util.h"
 #include "colors/cms/transform-surface.h"
 #include "colors/cms/system.h"
+#include "colors/document-cms.h"
+#include "colors/spaces/cms.h"
 #include "desktop.h"
 #include "desktop-events.h"
 #include "display/control/canvas-item-drawing.h"
@@ -515,6 +517,44 @@ void CanvasPrivate::deactivate_graphics()
     commit_tiles();
     stores.set_graphics(nullptr);
     graphics.reset();
+}
+
+void Canvas::set_desktop(SPDesktop *desktop)
+{
+    if (_desktop == desktop) {
+        return;
+    }
+
+    _document_replaced_connection.disconnect();
+    _output_profile_connection.disconnect();
+    _desktop = desktop;
+
+    if (_desktop) {
+        _document_replaced_connection = _desktop->connectDocumentReplaced([this](SPDesktop *, SPDocument *) {
+            connect_output_profile();
+            set_cms_transform();
+            redraw_all();
+        });
+    }
+
+    connect_output_profile();
+    set_cms_transform();
+    redraw_all();
+}
+
+void Canvas::connect_output_profile()
+{
+    _output_profile_connection.disconnect();
+
+    if (!_desktop) {
+        return;
+    }
+    if (auto document = _desktop->getDocument()) {
+        _output_profile_connection = document->getDocumentCMS().connectOutputProfileChanged([this] {
+            set_cms_transform();
+            redraw_all();
+        });
+    }
 }
 
 Canvas::~Canvas()
@@ -1882,7 +1922,31 @@ void Canvas::set_cms_transform()
     // auto surface = get_surface();
     // auto the_monitor = display->get_monitor_at_surface(surface);
 
-    //_cms_transform = Colors::CMS::System::get().getDisplayTransform();
+    std::shared_ptr<Colors::CMS::Profile> output_profile;
+    if (_desktop) {
+        if (auto document = _desktop->getDocument()) {
+            if (auto output_space = document->getDocumentCMS().getOutputSpace();
+                output_space && output_space->hasValidCmsProfile()) {
+                output_profile = output_space->getProfile();
+            }
+        }
+    }
+
+    _cms_transform = Colors::CMS::System::get().getProofTransform(output_profile);
+}
+
+/**
+ * Enable or disable color management on this canvas.
+ *
+ * Only the rendering path consults the flag, so a redraw is enough to apply it.
+ */
+void Canvas::set_cms_active(bool active)
+{
+    if (_cms_active == active) {
+        return;
+    }
+    _cms_active = active;
+    redraw_all();
 }
 
 // Change cursor

@@ -80,13 +80,15 @@ public:
      * @arg proof        - A profile to apply a proofing step to, this can be CMYK for example.
      * @arg proof_intent - An optional intent for the proofing conversion
      * @arg gamut_warn   - Optional flag for rendering out of gamut colors with a warning color.
+     * @arg bpc          - Optional flag enabling black point compensation in the proofing step.
      */
     TransformSurface(Format const &input,
                      Format const &output,
                      RenderingIntent intent = RenderingIntent::PERCEPTUAL,
                      std::shared_ptr<Profile> const &proof = nullptr,
                      RenderingIntent proof_intent = RenderingIntent::AUTO,
-                     bool gamut_warn = false)
+                     bool gamut_warn = false,
+                     bool bpc = false)
         : Transform(proof
                         ? cmsCreateProofingTransformTHR(
                               get_context(), input.profile->getHandle(),
@@ -95,7 +97,7 @@ public:
                               lcms_color_format(output.profile, output.byte_count, !output.integral, alpha_mode(false, output.has_alpha)),
                               proof->getHandle(), lcms_intent(intent), lcms_intent(proof_intent),
                               (input.has_alpha && output.has_alpha ? cmsFLAGS_COPY_ALPHA : 0) | cmsFLAGS_SOFTPROOFING | (gamut_warn ? cmsFLAGS_GAMUTCHECK : 0) |
-                                  lcms_bpc(proof_intent))
+                                  lcms_bpc(proof_intent) | (bpc ? cmsFLAGS_BLACKPOINTCOMPENSATION : 0))
                         : cmsCreateTransformTHR(
                               get_context(), input.profile->getHandle(),
                               lcms_color_format(input.profile, input.byte_count, !input.integral, alpha_mode(input.premultiplied, input.has_alpha)),
@@ -106,7 +108,7 @@ public:
         , _pixel_size_in((_channels_in + input.has_alpha) * input.byte_count)
         , _pixel_size_out((_channels_out + output.has_alpha) * output.byte_count)
     {
-        assert(!gamut_warn || (input.integral && input.byte_count == 2 && output.integral && output.byte_count == 2));
+        assert(!gamut_warn || (input.integral && input.byte_count <= 2 && output.integral && output.byte_count <= 2));
     }
 
     template <typename TypeIn, typename TypeOut = TypeIn>
