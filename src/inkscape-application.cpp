@@ -85,6 +85,7 @@
 #include "actions/actions-object-align.h"
 #include "actions/actions-object.h"
 #include "actions/actions-output.h"
+#include "actions/actions-page-manager.h"
 #include "actions/actions-paths.h"
 #include "actions/actions-selection-object.h"
 #include "actions/actions-selection.h"
@@ -632,6 +633,7 @@ InkscapeApplication::InkscapeApplication()
     add_actions_object(this);               // actions for object manipulation
     add_actions_object_align(this);         // actions for object alignment
     add_actions_output(this);               // actions for file export
+    add_actions_page_manager(this);         // actions for page management
     add_actions_selection(this);            // actions for object selection
     add_actions_path(this);                 // actions for Paths
     add_actions_selection_object(this);     // actions for selected objects

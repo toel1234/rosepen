@@ -33,6 +33,7 @@ std::span<const DialogData> get_dialog_data_list() {
     {"ObjectProperties",   _("_Object Properties"),    INKSCAPE_ICON("dialog-object-properties"),    DialogData::Basic,          ScrollProvider::NOPROVIDE },
     {"Export",             _("_Export"),               INKSCAPE_ICON("document-export"),             DialogData::Basic,          ScrollProvider::PROVIDE   },
     {"Swatches",           _("S_watches"),             INKSCAPE_ICON("swatches"),                    DialogData::Basic,          ScrollProvider::PROVIDE   },
+    {"Pages",              _("_Pages"),                INKSCAPE_ICON("tool-pages"),                  DialogData::Basic,          ScrollProvider::PROVIDE   },
 
     // TEXT ------------------------------------------
     {"Text",               _("_Text and Font"),        INKSCAPE_ICON("dialog-text-and-font"),        DialogData::Typography,     ScrollProvider::NOPROVIDE },

@@ -94,6 +94,8 @@ set(TEST_SOURCES
     object-set-test
     object-style-test
     page-management
+    page-manager-ops-test
+    toolbox-groups-test
     path-reverse-lpe-test
     preferences-test
     rebase-hrefs-test

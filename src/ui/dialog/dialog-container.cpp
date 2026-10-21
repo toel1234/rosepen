@@ -33,6 +33,7 @@
 #include "ui/dialog/livepatheffect-editor.h"
 #include "ui/dialog/object-attributes.h"
 #include "ui/dialog/objects.h"
+#include "ui/dialog/page-manager-panel.h"
 #include "ui/dialog/selectorsdialog.h"
 #if WITH_LIBSPELLING
 #include "ui/dialog/spellcheck.h"
@@ -119,6 +120,7 @@ std::unique_ptr<DialogBase> DialogContainer::dialog_factory(Glib::ustring const 
     else if (dialog_type == "LivePathEffect")     return std::make_unique<LivePathEffectEditor>();
     else if (dialog_type == "ObjectProperties")   return std::make_unique<ObjectAttributes>();
     else if (dialog_type == "Objects")            return std::make_unique<ObjectsPanel>();
+    else if (dialog_type == "Pages")              return std::make_unique<PageManagerPanel>();
     else if (dialog_type == "Preferences")        return std::make_unique<InkscapePreferences>();
     else if (dialog_type == "Selectors")          return std::make_unique<SelectorsDialog>();
     else if (dialog_type == "SVGFonts")           return std::make_unique<SvgFontsDialog>();

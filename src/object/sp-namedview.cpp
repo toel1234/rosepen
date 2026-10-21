@@ -421,7 +421,10 @@ void SPNamedView::updateViewPort()
         // An existing page is set as the main page, so hide th viewport canvas item.
         _viewport->hide();
         // This means the page is in the middle of being moved, so please don't move.
-        if (page->isViewportPage()) {
+        // Skip an unchanged rect: setRect clears the page's size label (Rosepen 03-01).
+        auto const current = page->getDesktopRect();
+        if (page->isViewportPage() && !(Geom::are_near(current.min(), box->min(), 1e-6) &&
+                                        Geom::are_near(current.max(), box->max(), 1e-6))) {
             page->setDesktopRect(*box);
         }
     } else {

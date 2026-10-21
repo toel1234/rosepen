@@ -1241,6 +1241,53 @@ if(WITH_CAPYPDF)
     add_color_corpus_test(spot-rename)
 endif()
 
+#############################################################################################
+### page ops lock (03-01 task 2)                                                           ###
+#############################################################################################
+
+# Headless page-ops lock: every scenario in page-ops.expect.json mutates the
+# page-ops.svg fixture through app.page-* actions, exports the result as SVG
+# (plus a PDF pass when capypdf is available) and is verified by the
+# stdlib-only checker check_page_ops.py: page geometry/labels/preset labels
+# and the page-list stdout (pages), item placement per page including
+# contents-follow-page and delete policy (items), and the PDF page count and
+# per-page MediaBox dims (pdf).  Positions are 1-based; expectations are
+# spec-derived, see the plan and the fixture's invariant comment.
+function(add_page_ops_test scenario)
+    set(SOURCE_SVG "${CMAKE_CURRENT_SOURCE_DIR}/testcases/pages/page-ops.svg")
+    set(EXPECT_JSON "${CMAKE_CURRENT_SOURCE_DIR}/testcases/pages/page-ops.expect.json")
+    # Watching fixture + expectations means changes re-run cmake on change
+    watch("${SOURCE_SVG}" "${EXPECT_JSON}")
+    add_test(NAME cli_page-ops-${scenario}
+        COMMAND python3 -I ${CMAKE_CURRENT_SOURCE_DIR}/check_page_ops.py
+                $<TARGET_FILE:inkscape>
+                ${SOURCE_SVG}
+                ${EXPECT_JSON}
+                ${CMAKE_CURRENT_BINARY_DIR}/page-ops/${scenario}
+                ${scenario}
+                $<$<BOOL:${WITH_CAPYPDF}>:--pdf>)
+    set_tests_properties(cli_page-ops-${scenario} PROPERTIES
+        ENVIRONMENT "${INKSCAPE_TEST_PROFILE_DIR_ENV}/cli_page-ops-${scenario};${CMAKE_CTEST_ENV}"
+        LABELS page-ops)
+endfunction()
+
+# The SVG stages run everywhere; the pdf stage is added by --pdf with capypdf.
+add_page_ops_test(rename-resize)
+add_page_ops_test(insert-before)
+add_page_ops_test(duplicate-after)
+add_page_ops_test(move-to)
+add_page_ops_test(remove-contents)
+add_page_ops_test(remove-last-refused)
+add_page_ops_test(resize-all)
+
+# 04-01 Corel toolbox: validate the shipped group data against the upstream toolbar (orchestrator integration point)
+add_test(NAME cli_toolbox-groups
+         COMMAND python3 -I ${CMAKE_CURRENT_SOURCE_DIR}/check_toolbox_groups.py
+                 ${CMAKE_SOURCE_DIR}/share/ui/toolbox-groups.ini
+                 ${CMAKE_SOURCE_DIR}/share/ui/toolbar-tool.ui
+                 ${CMAKE_SOURCE_DIR}/src/ui/tools/tool-data.cpp)
+set_tests_properties(cli_toolbox-groups PROPERTIES LABELS toolbox)
+
 ###########################
 ### file format support ###
 ###########################

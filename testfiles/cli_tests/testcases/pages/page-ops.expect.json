@@ -1,0 +1,326 @@
+{
+  "_comment": "Spec-derived expectations for page-ops.svg (03-01 task 2). Positions are 1-based. Sizes are user units (1 user unit = 1 mm in this fixture); PDF MediaBox values are pt (+-0.5). 'label' is the effective label (explicit inkscape:label, else the positional default \"Page N\" under LC_ALL=C). 'preset' mirrors inkscape:page-size (null = attribute must be absent). Expectations are derived from the plan and the upstream page model, NOT from observed output; contradictions are recorded in /tmp/glm-0301-task2-findings.md and only then encoded here with a _note.",
+  "scenarios": {
+    "rename-resize": {
+      "actions": "page-goto:2;page-rename:Inside;page-resize:A4,portrait",
+      "pages": [
+        {
+          "label": "Front",
+          "w": 100,
+          "h": 100,
+          "preset": null
+        },
+        {
+          "label": "Inside",
+          "w": 210,
+          "h": 297,
+          "preset": "A4"
+        }
+      ],
+      "root": {
+        "viewBox": [
+          0,
+          0,
+          100,
+          100
+        ]
+      },
+      "items": {
+        "rect1": 1,
+        "rect2": 2
+      },
+      "absent": [],
+      "pdf": {
+        "pages": [
+          [
+            283.46,
+            283.46
+          ],
+          [
+            595.28,
+            841.89
+          ]
+        ]
+      }
+    },
+    "insert-before": {
+      "_note": "Spec values hold for positions, sizes and item placement. Back keeps its A5 preset: the bubble move swaps rects through SPPage::setRect, which clears _size_label (sp-page.cpp:208-217). Review gate (03-01): PageOps now restores size labels after reorder/delete on every surviving page whose size is unchanged (SizeLabelKeeper, actions-page-manager.cpp), honouring setRect's 'caller puts it back' contract without touching upstream; the earlier observed null preset was that defect.",
+      "actions": "page-goto:1;page-insert:before",
+      "pages": [
+        {
+          "label": "Page 1",
+          "w": 100,
+          "h": 100,
+          "preset": null
+        },
+        {
+          "label": "Front",
+          "w": 100,
+          "h": 100,
+          "preset": null
+        },
+        {
+          "label": "Back",
+          "w": 210,
+          "h": 148,
+          "preset": "A5"
+        }
+      ],
+      "root": {
+        "viewBox": [
+          0,
+          0,
+          100,
+          100
+        ]
+      },
+      "items": {
+        "rect1": 2,
+        "rect2": 3
+      },
+      "absent": [],
+      "pdf": {
+        "pages": [
+          [
+            283.46,
+            283.46
+          ],
+          [
+            283.46,
+            283.46
+          ],
+          [
+            595.28,
+            419.53
+          ]
+        ]
+      }
+    },
+    "duplicate-after": {
+      "_note": "Spec values hold for positions, sizes and item placement. Back keeps its A5 preset: the bubble move swaps rects through SPPage::setRect, which clears _size_label (sp-page.cpp:208-217). Review gate (03-01): PageOps now restores size labels after reorder/delete on every surviving page whose size is unchanged (SizeLabelKeeper, actions-page-manager.cpp), honouring setRect's 'caller puts it back' contract without touching upstream; the earlier observed null preset was that defect.",
+      "actions": "page-goto:1;page-duplicate-after",
+      "pages": [
+        {
+          "label": "Front",
+          "w": 100,
+          "h": 100,
+          "preset": null
+        },
+        {
+          "label": "Page 2",
+          "w": 100,
+          "h": 100,
+          "preset": null
+        },
+        {
+          "label": "Back",
+          "w": 210,
+          "h": 148,
+          "preset": "A5"
+        }
+      ],
+      "root": {
+        "viewBox": [
+          0,
+          0,
+          100,
+          100
+        ]
+      },
+      "items": {
+        "rect1": 1,
+        "rect2": 3
+      },
+      "absent": [],
+      "extra": [
+        {
+          "page": 2,
+          "tag": "rect",
+          "bbox": [
+            120,
+            10,
+            40,
+            30
+          ],
+          "exclude": [
+            "rect1",
+            "rect2"
+          ]
+        }
+      ],
+      "pdf": {
+        "pages": [
+          [
+            283.46,
+            283.46
+          ],
+          [
+            283.46,
+            283.46
+          ],
+          [
+            595.28,
+            419.53
+          ]
+        ]
+      }
+    },
+    "move-to": {
+      "_note": "Spec values hold for positions, sizes and item placement. Back keeps its A5 preset: the bubble move swaps rects through SPPage::setRect, which clears _size_label (sp-page.cpp:208-217). Review gate (03-01): PageOps now restores size labels after reorder/delete on every surviving page whose size is unchanged (SizeLabelKeeper, actions-page-manager.cpp), honouring setRect's 'caller puts it back' contract without touching upstream; the earlier observed null preset was that defect. Back is the viewport page afterwards, so its exported label also relies on the SPNamedView::updateViewPort guard.",
+      "actions": "page-goto:2;page-move-to:1",
+      "pages": [
+        {
+          "label": "Back",
+          "w": 210,
+          "h": 148,
+          "preset": "A5"
+        },
+        {
+          "label": "Front",
+          "w": 100,
+          "h": 100,
+          "preset": null
+        }
+      ],
+      "root": {
+        "viewBox": [
+          0,
+          0,
+          210,
+          148
+        ]
+      },
+      "items": {
+        "rect1": 2,
+        "rect2": 1
+      },
+      "absent": [],
+      "pdf": {
+        "pages": [
+          [
+            595.28,
+            419.53
+          ],
+          [
+            283.46,
+            283.46
+          ]
+        ]
+      }
+    },
+    "remove-contents": {
+      "_note": "Back DOES stay an explicit view (answering the plan's question for page-manager.cpp:283-298): isBarePage() (sp-page.cpp:112-118) only checks margin/bleed, and those are engaged with default 0 for this page, so the last remaining page is not auto-removed. deletePage deletes only Front with its contents, then fits the document to Back's rect (root 210x148); fitToRect's movePages moves Back onto the origin (rect2 to 20,20) through SPPage::setRect, which clears its A5 label. Review gate (03-01): PageOps now restores size labels after reorder/delete on every surviving page whose size is unchanged (SizeLabelKeeper, actions-page-manager.cpp), honouring setRect's 'caller puts it back' contract without touching upstream; the earlier observed null preset was that defect. Back is the viewport page afterwards, so its exported label also relies on the SPNamedView::updateViewPort guard.",
+      "actions": "page-goto:1;page-remove:contents",
+      "pages": [
+        {
+          "label": "Back",
+          "w": 210,
+          "h": 148,
+          "preset": "A5"
+        }
+      ],
+      "root": {
+        "viewBox": [
+          0,
+          0,
+          210,
+          148
+        ]
+      },
+      "items": {
+        "rect2": 1
+      },
+      "absent": [
+        "rect1"
+      ],
+      "pdf": {
+        "pages": [
+          [
+            595.28,
+            419.53
+          ]
+        ]
+      }
+    },
+    "remove-last-refused": {
+      "_note": "Same end state as remove-contents. The second remove hits the getPageCount() <= 1 guard in PageOps::remove_page and must be a logged no-op (g_warning, printed as WARNING on stderr, hence the allow-list entry). Back is the viewport page afterwards, so its exported label also relies on the SPNamedView::updateViewPort guard.",
+      "actions": "page-goto:1;page-remove;page-remove",
+      "allow_warnings": [
+        "page-remove: refusing to remove the last page"
+      ],
+      "pages": [
+        {
+          "label": "Back",
+          "w": 210,
+          "h": 148,
+          "preset": "A5"
+        }
+      ],
+      "root": {
+        "viewBox": [
+          0,
+          0,
+          210,
+          148
+        ]
+      },
+      "items": {
+        "rect2": 1
+      },
+      "absent": [
+        "rect1"
+      ],
+      "pdf": {
+        "pages": [
+          [
+            595.28,
+            419.53
+          ]
+        ]
+      }
+    },
+    "resize-all": {
+      "_note": "Sizes: Letter landscape = 11x8.5 in = 279.4x215.9 mm on both pages, both labelled with the canonical preset name 'US Letter' (find_preset maps 'Letter' onto 'US Letter'). Front is the viewport page: resizing it goes through fitToRect and the deferred root->page sync (SPPage::setRect) used to wipe the label set by the action; resize_page now flushes that update (ensureUpToDate) before setSizeLabel (review gate 03-01). The exported SVG is a reloaded copy: loading re-synced the viewport page through setRect and dropped its page-size too; fixed by the minimal upstream guard in SPNamedView::updateViewPort (skip an unchanged rect; deviation, locked by test_page-manager-ops viewportPresetSurvivesReload).",
+      "actions": "page-resize:Letter,landscape,all",
+      "pages": [
+        {
+          "label": "Front",
+          "w": 279.4,
+          "h": 215.9,
+          "preset": "US Letter"
+        },
+        {
+          "label": "Back",
+          "w": 279.4,
+          "h": 215.9,
+          "preset": "US Letter"
+        }
+      ],
+      "root": {
+        "viewBox": [
+          0,
+          0,
+          279.4,
+          215.9
+        ]
+      },
+      "items": {
+        "rect1": 1,
+        "rect2": 2
+      },
+      "absent": [],
+      "pdf": {
+        "pages": [
+          [
+            792,
+            612
+          ],
+          [
+            792,
+            612
+          ]
+        ]
+      }
+    }
+  }
+}

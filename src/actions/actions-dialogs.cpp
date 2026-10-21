@@ -49,6 +49,7 @@ static const std::vector<std::vector<Glib::ustring>> raw_data_dialogs = {
     {"win.dialog-open('LivePathEffect')",     N_("Open Live Path Effect"),     SECTION,  N_("Manage, edit, and apply path effects")                                                   },
     {"win.dialog-open('ObjectProperties')",   N_("Open Object Properties"),    SECTION,  N_("Edit the object attributes (context dependent)...")                                      },
     {"win.dialog-open('Objects')",            N_("Open Objects"),              SECTION,  N_("View Objects")                                                                           },
+    {"win.dialog-open('Pages')",              N_("Open Pages"),                SECTION,  N_("Manage document pages")                                                                  },
     {"win.dialog-open('Preferences')",        N_("Open Preferences"),          SECTION,  N_("Edit global Inkscape preferences")                                                       },
     {"win.dialog-open('Selectors')",          N_("Open Selectors"),            SECTION,  N_("View and edit CSS selectors and styles")                                                 },
     {"win.dialog-open('SVGFonts')",           N_("Open SVG Fonts"),            SECTION,  N_("Edit SVG fonts")                                                                         },

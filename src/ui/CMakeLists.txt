@@ -159,6 +159,7 @@ target_sources(inkscape_base PRIVATE
 	dialog/object-attributes.cpp
 	dialog/object-properties.cpp
 	dialog/objects.cpp
+	dialog/page-manager-panel.cpp
 	dialog/polar-arrange-tab.cpp
 	dialog/print.cpp
 	dialog/prototype.cpp
@@ -400,6 +401,7 @@ target_sources(inkscape_base PRIVATE
 	dialog/object-attributes.h
 	dialog/object-properties.h
 	dialog/objects.h
+	dialog/page-manager-panel.h
 	dialog/polar-arrange-tab.h
 	dialog/print.h
 	dialog/prototype.h
