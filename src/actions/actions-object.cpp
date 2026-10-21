@@ -536,7 +536,7 @@ object_convert_to_output_profile(InkscapeApplication *app)
     }
 
     auto convert_paint = [&](SPItem *item, SPIPaint const &paint, char const *property) {
-        if (!paint.isColor()) {
+        if (!paint.isColor() || paint.isDerived() || paint.paintOrigin != SP_CSS_PAINT_ORIGIN_NORMAL) {
             return;
         }
         auto color = cms.convertToOutputSpace(paint.getColor());

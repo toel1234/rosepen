@@ -58,6 +58,7 @@
 #include "inkscape-window.h"
 #include "auto-save.h"              // Auto-save
 #include "colors/document-cms.h"
+#include "colors/cms/profile.h"
 #include "colors/spaces/enum.h"
 #include "desktop.h"                // Access to window
 #include "document.h"
@@ -164,9 +165,13 @@ SPDocument *InkscapeApplication::document_new(std::string const &template_filena
         Inkscape::DocumentUndo::ScopedInsensitive no_undo(doc);
         auto intent = static_cast<Inkscape::Colors::RenderingIntent>(
             prefs->getInt("/options/document/outputprofile/intent"));
-        auto &cms = doc->getDocumentCMS();
-        if (auto name = cms.attachProfileToDoc(output_profile.raw(), Inkscape::ColorProfileStorage::HREF_FILE, intent)) {
-            cms.setOutputProfile(*name);
+        if (auto profile = Inkscape::Colors::CMS::Profile::create_from_uri(output_profile.raw())) {
+            auto &cms = doc->getDocumentCMS();
+            auto name = cms.attachProfileToDoc(*profile, Inkscape::ColorProfileStorage::HREF_FILE, intent);
+            doc->ensureUpToDate();
+            cms.setOutputProfile(name);
+        } else {
+            g_warning("Output profile '%s' is not a valid ICC profile", output_profile.c_str());
         }
     }
 

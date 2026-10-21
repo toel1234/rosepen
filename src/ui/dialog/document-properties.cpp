@@ -721,7 +721,7 @@ void DocumentProperties::populate_output_profile_list()
     _updating_output_profile = true;
     _OutputProfileList.remove_all();
     _OutputProfileNames.clear();
-    _OutputProfileList.append(_("None"));
+    _OutputProfileList.append(_("Automatic"));
 
     int active_row = 0;
     if (auto document = getDocument()) {

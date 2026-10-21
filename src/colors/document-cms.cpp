@@ -237,11 +237,9 @@ void DocumentCMS::removeProfile(std::shared_ptr<Space::CMS> space)
     if (result != _spaces.end()) {
         bool is_output = false;
         if (_document && space) {
-            if (auto nv = _document->getNamedView()) {
-                if (auto repr = nv->getRepr()) {
-                    if (auto name = repr->attribute("inkscape:output-profile")) {
-                        is_output = name == space->getName();
-                    }
+            if (auto repr = _document->getReprNamedView()) {
+                if (auto name = repr->attribute("inkscape:output-profile")) {
+                    is_output = name == space->getName();
                 }
             }
         }
@@ -355,13 +353,11 @@ std::shared_ptr<Space::CMS> DocumentCMS::getSpace(std::string const &name) const
 std::shared_ptr<Space::CMS> DocumentCMS::getOutputSpace() const
 {
     if (_document) {
-        if (auto nv = _document->getNamedView()) {
-            if (auto repr = nv->getRepr()) {
-                if (auto name = repr->attribute("inkscape:output-profile")) {
-                    if (auto space = getSpace(name)) {
-                        if (space->getComponentType() == Space::Type::CMYK)
-                            return space;
-                    }
+        if (auto repr = _document->getReprNamedView()) {
+            if (auto name = repr->attribute("inkscape:output-profile")) {
+                if (auto space = getSpace(name)) {
+                    if (space->getComponentType() == Space::Type::CMYK)
+                        return space;
                 }
             }
         }

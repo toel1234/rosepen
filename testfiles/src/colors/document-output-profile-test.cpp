@@ -17,6 +17,8 @@
 
 #include "colors/cms/system.h"
 #include "colors/spaces/cms.h"
+#include "colors/cms/profile.h"
+#include "colors/spaces/enum.h"
 #include "document.h"
 #include "inkscape.h"
 #include "object/color-profile.h"
@@ -278,6 +280,38 @@ TEST_F(ColorDocumentOutputProfileTest, removeProfileClearsAttribute)
     ASSERT_TRUE(cp);
     cp->deleteObject();
     EXPECT_FALSE(tr.getOutputSpace());
+}
+
+TEST_F(ColorDocumentOutputProfileTest, attachAndSetOutputProfile)
+{
+    // AC-3 helper path: attach a profile to a document that has none, then
+    // make it the output profile (document_new uses the same calls).
+    std::string const svg =
+        "<svg xmlns='http://www.w3.org/2000/svg' "
+        "xmlns:inkscape='http://www.inkscape.org/namespaces/inkscape'>"
+        "<namedview/></svg>";
+    auto new_doc = SPDocument::createNewDocFromMem(std::span<char const>(svg.data(), svg.size()));
+    ASSERT_TRUE(new_doc);
+    new_doc->ensureUpToDate();
+
+    auto &tr = new_doc->getDocumentCMS();
+    ASSERT_FALSE(tr.getOutputSpace());
+
+    auto profile = Inkscape::Colors::CMS::Profile::create_from_uri(icc_dir + "default_cmyk.icc");
+    ASSERT_TRUE(profile);
+    auto name = tr.attachProfileToDoc(*profile, Inkscape::ColorProfileStorage::HREF_FILE,
+                                      Inkscape::Colors::RenderingIntent::PERCEPTUAL);
+    ASSERT_FALSE(name.empty());
+    new_doc->ensureUpToDate();
+
+    EXPECT_TRUE(tr.setOutputProfile(name));
+    auto repr = new_doc->getReprNamedView();
+    ASSERT_TRUE(repr);
+    EXPECT_STREQ(repr->attribute("inkscape:output-profile"), name.c_str());
+    auto out = tr.getOutputSpace();
+    ASSERT_TRUE(out);
+    EXPECT_EQ(out->getName(), name);
+    EXPECT_EQ(out->getComponentType(), Inkscape::Colors::Space::Type::CMYK);
 }
 
 } // namespace
