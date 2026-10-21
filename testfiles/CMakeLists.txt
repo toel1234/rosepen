@@ -70,6 +70,7 @@ set(TEST_SOURCES
     colors/cms-system-test
     colors/document-cms-test
     colors/document-output-profile-test
+    colors/spot-swatch-test
     colors/dragndrop-test
     colors/color-set-test
     colors/xml-color-test
@@ -208,6 +209,7 @@ add_unit_tests(TEST_SOURCES "colors/cms-profile-test.cpp"
                             "colors/manager-test.cpp"
                             "colors/parser-test.cpp"
                             "colors/printer-test.cpp"
+                            "colors/spot-test.cpp"
                             "colors/gradient-averager-test.cpp"
                             "colors/spaces-alpha-test.cpp"
                             "colors/spaces-cms-test.cpp"

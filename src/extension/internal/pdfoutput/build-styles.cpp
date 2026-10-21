@@ -13,14 +13,47 @@
 #include "build-drawing.h"
 #include "colors/cms/profile.h"
 #include "colors/color.h"
+#include "colors/spot-swatch.h"
+#include "colors/spot.h"
 #include "colors/spaces/cms.h"
 #include "colors/spaces/cmyk.h"
 #include "object/sp-gradient.h"
+#include "object/sp-stop.h"
 #include "libnrtype/font-instance.h"
 #include "object/sp-paint-server.h"
 #include "style.h"
 
+#include <algorithm>
+#include <iomanip>
+#include <locale>
+#include <sstream>
+
 namespace Inkscape::Extension::Internal::PdfBuilder {
+
+namespace {
+
+/**
+ * capypdf::Color has no public separation setter, but the C API does. Adopt a
+ * C-level handle into the wrapper so it can be returned like any other color.
+ */
+class SeparationColor final : public capypdf::Color
+{
+public:
+    SeparationColor(CapyPDF_SeparationId id, double tint)
+    {
+        CapyPDF_Color *color = nullptr;
+        if (auto const rc = capy_color_new(&color)) {
+            throw capypdf::PdfException(capy_error_message(rc));
+        }
+        if (auto const rc = capy_color_set_separation(color, id, tint)) {
+            capy_color_destroy(color);
+            throw capypdf::PdfException(capy_error_message(rc));
+        }
+        _d.reset(color);
+    }
+};
+
+} // namespace
 
 /**
  * Get the blend mode for capyPDF output.
@@ -342,6 +375,18 @@ std::optional<capypdf::Color> Document::get_paint(SPIPaint const &paint, SPStyle
     if (paint.isPaintserver()) {
         auto swatch = cast<SPGradient>(paint.href ? paint.href->getObject() : nullptr);
         if (swatch && swatch->isSolid()) {
+            // The soft-mask/gray opacity branch must stay first and unchanged.
+            if (!opacity) {
+                if (auto const spot = Colors::Spot::get_spot_name(swatch)) {
+                    // A solid swatch's stop is its true alternate; the preview
+                    // average always converts to RGB and would lose CMYK.
+                    auto const stop = swatch->getFirstStop();
+                    auto const alternate = stop ? stop->getColor() : swatch->getPreviewAverageColor();
+                    if (auto const separation = get_separation(*spot, alternate)) {
+                        return SeparationColor(*separation, 1.0);
+                    }
+                }
+            }
             return get_color(swatch->getPreviewAverageColor(), opacity);
         } else if (auto pattern_id = get_pattern(paint.href ? paint.href->getObject() : nullptr, opacity)) {
             out.set_pattern(*pattern_id);
@@ -382,6 +427,80 @@ capypdf::Color Document::get_color(Colors::Color const &color, std::optional<dou
         out.set_rgb(0, 0, 0); // Black default on error
     }
     return out;
+}
+
+/**
+ * Create (and cache) a PDF /Separation color space for a spot ink.
+ *
+ * The tint transform is a PostScript type 4 function interpolating from no
+ * ink at tint 0 to the alternate at tint 1. capypdf only accepts name
+ * strings; it escapes spaces and other PDF name specials itself.
+ */
+std::optional<CapyPDF_SeparationId> Document::get_separation(std::string const &name,
+                                                             Colors::Color const &alternate)
+{
+    auto const normalized = Colors::Spot::normalize_name(name);
+    if (!normalized) {
+        return {};
+    }
+    if (auto const it = _sep_cache.find(*normalized); it != _sep_cache.end()) {
+        return it->second;
+    }
+    if (_sep_failed.contains(*normalized)) {
+        return {};
+    }
+
+    // capypdf only accepts ASCII separation names, and its C++ wrapper ignores
+    // the error result. Calling it with a UTF-8 name would leave the id
+    // uninitialized, so fall back to the alternate color instead.
+    bool const ascii = std::all_of(normalized->begin(), normalized->end(),
+                                   [](char c) { return static_cast<unsigned char>(c) < 0x80; });
+    if (!ascii) {
+        g_warning("Spot ink '%s' is not ASCII; exporting its alternate color instead.",
+                  normalized->c_str());
+        _sep_failed.insert(*normalized);
+        return {};
+    }
+
+    auto const alt = Colors::Spot::alternate_for(alternate);
+    auto const cmyk = alt.model == Colors::Spot::Model::CMYK;
+    std::size_t const channels = cmyk ? 4 : 3;
+
+    std::vector<double> c0(channels, cmyk ? 0.0 : 1.0);
+    std::vector<double> c1(channels, 0.0);
+    for (std::size_t i = 0; i < channels && i < alt.values.size(); ++i) {
+        c1[i] = std::clamp(alt.values[i], 0.0, 1.0);
+    }
+
+    std::ostringstream code;
+    code.imbue(std::locale::classic());
+    // PDF calculator functions do not accept exponent notation (e.g. 1e-05).
+    code << std::fixed << std::setprecision(6) << "{";
+    for (std::size_t i = 0; i < channels; ++i) {
+        code << " dup " << (c1[i] - c0[i]) << " mul " << c0[i] << " add exch";
+    }
+    code << " pop }";
+
+    double domain[2]{0.0, 1.0};
+    std::vector<double> range;
+    for (std::size_t i = 0; i < channels; ++i) {
+        range.push_back(0.0);
+        range.push_back(1.0);
+    }
+
+    try {
+        capypdf::Type4Function function(domain, 2, range.data(), static_cast<int32_t>(range.size()),
+                                        code.str());
+        auto const function_id = _gen.add_function(function);
+        auto const separation = _gen.add_separation(
+            *normalized, cmyk ? CAPY_DEVICE_CS_CMYK : CAPY_DEVICE_CS_RGB, function_id);
+        _sep_cache.emplace(*normalized, separation);
+        return separation;
+    } catch (std::exception const &error) {
+        _sep_failed.insert(*normalized);
+        g_warning("Couldn't create PDF separation for spot '%s': %s", normalized->c_str(), error.what());
+        return {};
+    }
 }
 
 std::optional<CapyPDF_IccColorSpaceId> Document::get_icc_profile(std::shared_ptr<Colors::Space::CMS> const &profile)

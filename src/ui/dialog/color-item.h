@@ -103,9 +103,16 @@ private:
     void action_edit();
     void action_toggle_pin();
     void action_convert(Glib::ustring const &name);
+    void action_toggle_spot();
+    void action_add_spot();
 
     // Draw the color only (i.e. no indicators). Used for drawing both the widget and the drag/drop icon.
     void draw_color(Glib::RefPtr<Gtk::Snapshot> const &snapshot, int w, int h) const;
+
+    // Refresh the description and tooltip, prefixing spot inks with their ink name.
+    void update_description();
+    // Draw the spot ink marker in the bottom-right corner.
+    void draw_spot_marker(Glib::RefPtr<Gtk::Snapshot> const &snapshot, int w, int h) const;
 
     // Return the color (or average if a gradient), for choosing the color of the fill/stroke indicators.
     Colors::Color getColor() const;

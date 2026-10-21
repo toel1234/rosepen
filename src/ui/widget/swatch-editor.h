@@ -53,6 +53,8 @@ private:
     void rebuild();
     void set_view_list_mode(bool list);
     void update_selection(const std::string& id);
+    void commit_spot_name();
+    void refresh_spot_entry();
 
     Glib::RefPtr<Gtk::Builder> _builder;
     SPDesktop* _desktop = nullptr;
@@ -68,6 +70,7 @@ private:
     std::unique_ptr<ColorPickerPanel> _color_picker;
     Gtk::SearchEntry2& _search;
     Gtk::Entry& _label;
+    Gtk::Entry& _spot_name;
     Gtk::Button& _new_btn;
     Gtk::Button& _del_btn;
     Gtk::Button& _import_btn;
@@ -75,6 +78,8 @@ private:
     Gtk::Button& _clean_btn;
     Gtk::Popover& _settings;
     std::string _cur_swatch_id;
+    // Swatch whose spot ink name is shown in _spot_name.
+    std::string _spot_swatch_id;
     sigc::signal<void (SPGradient*, EditOperation, SPGradient*)> _signal_changed;
     sigc::signal<void (SPGradient*, const Colors::Color&)> _signal_color_changed;
     sigc::signal<void (SPGradient*, const Glib::ustring&)> _signal_label_changed;

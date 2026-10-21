@@ -89,6 +89,17 @@
           </object>
         </child>
         <child>
+          <object class="GtkEntry" id="spot-name">
+            <property name="max-width-chars">20</property>
+            <property name="placeholder-text" translatable="yes">Spot ink name</property>
+            <property name="tooltip-text" translatable="yes">Name this swatch as a spot ink; leave empty for a normal swatch</property>
+            <layout>
+              <property name="column">1</property>
+              <property name="row">2</property>
+            </layout>
+          </object>
+        </child>
+        <child>
           <object class="GtkBox">
             <property name="spacing">4</property>
             <layout>

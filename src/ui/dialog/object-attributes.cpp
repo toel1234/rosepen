@@ -41,6 +41,7 @@
 #include <gtkmm/togglebutton.h>
 #include <gtkmm/version.h>
 
+#include "colors/spot-swatch.h"
 #include "css-chemistry.h"
 #include "desktop.h"
 #include "document-undo.h"
@@ -1734,16 +1735,19 @@ auto paint_to_item(const PaintKey& paint) {
         if (swatch && swatch->hasStops()) {
             color = swatch->getFirstStop()->getColor();
         }
-        return GridViewList::create_item(paint.id, 0, label, {}, tooltip, color, {}, true);
+        bool const is_spot = swatch && Colors::Spot::get_spot_name(swatch);
+        return GridViewList::create_item(paint.id, 0, label, {}, tooltip, color, {}, true, false, is_spot);
     }
     else if (paint.mode == Widget::PaintMode::Solid) {
         return GridViewList::create_item(paint.id, 0, label, {}, tooltip, paint.color, {}, false);
     }
     else if (paint.mode == Widget::PaintMode::Gradient) {
         // todo: pattern size needs to match tile size
-        auto pat_t = cast<SPGradient>(paint.vector)->create_preview_pattern(16);
+        auto gradient = cast<SPGradient>(paint.vector);
+        auto pat_t = gradient->create_preview_pattern(16);
         auto pat = Cairo::RefPtr<Cairo::Pattern>(new Cairo::Pattern(pat_t, true));
-        return GridViewList::create_item(paint.id, 0, label, {}, tooltip, {}, pat, false, is<SPRadialGradient>(paint.server));
+        bool const is_spot = Colors::Spot::get_spot_name(gradient).has_value();
+        return GridViewList::create_item(paint.id, 0, label, {}, tooltip, {}, pat, false, is<SPRadialGradient>(paint.server), is_spot);
     }
     else {
         auto icon = get_paint_mode_icon(paint.mode);

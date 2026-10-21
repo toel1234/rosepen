@@ -9,6 +9,7 @@
 #include <glib/gi18n.h>
 #include <glibmm/main.h>
 #include <gtkmm/checkbutton.h>
+#include <gtkmm/eventcontrollerfocus.h>
 #include <gtkmm/filterlistmodel.h>
 #include <gtkmm/label.h>
 #include <gtkmm/object.h>
@@ -16,6 +17,8 @@
 #include <gtkmm/window.h>
 
 #include "color-preview.h"
+#include "colors/spot-swatch.h"
+#include "colors/spot.h"
 #include "desktop.h"
 #include "document-undo.h"
 #include "document.h"
@@ -62,6 +65,7 @@ public:
     Color color{0};
     bool is_fill = false;
     bool is_stroke = false;
+    bool is_spot = false;
 
     static Glib::RefPtr<ListItem> create(
         const char* id,
@@ -80,7 +84,8 @@ public:
             label == item.label &&
             color == item.color &&
             is_fill == item.is_fill &&
-            is_stroke == item.is_stroke;
+            is_stroke == item.is_stroke &&
+            is_spot == item.is_spot;
     }
 
     ListItem& operator = (const ListItem& src) {
@@ -89,6 +94,7 @@ public:
         color = src.color;
         is_fill = src.is_fill;
         is_stroke = src.is_stroke;
+        is_spot = src.is_spot;
         return *this;
     }
 
@@ -101,7 +107,9 @@ Glib::RefPtr<ListItem> to_list_item(SPGradient* swatch) {
     if (auto stop = swatch->getFirstStop()) {
         color = stop->getColor();
     }
-    return ListItem::create(swatch->getId(), swatch->defaultLabel(), color);
+    auto item = ListItem::create(swatch->getId(), swatch->defaultLabel(), color);
+    item->is_spot = Colors::Spot::get_spot_name(swatch).has_value();
+    return item;
 }
 
 // max height of the swatch list
@@ -122,6 +130,7 @@ SwatchEditor::SwatchEditor(Colors::Space::Type space, Glib::ustring prefs_path):
     _search(get_widget<Gtk::SearchEntry2>(_builder, "search")),
     _settings(get_widget<Gtk::Popover>(_builder, "settings")),
     _label(get_widget<Gtk::Entry>(_builder, "label")),
+    _spot_name(get_widget<Gtk::Entry>(_builder, "spot-name")),
     _new_btn(get_widget<Gtk::Button>(_builder, "new-btn")),
     _del_btn(get_widget<Gtk::Button>(_builder, "delete-btn")),
     _import_btn(get_widget<Gtk::Button>(_builder, "import-btn")),
@@ -166,6 +175,16 @@ SwatchEditor::SwatchEditor(Colors::Space::Type space, Glib::ustring prefs_path):
             _signal_label_changed.emit(swatch, _label.get_text());
         }
     });
+    _spot_name.signal_activate().connect([this]() {
+        commit_spot_name();
+    });
+    {
+        auto focus = Gtk::EventControllerFocus::create();
+        focus->signal_leave().connect([this]() {
+            commit_spot_name();
+        });
+        _spot_name.add_controller(focus);
+    }
     _import_btn.signal_clicked().connect([this]() {
         // read color palette and create swatches
         import_swatches();
@@ -236,6 +255,7 @@ void SwatchEditor::build_grid() {
 
         color.set_size_request(_tile_size, _tile_size);
         color.setRgba32(item->color.toRGBA());
+        color.setIndicator(item->is_spot ? ColorPreview::SpotColor : ColorPreview::Swatch);
         color.set_fill(item->is_fill);
         color.set_stroke(item->is_stroke);
         color.set_tooltip_text(item->color.toString(false));
@@ -299,6 +319,7 @@ void SwatchEditor::set_document(SPDocument* document) {
     if (_document == document) return;
 
     _document = document;
+    _spot_swatch_id.clear();
     _rsrc_changed.disconnect();
     _defs_changed.disconnect();
 
@@ -340,6 +361,13 @@ void SwatchEditor::select_vector(SPGradient* vector) {
         _label.set_sensitive(false);
     }
 
+    if (!contains_focus(_spot_name)) {
+        auto const name = vector ? Colors::Spot::get_spot_name(vector) : std::nullopt;
+        _spot_name.set_text(name ? *name : std::string());
+        _spot_swatch_id = _cur_swatch_id;
+    }
+    _spot_name.set_sensitive(vector != nullptr);
+
     // enable/disable buttons
     _del_btn.set_sensitive(sp_can_delete_swatch(vector));
     _label.set_sensitive(vector != nullptr);
@@ -370,6 +398,49 @@ void SwatchEditor::update_selection(const std::string& id) {
         // unselect
         _selection_model->set_selected(GTK_INVALID_LIST_POSITION);
     }
+}
+
+void SwatchEditor::refresh_spot_entry()
+{
+    if (contains_focus(_spot_name)) return;
+
+    auto const swatch = get_selected_vector();
+    auto const name = swatch ? Colors::Spot::get_spot_name(swatch) : std::nullopt;
+    _spot_name.set_text(name ? *name : std::string());
+    _spot_name.set_sensitive(swatch != nullptr);
+    _spot_swatch_id = swatch && swatch->getId() ? swatch->getId() : "";
+}
+
+void SwatchEditor::commit_spot_name()
+{
+    if (_update.pending() || !_document || _spot_swatch_id.empty()) return;
+
+    // Commit to the swatch the entry text was loaded from: on focus-out the
+    // selection may already point at another swatch.
+    auto const swatch = cast<SPGradient>(_document->getObjectById(_spot_swatch_id));
+    if (!swatch) return;
+
+    auto const current = Colors::Spot::get_spot_name(swatch);
+    auto const text = _spot_name.get_text();
+
+    if (text.empty()) {
+        if (!current) return;
+        Colors::Spot::set_spot_name(swatch, std::nullopt);
+        DocumentUndo::done(_document, RC_("Undo", "Unmark spot color"), "");
+    } else {
+        auto const normalized = Colors::Spot::normalize_name(text.raw());
+        if (!normalized) {
+            _spot_name.set_text(current ? *current : std::string());
+            return;
+        }
+        if (current && *current == *normalized) return;
+        Colors::Spot::set_spot_name(swatch, *normalized);
+        DocumentUndo::done(_document, RC_("Undo", "Set spot ink name"), "");
+    }
+
+    auto const updated = Colors::Spot::get_spot_name(swatch);
+    _spot_name.set_text(updated ? *updated : std::string());
+    refresh_spot_entry();
 }
 
 SPGradient* SwatchEditor::get_selected_vector() const {
@@ -493,6 +564,8 @@ void SwatchEditor::update_store() {
     if (changed) {
         rebuild();
     }
+
+    refresh_spot_entry();
 }
 
 bool SwatchEditor::is_item_visible(const Glib::RefPtr<Glib::ObjectBase>& item) const {

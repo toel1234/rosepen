@@ -28,6 +28,7 @@
 #include "actions/actions-tools.h"
 #include "colors/spaces/base.h"
 #include "colors/spaces/gamut.h"
+#include "colors/spot-swatch.h"
 #include "live_effects/effect.h"
 #include "object/sp-namedview.h"
 #include "object/sp-stop.h"
@@ -549,7 +550,8 @@ void PaintAttribute::PaintStrip::set_preview(const SPIPaint& paint, double paint
             }
             color.setOpacity(paint_opacity);
             _color_preview.setRgba32(color.toRGBA());
-            _color_preview.setIndicator(ColorPreview::Swatch);
+            _color_preview.setIndicator(Colors::Spot::get_spot_name(vect) ? ColorPreview::SpotColor
+                                                                          : ColorPreview::Swatch);
         }
         else if (mode == PaintMode::Pattern || mode == PaintMode::Hatch) {
             // patterns and hatches

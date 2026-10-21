@@ -4,12 +4,14 @@
 set(colors_SRC
 	cms/system.cpp   # Needs preferences
 	document-cms.cpp # Links to sp-object tree
+	spot-swatch.cpp  # Links to sp-gradient/document
 	dragndrop.cpp    # Uses xml-color
 	color-set.cpp    # Uses unnlinkable sigc+
 	xml-color.cpp    # sp-document and document-cms
 
 	cms/system.h
 	document-cms.h
+	spot-swatch.h
 	dragndrop.h
 	color-set.h
 	xml-color.h

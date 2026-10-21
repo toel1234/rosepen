@@ -125,6 +125,8 @@ public:
     std::optional<capypdf::Color> get_paint(SPIPaint const &paint, SPStyle const *context_style,
                                             std::optional<double> opacity);
     capypdf::Color get_color(Colors::Color const &color, std::optional<double> opacity);
+    std::optional<CapyPDF_SeparationId> get_separation(std::string const &name,
+                                                       Colors::Color const &alternate);
 
     std::optional<CapyPDF_PatternId> get_pattern(SPPaintServer const *paint, std::optional<double> opacity);
 
@@ -165,6 +167,8 @@ private:
     StyleMemory _paint_memory;
 
     std::map<std::string, CapyPDF_IccColorSpaceId> _icc_cache;
+    std::map<std::string, CapyPDF_SeparationId> _sep_cache;
+    std::set<std::string> _sep_failed;
     std::map<ItemCacheKey, CapyPDF_TransparencyGroupId> _item_cache;
     std::map<std::string, CapyPDF_TransparencyGroupId> _mask_cache;
     std::map<std::string, CapyPDF_PatternId> _pattern_cache;

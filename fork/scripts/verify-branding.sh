@@ -63,6 +63,23 @@ ALLOW=(
     "src/colors/spaces/cms.cpp"
     "src/colors/utils.h"
     "src/colors/utils.cpp"
+    "src/colors/spot.h"
+    "src/colors/spot.cpp"
+    "src/colors/spot-swatch.h"
+    "src/colors/spot-swatch.cpp"
+    "src/colors/CMakeLists.txt"
+    "src/colors/CMakeUnit.txt"
+    "src/extension/internal/pdfoutput/build-document.h"
+    "src/extension/internal/pdfoutput/build-styles.cpp"
+    "src/ui/dialog/color-item.h"
+    "src/ui/dialog/color-item.cpp"
+    "src/ui/dialog/object-attributes.cpp"
+    "src/ui/gridview-utils.h"
+    "src/ui/gridview-utils.cpp"
+    "src/ui/widget/paint-attribute.cpp"
+    "src/ui/widget/swatch-editor.h"
+    "src/ui/widget/swatch-editor.cpp"
+    "share/ui/swatch-editor.ui"
     "src/actions/actions-canvas-mode.cpp"
     "src/ui/widget/canvas.h"
     "src/ui/widget/canvas.cpp"
@@ -364,7 +381,9 @@ else
     bad "COPYING, LICENSES, AUTHORS and TRANSLATORS are unchanged"
 fi
 
-if [ -z "$(git diff fork-base -U0 -- src | grep -E '^[-+].*namespace Inkscape' || true)" ]; then
+# Modified files only: new fork files (e.g. src/colors/spot*.cpp) legitimately
+# live in the upstream Inkscape:: namespace.
+if [ -z "$(git diff fork-base -U0 --diff-filter=M -- src | grep -E '^[-+].*namespace Inkscape' || true)" ]; then
     pass "no diff line adds or removes 'namespace Inkscape'"
 else
     bad "no diff line adds or removes 'namespace Inkscape'"

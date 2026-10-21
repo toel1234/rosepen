@@ -8,6 +8,7 @@ set(colors_unit_SRC
 	manager.cpp
 	parser.cpp
 	printer.cpp
+	spot.cpp
 	gradient-averager.cpp
 	spaces/base.cpp
 	spaces/cms.cpp
@@ -39,6 +40,7 @@ set(colors_unit_SRC
 	manager.h
 	parser.h
 	printer.h
+	spot.h
 	gradient-averager.h
 	spaces/alpha.h
 	spaces/base.h

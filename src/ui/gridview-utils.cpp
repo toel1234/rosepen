@@ -37,6 +37,7 @@ struct ItemData : public Glib::Object {
     Cairo::RefPtr<Cairo::Pattern> pattern;
     bool is_swatch = false;
     bool is_radial = false;
+    bool is_spot = false;
 
     static Glib::RefPtr<ItemData> create(
         const std::string& id,
@@ -47,7 +48,8 @@ struct ItemData : public Glib::Object {
         std::optional<Color> color,
         Cairo::RefPtr<Cairo::Pattern> pattern,
         bool is_swatch,
-        bool is_radial
+        bool is_radial,
+        bool is_spot
     ) {
         auto item = Glib::make_refptr_for_instance<ItemData>(new ItemData());
         item->id = id;
@@ -59,6 +61,7 @@ struct ItemData : public Glib::Object {
         item->pattern = pattern;
         item->is_swatch = is_swatch;
         item->is_radial = is_radial;
+        item->is_spot = is_spot;
         return item;
     }
 
@@ -70,6 +73,7 @@ struct ItemData : public Glib::Object {
             tooltip == item.tooltip &&
             is_swatch == item.is_swatch &&
             is_radial == item.is_radial &&
+            is_spot == item.is_spot &&
             color == item.color &&
             pattern == item.pattern;
     }
@@ -84,6 +88,7 @@ struct ItemData : public Glib::Object {
         pattern = src.pattern;
         is_swatch = src.is_swatch;
         is_radial = src.is_radial;
+        is_spot = src.is_spot;
         return *this;
     }
 
@@ -114,9 +119,9 @@ GridViewList::~GridViewList() {
 
 Glib::RefPtr<Glib::Object> GridViewList::create_item(const std::string& id, double value, const Glib::ustring& label,
     const Glib::ustring& icon, const Glib::ustring& tooltip, std::optional<Colors::Color> color, Cairo::RefPtr<Cairo::Pattern> pattern,
-    bool is_swatch, bool is_radial) {
+    bool is_swatch, bool is_radial, bool is_spot) {
 
-    return ItemData::create(id, value, label, icon, tooltip, color, pattern, is_swatch, is_radial);
+    return ItemData::create(id, value, label, icon, tooltip, color, pattern, is_swatch, is_radial, is_spot);
 }
 
 void GridViewList::update_store(size_t count, std::function<Glib::RefPtr<Glib::Object> (size_t)> callback) {
@@ -161,7 +166,11 @@ Gtk::Widget* create_color_preview(const Glib::RefPtr<ItemData>& item, int tile_s
         color.set_frame(true);
         color.set_valign(Gtk::Align::CENTER);
         color.setRgba32(item->color->toRGBA());
-        color.setIndicator(item->is_swatch ? Widget::ColorPreview::Swatch : Widget::ColorPreview::None);
+        if (item->is_spot) {
+            color.setIndicator(Widget::ColorPreview::SpotColor);
+        } else {
+            color.setIndicator(item->is_swatch ? Widget::ColorPreview::Swatch : Widget::ColorPreview::None);
+        }
         color.set_tooltip_text(item->tooltip);
         return &color;
     }
@@ -171,7 +180,12 @@ Gtk::Widget* create_color_preview(const Glib::RefPtr<ItemData>& item, int tile_s
         color.set_frame(true);
         color.set_valign(Gtk::Align::CENTER);
         color.setPattern(item->pattern);
-        color.setIndicator(item->is_radial ? Widget::ColorPreview::RadialGradient : Widget::ColorPreview::LinearGradient);
+        if (item->is_spot) {
+            color.setIndicator(Widget::ColorPreview::SpotColor);
+        } else {
+            color.setIndicator(item->is_radial ? Widget::ColorPreview::RadialGradient
+                                               : Widget::ColorPreview::LinearGradient);
+        }
         // todo: swatch gradient
         // color.setIndicator(item->is_swatch ? UI::Widget::ColorPreview::Swatch : UI::Widget::ColorPreview::None);
         color.set_tooltip_text(item->tooltip);

@@ -20,6 +20,8 @@
 #include <gtkmm/snapshot.h>
 
 #include "colors/spaces/base.h"
+#include "colors/spot-swatch.h"
+#include "colors/spot.h"
 #include "desktop-style.h"
 #include "document.h"
 #include "document-undo.h"
@@ -91,7 +93,7 @@ ColorItem::ColorItem(SPGradient *gradient, DialogBase *dialog)
     : dialog(dialog)
 {
     data = GradientData{gradient};
-    description = gradient->defaultLabel();
+    update_description();
     color_id = gradient->getId();
 
     gradient->connectRelease(sigc::track_object([this] (SPObject*) {
@@ -102,7 +104,8 @@ ColorItem::ColorItem(SPGradient *gradient, DialogBase *dialog)
         if (flags & SP_OBJECT_STYLE_MODIFIED_FLAG) {
             queue_draw();
         }
-        description = obj->defaultLabel();
+        update_description();
+        set_tooltip_text(description + (tooltip.empty() ? tooltip : "\n" + tooltip));
         _signal_modified.emit();
         if (is_pinned() != was_grad_pinned) {
             was_grad_pinned = is_pinned();
@@ -261,6 +264,52 @@ void ColorItem::snapshot_vfunc(Glib::RefPtr<Gtk::Snapshot> const &snapshot)
 
         snapshot->restore();
     }
+
+    if (auto const graddata = std::get_if<GradientData>(&data)) {
+        if (graddata->gradient && Colors::Spot::get_spot_name(graddata->gradient)) {
+            draw_spot_marker(snapshot, w, h);
+        }
+    }
+}
+
+void ColorItem::update_description()
+{
+    if (auto const graddata = std::get_if<GradientData>(&data)) {
+        if (auto const grad = graddata->gradient) {
+            if (auto const spot = Colors::Spot::get_spot_name(grad)) {
+                description = Glib::ustring::compose(_("Spot: %1"), *spot);
+            } else {
+                description = grad->defaultLabel();
+            }
+        }
+    }
+}
+
+void ColorItem::draw_spot_marker(Glib::RefPtr<Gtk::Snapshot> const &snapshot, int w, int h) const
+{
+    constexpr double side = 7.5;
+    auto const right = static_cast<double>(w) - 1.0;
+    auto const bottom = static_cast<double>(h) - 1.0;
+    if (right <= side || bottom <= side) {
+        return;
+    }
+
+    auto builder = gsk_path_builder_new();
+    gsk_path_builder_move_to(builder, right, bottom - side);
+    gsk_path_builder_line_to(builder, right, bottom);
+    gsk_path_builder_line_to(builder, right - side, bottom);
+    gsk_path_builder_close(builder);
+    auto path = gsk_path_builder_free_to_path(builder);
+    GdkRGBA white{1, 1, 1, 1};
+    gtk_snapshot_append_fill(snapshot->gobj(), path, GSK_FILL_RULE_WINDING, &white);
+    gsk_path_unref(path);
+
+    builder = gsk_path_builder_new();
+    gsk_path_builder_add_circle(builder, pass_in(Geom::Point(right - 2.0, bottom - 2.0)), 2.0);
+    path = gsk_path_builder_free_to_path(builder);
+    GdkRGBA black{0, 0, 0, 1};
+    gtk_snapshot_append_fill(snapshot->gobj(), path, GSK_FILL_RULE_WINDING, &black);
+    gsk_path_unref(path);
 }
 
 void ColorItem::on_motion_enter()
@@ -349,6 +398,8 @@ void ColorItem::on_rightclick()
     main_actions->add_action("delete"    , sigc::mem_fun(*this, &ColorItem::action_delete    ));
     main_actions->add_action("edit"      , sigc::mem_fun(*this, &ColorItem::action_edit      ));
     main_actions->add_action("toggle-pin", sigc::mem_fun(*this, &ColorItem::action_toggle_pin));
+    main_actions->add_action("toggle-spot", sigc::mem_fun(*this, &ColorItem::action_toggle_spot));
+    main_actions->add_action("add-spot", sigc::mem_fun(*this, &ColorItem::action_add_spot));
     insert_action_group("color-item", main_actions);
 
     auto const menu = Gio::Menu::create();
@@ -364,11 +415,24 @@ void ColorItem::on_rightclick()
         menu->append_section(section);
         section->append(_("Delete" ), "color-item.delete");
         section->append(_("Edit..."), "color-item.edit");
+        if (graddata->gradient && Colors::Spot::get_spot_name(graddata->gradient)) {
+            section->append(_("Unmark Spot Color"), "color-item.toggle-spot");
+        } else {
+            section->append(_("Mark as Spot Color"), "color-item.toggle-spot");
+        }
         section = Gio::Menu::create();
         menu->append_section(section);
     }
 
     section->append(is_pinned() ? _("Unpin Color") : _("Pin Color"), "color-item.toggle-pin");
+
+    if (auto const color = std::get_if<Colors::Color>(&data)) {
+        if (Colors::Spot::normalize_name(color->getName())) {
+            auto const spot_section = Gio::Menu::create();
+            menu->append_section(spot_section);
+            spot_section->append(_("Add to Document as Spot Color"), "color-item.add-spot");
+        }
+    }
 
     // If document has gradients, add Convert section w/ actions to convert them to swatches.
     auto grad_names = std::vector<Glib::ustring>{};
@@ -461,6 +525,43 @@ void ColorItem::action_toggle_pin()
         DocumentUndo::done(grad->document, is_pinned() ? RC_("Undo", "Pin swatch") : RC_("Undo", "Unpin swatch"), INKSCAPE_ICON("color-gradient"));
     } else {
         Inkscape::Preferences::get()->setBool(pinned_pref, !is_pinned());
+    }
+}
+
+void ColorItem::action_toggle_spot()
+{
+    auto const grad = std::get<GradientData>(data).gradient;
+    if (!grad) return;
+
+    if (Colors::Spot::get_spot_name(grad)) {
+        Colors::Spot::set_spot_name(grad, std::nullopt);
+        DocumentUndo::done(grad->document, RC_("Undo", "Unmark spot color"), INKSCAPE_ICON("color-gradient"));
+    } else {
+        char const *label = grad->getAttribute("inkscape:label");
+        std::string const name = (label && *label) ? label : grad->getId();
+        Colors::Spot::set_spot_name(grad, name);
+        DocumentUndo::done(grad->document, RC_("Undo", "Mark spot color"), INKSCAPE_ICON("color-gradient"));
+    }
+
+    update_description();
+    set_tooltip_text(description + (tooltip.empty() ? tooltip : "\n" + tooltip));
+    queue_draw();
+}
+
+void ColorItem::action_add_spot()
+{
+    auto const color = std::get_if<Colors::Color>(&data);
+    if (!color || !dialog) return;
+    auto const desktop = dialog->getDesktop();
+    if (!desktop) return;
+    auto const doc = desktop->getDocument();
+    if (!doc) return;
+
+    auto const name = Colors::Spot::normalize_name(color->getName());
+    if (!name) return;
+
+    if (Colors::Spot::ensure_spot(doc, *name, *color)) {
+        DocumentUndo::done(doc, RC_("Undo", "Add spot color"), INKSCAPE_ICON("color-gradient"));
     }
 }
 

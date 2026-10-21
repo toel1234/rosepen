@@ -43,7 +43,8 @@ public:
         std::optional<Colors::Color> color,
         Cairo::RefPtr<Cairo::Pattern> pattern,
         bool is_swatch = false,
-        bool is_radial = false);
+        bool is_radial = false,
+        bool is_spot = false);
 
     struct Item {
         std::string id;
