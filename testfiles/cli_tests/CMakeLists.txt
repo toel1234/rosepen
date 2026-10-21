@@ -1206,6 +1206,41 @@ if(WITH_CAPYPDF)
     add_pdfoutput_test(15-many-items)
 endif()
 
+#############################################################################################
+### color round-trip corpus (02-04)                                                        ###
+#############################################################################################
+
+# Headless color corpus: every fixture in testcases/colors/ goes through an
+# SVG save-to-another-directory round trip (a.svg -> sub/b.svg), a plain SVG
+# export, a PDF export and a PNG render, all checked by the stdlib-only
+# checker check_color_corpus.py against the per-fixture <name>.expect.json.
+function(add_color_corpus_test name)
+    set(SOURCE_SVG "${CMAKE_CURRENT_SOURCE_DIR}/testcases/colors/${name}.svg")
+    set(EXPECT_JSON "${CMAKE_CURRENT_SOURCE_DIR}/testcases/colors/${name}.expect.json")
+    # Watching fixture + expectations means changes re-run cmake on change
+    watch("${SOURCE_SVG}" "${EXPECT_JSON}")
+    add_test(NAME cli_color-corpus-${name}
+        COMMAND python3 -I ${CMAKE_CURRENT_SOURCE_DIR}/check_color_corpus.py
+                $<TARGET_FILE:inkscape>
+                ${SOURCE_SVG}
+                ${EXPECT_JSON}
+                ${CMAKE_CURRENT_BINARY_DIR}/color-corpus/${name})
+    set_tests_properties(cli_color-corpus-${name} PROPERTIES
+        ENVIRONMENT "${INKSCAPE_TEST_PROFILE_DIR_ENV}/cli_color-corpus-${name};INKSCAPE_FONTCONFIG=${CMAKE_CURRENT_SOURCE_DIR}/../rendering_tests/fonts/isolated.conf;${CMAKE_CTEST_ENV}"
+        LABELS color-corpus)
+endfunction()
+
+if(WITH_CAPYPDF)
+    add_color_corpus_test(cmyk-device)
+    add_color_corpus_test(cmyk-icc-fallback)
+    add_color_corpus_test(opacity-policy)
+    add_color_corpus_test(rgb-control)
+    add_color_corpus_test(softproof-gamut)
+    add_color_corpus_test(spot-basic)
+    add_color_corpus_test(spot-collision)
+    add_color_corpus_test(spot-rename)
+endif()
+
 ###########################
 ### file format support ###
 ###########################

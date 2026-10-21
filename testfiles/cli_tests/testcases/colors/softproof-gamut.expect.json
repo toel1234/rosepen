@@ -1,0 +1,28 @@
+{
+  "_softproof_prefs": true,
+  "svg": {
+    "namedview1": {"inkscape:output-profile": "cmyk-out"},
+    "out-of-gamut": {"fill": "#00ff00"},
+    "over-ink": {"fill": "device-cmyk\\(1 1 1 1\\)"}
+  },
+  "plain": {
+    "out-of-gamut": {"fill": "#00ff00"},
+    "over-ink": {"fill": "device-cmyk\\(1 1 1 1\\)"},
+    "absent": ["inkscape:"]
+  },
+  "pdf": {
+    "count": {
+      "1\\.000000 1\\.000000 1\\.000000 1\\.000000 k": 1,
+      "0\\.000000 1\\.000000 0\\.000000 rg": 1
+    },
+    "absent": ["/Separation", "/ICCBased"]
+  },
+  "png": {
+    "width": 40,
+    "samples": [
+      [10, 8, [0, 255, 0], 2],
+      [30, 8, [0, 0, 0], 2]
+    ]
+  },
+  "_note": "Soft-proof invariant (02-02): export is never proofed. Before the png stage the checker seeds the isolated profile's preferences.xml with <inkscape version=\"1\"><group id=\"options\"><group id=\"softproof\" enable=\"1\"/></group></inkscape> - the key path is /options/softproof/enable (read by readProofSettings in src/colors/cms/system.cpp; group id=\"softproof\", attribute enable, in the preferences skeleton; the preferences.xml ROOT ELEMENT MUST BE 'inkscape', see loadImpl in src/preferences.cpp). With softproof enabled the #00ff00 pixel still exports as (0,255,0) +-2 and device-cmyk(1 1 1 1) stays naive-converted (0,0,0); the PDF (exported without the seeded prefs, per stage order) shows the plain device operators and no separation/ICC objects."
+}

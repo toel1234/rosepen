@@ -1,0 +1,36 @@
+{
+  "svg": {
+    "namedview1": {"inkscape:output-profile": "cmyk-out"},
+    "fill-icc-opacity": {"fill": "#907f6f icc-color\\(cmyk-out, 0\\.1, 0\\.2, 0\\.3, 0\\.4\\)", "fill-opacity": "0\\.5"},
+    "stroke-icc-opacity": {"stroke": "#112233 icc-color\\(cmyk-out, 0\\.5, 0\\.4, 0\\.3, 0\\.2\\)", "stroke-opacity": "0\\.25"},
+    "stop1": {"stop-color": "#00aa55 icc-color\\(cmyk-out, 0\\.6, 0, 0\\.4, 0\\.1\\)", "stop-opacity": "0\\.4"},
+    "stop2": {"stop-color": "#00aa55 icc-color\\(cmyk-out, 0\\.6, 0, 0\\.4, 0\\.1\\)"},
+    "flood-icc": {"flood-color": "#00ff00 icc-color\\(cmyk-out, 0\\.6, 0, 0\\.6, 0\\)", "flood-opacity": "0\\.6"},
+    "third-party-alpha": {"fill": "#ff000080 icc-color\\(cmyk-out, 0, 1, 1, 0\\)"}
+  },
+  "plain": {
+    "fill-icc-opacity": {"fill": "#907f6f icc-color\\(cmyk-out, 0\\.1, 0\\.2, 0\\.3, 0\\.4\\)", "fill-opacity": "0\\.5"},
+    "stroke-icc-opacity": {"stroke": "#112233 icc-color\\(cmyk-out, 0\\.5, 0\\.4, 0\\.3, 0\\.2\\)", "stroke-opacity": "0\\.25"},
+    "stop1": {"stop-color": "#00aa55 icc-color\\(cmyk-out, 0\\.6, 0, 0\\.4, 0\\.1\\)", "stop-opacity": "0\\.4"},
+    "stop2": {"stop-color": "#00aa55 icc-color\\(cmyk-out, 0\\.6, 0, 0\\.4, 0\\.1\\)"},
+    "flood-icc": {"flood-color": "#00ff00 icc-color\\(cmyk-out, 0\\.6, 0, 0\\.6, 0\\)", "flood-opacity": "0\\.6"},
+    "third-party-alpha": {"fill": "#ff000080 icc-color\\(cmyk-out, 0, 1, 1, 0\\)"},
+    "absent": ["inkscape:"]
+  },
+  "pdf": {
+    "count": {
+      "/ICCBased": 1,
+      "/N 4": 1
+    },
+    "absent": ["/Separation"]
+  },
+  "png": {
+    "width": 40,
+    "samples": [
+      [8, 6, [151, 135, 120], 3],
+      [28, 6, [90, 179, 160], 3],
+      [8, 26, [238, 38, 44], 3]
+    ]
+  },
+  "_note": "Opacity policy (02-02 option 1): alpha never travels in icc-color, our serialization writes #rrggbb fallbacks and carries *-opacity separately - all of that HOLDS. L1 (02-04 triage): an AUTHORED third-party '#ff000080 icc-color(...)' passes through the repr byte-for-byte (alpha dropped for painting at parse; fallback normalizes only on an SPStyle rewrite) - expectation encodes the passthrough. F2 (icc-color paint aborted PDF export in capypdf color2numbers) FIXED in 02-04 via get_device_color(): pdf stage /ICCBased 1 /N 4 passes. F4 (feFlood with icc flood-color rendered nothing) FIXED in 02-04 (flood-color now parsed through the document CMS; pixel-verified 103,193,142 @ alpha 153); no png sample encoded for the flood rect in this sidecar. png samples are lcms conversions through cmyk-out, +-3 (fill-icc-opacity shows +-1 premultiply rounding under fill-opacity 0.5)."
+}

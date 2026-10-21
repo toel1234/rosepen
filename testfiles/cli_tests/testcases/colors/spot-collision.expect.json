@@ -1,0 +1,50 @@
+{
+  "svg": {
+    "spot-PANTONE_185_C-2": {"inkscape:spot-name": "PANTONE 185 C"},
+    "spot-PANTONE_185_C-3": {"inkscape:spot-name": "PANTONE  185  C"},
+    "spot-PANTONE_300_C": {"inkscape:spot-name": "PANTONE 300 C"},
+    "spot-PANTONE_032_C": {"inkscape:spot-name": "PANTONE 032 C"},
+    "stop1": {"stop-color": "device-cmyk\\(0 0\\.92 0\\.76 0\\)"},
+    "stop2": {"stop-color": "device-cmyk\\(0 0\\.9 0\\.8 0\\)"},
+    "stop3": {"stop-color": "#0066cc"},
+    "stop4": {"stop-color": "#ff0000 icc-color\\(cmyk-out, 0, 1, 1, 0\\)"},
+    "spot-PANTONE_185_C": {"fill": "#cccccc"},
+    "fill-colliding-spot": {"fill": "url\\(#spot-PANTONE_185_C-2\\)"},
+    "stroke-colliding-spot": {"stroke": "url\\(#spot-PANTONE_185_C-2\\)"},
+    "fill-duplicate-name": {"fill": "url\\(#spot-PANTONE_185_C-3\\)"},
+    "fill-rgb-spot": {"fill": "url\\(#spot-PANTONE_300_C\\)"},
+    "fill-icc-spot": {"fill": "url\\(#spot-PANTONE_032_C\\)"}
+  },
+  "plain": {
+    "stop1": {"stop-color": "device-cmyk\\(0 0\\.92 0\\.76 0\\)"},
+    "stop2": {"stop-color": "device-cmyk\\(0 0\\.9 0\\.8 0\\)"},
+    "stop3": {"stop-color": "#0066cc"},
+    "stop4": {"stop-color": "#ff0000 icc-color\\(cmyk-out, 0, 1, 1, 0\\)"},
+    "spot-PANTONE_185_C": {"fill": "#cccccc"},
+    "fill-colliding-spot": {"fill": "url\\(#spot-PANTONE_185_C-2\\)"},
+    "stroke-colliding-spot": {"stroke": "url\\(#spot-PANTONE_185_C-2\\)"},
+    "fill-duplicate-name": {"fill": "url\\(#spot-PANTONE_185_C-3\\)"},
+    "fill-rgb-spot": {"fill": "url\\(#spot-PANTONE_300_C\\)"},
+    "fill-icc-spot": {"fill": "url\\(#spot-PANTONE_032_C\\)"},
+    "absent": ["inkscape:"]
+  },
+  "pdf": {
+    "count": {
+      "/Separation": 3,
+      "/Separation /PANTONE#20185#20C": 1,
+      "/Separation /PANTONE#20300#20C": 1,
+      "/Separation /PANTONE#20032#20C": 1
+    },
+    "absent": ["/ICCBased"]
+  },
+  "png": {
+    "width": 40,
+    "samples": [
+      [8, 16, [255, 20, 61], 2],
+      [24, 16, [255, 25, 51], 2],
+      [8, 26, [0, 102, 204], 2],
+      [24, 26, [238, 38, 44], 3]
+    ]
+  },
+  "_note": "The ordinary rect keeps id spot-PANTONE_185_C (fill #cccccc, never converted); the ink lives on the -2 swatch. The duplicate name 'PANTONE  185  C' normalizes to the same ink and dedupes first-wins, so exactly 3 separations exist (185 C from the FIRST swatch, 300 C with RGB alternate, 032 C with icc-color alternate - the alternate goes into the tint function as raw DeviceCMYK, so no /ICCBased, 02-03). PNG: naive device-cmyk values; the icc alternate spot renders the lcms conversion of cmyk(0,1,1,0), +-3. Note: the fixture's four stops all carry id=\"stop1\"; the exporter makes them unique (stop1..stop4) in document order, expectations use the exported ids."
+}

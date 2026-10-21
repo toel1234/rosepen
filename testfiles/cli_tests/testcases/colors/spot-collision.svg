@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- invariant: an ordinary element may own spot-PANTONE_185_C; the ink lives on the -2 swatch and duplicate names dedupe first-wins -->
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd" xmlns:xlink="http://www.w3.org/1999/xlink" width="100mm" height="80mm" viewBox="0 0 100 80" version="1.1" id="svg1">
+  <sodipodi:namedview id="namedview1" pagecolor="#ffffff" bordercolor="#666666" inkscape:document-units="mm" />
+  <defs id="defs1">
+    <color-profile id="profile1" name="cmyk-out" xlink:href="../../../data/colors/default_cmyk.icc" />
+    <linearGradient id="spot-PANTONE_185_C-2" inkscape:swatch="solid" inkscape:spot-name="PANTONE 185 C" x1="0" y1="0" x2="1" y2="0">
+      <stop id="stop1" offset="0" style="stop-color:device-cmyk(0 0.92 0.76 0)" />
+    </linearGradient>
+    <linearGradient id="spot-PANTONE_185_C-3" inkscape:swatch="solid" inkscape:spot-name="PANTONE  185  C" x1="0" y1="0" x2="1" y2="0">
+      <stop id="stop1" offset="0" style="stop-color:device-cmyk(0 0.9 0.8 0)" />
+    </linearGradient>
+    <linearGradient id="spot-PANTONE_300_C" inkscape:swatch="solid" inkscape:spot-name="PANTONE 300 C" x1="0" y1="0" x2="1" y2="0">
+      <stop id="stop1" offset="0" style="stop-color:#0066cc" />
+    </linearGradient>
+    <linearGradient id="spot-PANTONE_032_C" inkscape:swatch="solid" inkscape:spot-name="PANTONE 032 C" x1="0" y1="0" x2="1" y2="0">
+      <stop id="stop1" offset="0" style="stop-color:#ff0000 icc-color(cmyk-out, 0, 1, 1, 0)" />
+    </linearGradient>
+  </defs>
+  <rect id="spot-PANTONE_185_C" x="5" y="5" width="30" height="20" style="fill:#cccccc" />
+  <rect id="fill-colliding-spot" x="5" y="30" width="30" height="20" style="fill:url(#spot-PANTONE_185_C-2)" />
+  <rect id="stroke-colliding-spot" x="45" y="5" width="30" height="20" style="fill:none;stroke:url(#spot-PANTONE_185_C-2);stroke-width:2" />
+  <rect id="fill-duplicate-name" x="45" y="30" width="30" height="20" style="fill:url(#spot-PANTONE_185_C-3)" />
+  <rect id="fill-rgb-spot" x="5" y="55" width="30" height="20" style="fill:url(#spot-PANTONE_300_C)" />
+  <rect id="fill-icc-spot" x="45" y="55" width="30" height="20" style="fill:url(#spot-PANTONE_032_C)" />
+</svg>

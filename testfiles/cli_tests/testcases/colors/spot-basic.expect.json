@@ -1,0 +1,31 @@
+{
+  "svg": {
+    "spot-PANTONE_185_C": {"inkscape:spot-name": "PANTONE 185 C"},
+    "stop1": {"stop-color": "device-cmyk\\(0 0\\.92 0\\.76 0\\)"},
+    "fill-spot": {"fill": "url\\(#spot-PANTONE_185_C\\)"},
+    "stroke-spot": {"stroke": "url\\(#spot-PANTONE_185_C\\)"},
+    "fill-spot-half": {"fill": "url\\(#spot-PANTONE_185_C\\)", "fill-opacity": "0\\.5"}
+  },
+  "plain": {
+    "stop1": {"stop-color": "device-cmyk\\(0 0\\.92 0\\.76 0\\)"},
+    "fill-spot": {"fill": "url\\(#spot-PANTONE_185_C\\)"},
+    "stroke-spot": {"stroke": "url\\(#spot-PANTONE_185_C\\)"},
+    "fill-spot-half": {"fill": "url\\(#spot-PANTONE_185_C\\)", "fill-opacity": "0\\.5"},
+    "absent": ["inkscape:"]
+  },
+  "pdf": {
+    "count": {
+      "/Separation": 1,
+      "/Separation /PANTONE#20185#20C": 1
+    },
+    "absent": ["/ICCBased"]
+  },
+  "png": {
+    "width": 40,
+    "samples": [
+      [8, 6, [255, 20, 61], 2],
+      [28, 11, [255, 20, 60], 3]
+    ]
+  },
+  "_note": "One spot swatch serves fill and stroke; capypdf escapes the ink name itself (#20 = space), exactly one /Separation /PANTONE#20185#20C (02-03). The opacity-bearing use keeps the swatch url and falls back to the alternate for the PDF (documented deferral, no second Separation). PNG renders the device-cmyk alternate naively; fill-spot-half shows +-1 rounding through the fill-opacity 0.5 premultiply cycle (tol 3)."
+}

@@ -18,7 +18,9 @@
 
 #include "attributes.h"                          // for SPAttr
 
+#include "colors/document-cms.h"                 // for DocumentCMS
 #include "display/nr-filter-flood.h"             // for FilterFlood
+#include "document.h"                            // for SPDocument
 #include "object/filters/sp-filter-primitive.h"  // for SPFilterPrimitive
 #include "object/sp-object.h"                    // for SP_OBJECT_MODIFIED_FLAG
 
@@ -47,7 +49,11 @@ void SPFeFlood::set(SPAttr key, char const *value)
     switch (key) {
         case SPAttr::FLOOD_COLOR: {
 
-            flood_color = Inkscape::Colors::Color::parse(value);
+            // Colors::Color::parse has no document profiles, so an icc-color()
+            // flood parses to nothing (an invisible flood). Use the document
+            // CMS so the icc color (and its sRGB alternate) is retained.
+            flood_color = document ? document->getDocumentCMS().parse(value)
+                                   : Inkscape::Colors::Color::parse(value);
             requestModified(SP_OBJECT_MODIFIED_FLAG);
             break;
         }

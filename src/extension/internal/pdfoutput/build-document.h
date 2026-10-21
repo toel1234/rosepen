@@ -125,6 +125,8 @@ public:
     std::optional<capypdf::Color> get_paint(SPIPaint const &paint, SPStyle const *context_style,
                                             std::optional<double> opacity);
     capypdf::Color get_color(Colors::Color const &color, std::optional<double> opacity);
+    capypdf::Color get_device_color(Colors::Color const &color, CapyPDF_Device_Colorspace device,
+                                    std::optional<double> opacity);
     std::optional<CapyPDF_SeparationId> get_separation(std::string const &name,
                                                        Colors::Color const &alternate);
 

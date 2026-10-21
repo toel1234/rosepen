@@ -417,8 +417,13 @@ capypdf::Color Document::get_color(Colors::Color const &color, std::optional<dou
         if (auto icc_id = get_icc_profile(cms)) {
             auto vals = color.getValues();
             out.set_icc(*icc_id, vals.data(), vals.size());
+        } else if (auto rgb = color.converted(Colors::Space::Type::RGB)) {
+            // A profile we can't embed (unresolved icc-color) falls back to the
+            // color's sRGB alternate; never leave the paint without a color.
+            out.set_rgb(rgb->get(0), rgb->get(1), rgb->get(2));
         } else {
             g_warning("Couldn't set icc color, icc profile didn't load.");
+            out.set_rgb(0, 0, 0); // Black default on error
         }
     } else if (auto rgb = color.converted(Colors::Space::Type::RGB)) {
         out.set_rgb(rgb->get(0), rgb->get(1), rgb->get(2));
@@ -427,6 +432,33 @@ capypdf::Color Document::get_color(Colors::Color const &color, std::optional<dou
         out.set_rgb(0, 0, 0); // Black default on error
     }
     return out;
+}
+
+/**
+ * Get a color in a form a PDF shading function can consume.
+ *
+ * capypdf's shading functions only accept device color spaces, and their
+ * function serializer aborts on an IccColor, so an ICC paint reaching a
+ * gradient or a mesh must be resolved to device numbers here. The device
+ * space is the shading space chosen by get_colorspace(), so this is the
+ * ICC-aware conversion of the color to its alternate (the same values as
+ * the color's #rrggbb fallback).
+ */
+capypdf::Color Document::get_device_color(Colors::Color const &color, CapyPDF_Device_Colorspace device,
+                                          std::optional<double> opacity)
+{
+    if (opacity) {
+        // Soft masks are gray and ignore the color space entirely.
+        return get_color(color, opacity);
+    }
+
+    auto const type = device == CAPY_DEVICE_CS_CMYK ? Colors::Space::Type::CMYK : Colors::Space::Type::RGB;
+    if (auto converted = color.converted(type)) {
+        return get_color(*converted, opacity);
+    }
+
+    g_warning("Couldn't convert color '%s' for PDF shading.", color.toString().c_str());
+    return get_color(Colors::Color(0x0), opacity);
 }
 
 /**
@@ -505,6 +537,12 @@ std::optional<CapyPDF_SeparationId> Document::get_separation(std::string const &
 
 std::optional<CapyPDF_IccColorSpaceId> Document::get_icc_profile(std::shared_ptr<Colors::Space::CMS> const &profile)
 {
+    // An unresolved/naked CMS space reports a stand-in sRGB profile whose data
+    // does not match its component count; such a paint must fall back instead.
+    if (!profile->hasValidCmsProfile()) {
+        return {};
+    }
+
     auto key = profile->getName();
     if (auto it = _icc_cache.find(key); it != _icc_cache.end()) {
         return it->second;
@@ -531,21 +569,10 @@ CapyPDF_Device_Colorspace Document::get_colorspace(std::shared_ptr<Colors::Space
 {
     if (*space == Colors::Space::Type::CMYK) {
         return CAPY_DEVICE_CS_CMYK;
-    } else if (*space == Colors::Space::Type::RGB) {
-        return CAPY_DEVICE_CS_RGB;
-    } else if (auto cms = std::dynamic_pointer_cast<Colors::Space::CMS>(space)) {
-        // TODO: Support icc profiles here, which are missing from capypdf atm
-        g_warning("ICC profile color space expressed as device color space!");
-        switch (cms->getType()) {
-            case Colors::Space::Type::RGB:
-                return CAPY_DEVICE_CS_RGB;
-            case Colors::Space::Type::CMYK:
-                return CAPY_DEVICE_CS_CMYK;
-            default:
-                break;
-        }
-        // Return IccColorSpaceId here, somehow.
     }
+    // capypdf has no ICCBased shading functions. An ICC paint is converted to
+    // its RGB alternate by get_device_color(), so shading that starts from an
+    // ICC color is emitted as DeviceRGB rather than as an unresolved IccColor.
     return CAPY_DEVICE_CS_RGB;
 }
 

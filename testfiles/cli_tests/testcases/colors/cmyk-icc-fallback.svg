@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- invariant: a relative color-profile href is rebased on save-elsewhere and still resolves cmyk-out after reload -->
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd" xmlns:xlink="http://www.w3.org/1999/xlink" width="100mm" height="80mm" viewBox="0 0 100 80" version="1.1" id="svg1">
+  <sodipodi:namedview id="namedview1" pagecolor="#ffffff" bordercolor="#666666" inkscape:document-units="mm" inkscape:output-profile="cmyk-out" />
+  <defs id="defs1">
+    <color-profile id="profile1" name="cmyk-out" xlink:href="../../../data/colors/default_cmyk.icc" />
+    <linearGradient id="grad-icc" x1="0" y1="0" x2="1" y2="0">
+      <stop id="stop1" offset="0" style="stop-color:#907f6f icc-color(cmyk-out, 0.1, 0.2, 0.3, 0.4)" />
+      <stop id="stop2" offset="1" style="stop-color:#ffffff icc-color(cmyk-out, 0, 0, 0, 0)" />
+    </linearGradient>
+  </defs>
+  <rect id="fill-icc" x="5" y="5" width="30" height="20" style="fill:#907f6f icc-color(cmyk-out, 0.1, 0.2, 0.3, 0.4)" />
+  <rect id="stroke-icc" x="5" y="30" width="30" height="20" style="fill:none;stroke:#112233 icc-color(cmyk-out, 0.5, 0.4, 0.3, 0.2);stroke-width:2" />
+  <rect id="fill-icc-gradient" x="45" y="5" width="50" height="45" style="fill:url(#grad-icc)" />
+</svg>

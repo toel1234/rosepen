@@ -1,0 +1,45 @@
+{
+  "_allow_warning": true,
+  "svg": {
+    "myink": {"inkscape:spot-name": "Special Red"},
+    "spot-Gr__n_1": {"inkscape:spot-name": "Grün 1"},
+    "spot-Ink__5_A": {"inkscape:spot-name": "Ink #5/A"},
+    "stop1": {"stop-color": "device-cmyk\\(0 1 0\\.8 0\\.1\\)"},
+    "stop2": {"stop-color": "device-cmyk\\(0\\.7 0 0\\.9 0\\)"},
+    "stop3": {"stop-color": "#222222"},
+    "stop4": {"stop-color": "#88aa22"},
+    "fill-myink": {"fill": "url\\(#myink\\)"},
+    "fill-gruen": {"fill": "url\\(#spot-Gr__n_1\\)"},
+    "fill-escaped": {"fill": "url\\(#spot-Ink__5_A\\)"},
+    "fill-control": {"fill": "url\\(#swatch-control\\)"}
+  },
+  "plain": {
+    "stop1": {"stop-color": "device-cmyk\\(0 1 0\\.8 0\\.1\\)"},
+    "stop2": {"stop-color": "device-cmyk\\(0\\.7 0 0\\.9 0\\)"},
+    "stop3": {"stop-color": "#222222"},
+    "stop4": {"stop-color": "#88aa22"},
+    "fill-myink": {"fill": "url\\(#myink\\)"},
+    "fill-gruen": {"fill": "url\\(#spot-Gr__n_1\\)"},
+    "fill-escaped": {"fill": "url\\(#spot-Ink__5_A\\)"},
+    "fill-control": {"fill": "url\\(#swatch-control\\)"},
+    "absent": ["inkscape:"]
+  },
+  "pdf": {
+    "count": {
+      "/Separation": 2,
+      "/Separation /Special#20Red": 1,
+      "/Separation /Ink#20#235#2fA": 1
+    },
+    "absent": ["/Separation /Gr"]
+  },
+  "png": {
+    "width": 40,
+    "samples": [
+      [8, 6, [230, 0, 46], 2],
+      [24, 6, [76, 255, 25], 2],
+      [8, 16, [34, 34, 34], 0],
+      [24, 16, [136, 170, 34], 0]
+    ]
+  },
+  "_note": "A spot id need not equal swatch_id(ink): id 'myink' carries 'Special Red'. Escaped PDF name: 'Ink #5/A' -> /Ink#20#235#2fA (#20 space, #23 '#', #2F '/'). Non-ASCII ink 'Grün 1' produces NO /Separation (capypdf rejects non-ASCII, the code checks ASCII first and exports the alternate; 02-03) and its g_warning 'Spot ink ... is not ASCII' is permitted via _allow_warning. The unmarked 'swatch-control' stays an ordinary gradient. PNG: naive device-cmyk conversions for the two spot alternates, exact hex for the two RGB stops."
+}

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- invariant: a spot id need not equal swatch_id(ink); names resolve verbatim incl. non-ASCII and escaped chars, an unmarked swatch stays unmarked -->
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd" xmlns:xlink="http://www.w3.org/1999/xlink" width="100mm" height="80mm" viewBox="0 0 100 80" version="1.1" id="svg1">
+  <sodipodi:namedview id="namedview1" pagecolor="#ffffff" bordercolor="#666666" inkscape:document-units="mm" />
+  <defs id="defs1">
+    <linearGradient id="myink" inkscape:swatch="solid" inkscape:spot-name="Special Red" x1="0" y1="0" x2="1" y2="0">
+      <stop id="stop1" offset="0" style="stop-color:device-cmyk(0 1 0.8 0.1)" />
+    </linearGradient>
+    <linearGradient id="spot-Gr__n_1" inkscape:swatch="solid" inkscape:spot-name="Grün 1" x1="0" y1="0" x2="1" y2="0">
+      <stop id="stop1" offset="0" style="stop-color:device-cmyk(0.7 0 0.9 0)" />
+    </linearGradient>
+    <linearGradient id="spot-Ink__5_A" inkscape:swatch="solid" inkscape:spot-name="Ink #5/A" x1="0" y1="0" x2="1" y2="0">
+      <stop id="stop1" offset="0" style="stop-color:#222222" />
+    </linearGradient>
+    <linearGradient id="swatch-control" inkscape:swatch="solid" x1="0" y1="0" x2="1" y2="0">
+      <stop id="stop1" offset="0" style="stop-color:#88aa22" />
+    </linearGradient>
+  </defs>
+  <rect id="fill-myink" x="5" y="5" width="30" height="20" style="fill:url(#myink)" />
+  <rect id="fill-gruen" x="45" y="5" width="30" height="20" style="fill:url(#spot-Gr__n_1)" />
+  <rect id="fill-escaped" x="5" y="30" width="30" height="20" style="fill:url(#spot-Ink__5_A)" />
+  <rect id="fill-control" x="45" y="30" width="30" height="20" style="fill:url(#swatch-control)" />
+</svg>

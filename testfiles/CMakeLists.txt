@@ -71,6 +71,7 @@ set(TEST_SOURCES
     colors/document-cms-test
     colors/document-output-profile-test
     colors/spot-swatch-test
+    colors/color-corpus-test
     colors/dragndrop-test
     colors/color-set-test
     colors/xml-color-test

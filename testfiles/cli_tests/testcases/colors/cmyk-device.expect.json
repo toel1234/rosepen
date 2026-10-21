@@ -1,0 +1,35 @@
+{
+  "svg": {
+    "fill-device-cmyk": {"fill": "device-cmyk\\(0 0\\.92 0\\.76 0\\)"},
+    "stroke-device-cmyk": {"fill": "none", "stroke": "device-cmyk\\(0 0 0 1\\)"},
+    "fill-device-gradient": {"fill": "url\\(#grad-device-cmyk\\)"},
+    "stop1": {"stop-color": "device-cmyk\\(0 0\\.92 0\\.76 0\\)"},
+    "stop2": {"stop-color": "device-cmyk\\(0 0 0 1\\)"},
+    "absent": ["icc-color", "inkscape:output-profile"]
+  },
+  "plain": {
+    "fill-device-cmyk": {"fill": "device-cmyk\\(0 0\\.92 0\\.76 0\\)"},
+    "stroke-device-cmyk": {"fill": "none", "stroke": "device-cmyk\\(0 0 0 1\\)"},
+    "fill-device-gradient": {"fill": "url\\(#grad-device-cmyk\\)"},
+    "stop1": {"stop-color": "device-cmyk\\(0 0\\.92 0\\.76 0\\)"},
+    "stop2": {"stop-color": "device-cmyk\\(0 0 0 1\\)"},
+    "absent": ["icc-color", "inkscape:"]
+  },
+  "pdf": {
+    "count": {
+      "0\\.000000 0\\.920000 0\\.760000 0\\.000000 k": 1,
+      "0\\.000000 0\\.000000 0\\.000000 1\\.000000 K": 1,
+      "/DeviceCMYK": 1
+    },
+    "absent": ["/Separation", "/ICCBased"]
+  },
+  "png": {
+    "width": 40,
+    "samples": [
+      [8, 6, [255, 20, 61], 2],
+      [19, 6, [236, 19, 57], 3],
+      [28, 11, [121, 10, 29], 3]
+    ]
+  },
+  "_note": "device-cmyk round trip is byte-stable; PDF k/K operators in capypdf 6dp fixed format; PNG fill is the naive DeviceCMYK conversion (1-c)(1-k) and gradient samples are the sRGB lerp of the two naive stop colors at the pixel centers."
+}

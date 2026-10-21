@@ -13,6 +13,7 @@
 #include "build-patterns.h"
 
 #include <array>
+#include <locale>
 
 #include "object/sp-gradient.h"
 #include "object/sp-linear-gradient.h"
@@ -68,7 +69,11 @@ bool gradient_has_transparency(SPPaintServer const *paint)
         }
     } else if (auto mesh = cast<SPMeshGradient>(paint)) {
         SPMeshNodeArray array;
+        // Same locale guard as in get_mesh_pattern(): the mesh path data must
+        // not be parsed under the process global locale.
+        auto const old_locale = std::locale::global(std::locale::classic());
         array.read(const_cast<SPMeshGradient *>(mesh));
+        std::locale::global(old_locale);
         for (auto &a : array.nodes) {
             for (auto &b : a) {
                 if (b->color && b->color->getOpacity() < 1.0) {
@@ -280,7 +285,15 @@ std::optional<CapyPDF_PatternId> Document::get_mesh_pattern(SPMeshGradient const
 
     SPMeshNodeArray array;
     // TODO: Find out why array read can't be const.
+    // SPMeshNodeArray::read parses the mesh stop path data with a plain
+    // std::stringstream, which uses the process-wide global locale. Under a
+    // non-classic locale (e.g. de_DE.UTF-8) every coordinate read fails and
+    // all mesh nodes collapse to (0,0), producing degenerate shadings that
+    // paint nothing. Parse with the classic locale, the same guard used by
+    // extension/internal/filter/shadows.h.
+    auto const old_locale = std::locale::global(std::locale::classic());
     array.read(const_cast<SPMeshGradient *>(mesh));
+    std::locale::global(old_locale);
 
     if (array.nodes.size() == 0 || array.nodes[0].size() == 0) {
         g_warning("Mesh gradient has no paintable nodes.");
@@ -292,6 +305,11 @@ std::optional<CapyPDF_PatternId> Document::get_mesh_pattern(SPMeshGradient const
     if (!opacity) {
         color_space = get_colorspace(space);
     }
+
+    auto patch_color = [&space](Colors::Color const &color) {
+        auto converted = color.converted(space);
+        return converted ? *converted : color;
+    };
 
     auto box = *bbox * cm.inverse();
     auto shading = capypdf::Type6Shading(color_space, box.left(), box.bottom(), box.right(), box.top());
@@ -313,7 +331,8 @@ std::optional<CapyPDF_PatternId> Document::get_mesh_pattern(SPMeshGradient const
                     coords.emplace_back(p[X]);
                     coords.emplace_back(p[Y]);
                 }
-                colors.push_back(get_color(*patch.getColor(k)->converted(space), opacity));
+                // Patch colors follow the Type6 shading space, which is device-only.
+                colors.push_back(get_device_color(patch_color(*patch.getColor(k)), color_space, opacity));
             }
 
             shading.add_patch(coords.data(), coords.size(), colors.data(), colors.size());
@@ -362,11 +381,10 @@ std::optional<CapyPDF_FunctionId> Document::get_gradient_function(SPGradientVect
 {
     static auto domain = std::to_array({0.0, 1.0});
     unsigned int stops = vector.stops.size();
-    auto color_space = vector.stops[0].color->getSpace();
-
     if (stops == 0) {
         return {};
     }
+    auto color_space = vector.stops[0].color->getSpace();
 
     // Update the caller on what the color space should be for this gradient
     if (!opacity) {
@@ -378,10 +396,20 @@ std::optional<CapyPDF_FunctionId> Document::get_gradient_function(SPGradientVect
     std::vector<double> bounds;
     std::vector<double> encode;
 
+    // An unresolvable icc profile can't act as the common space; keep the stop
+    // color as-is (get_device_color falls back to its sRGB alternate).
+    auto stop_color = [&color_space](Colors::Color const &color) {
+        auto converted = color.converted(color_space);
+        return converted ? *converted : color;
+    };
+
     for (unsigned int i = 0; i < stops - 1 || (i == 0 && stops == 1); i++) {
-        auto c1 = get_color(*vector.stops[i].color->converted(color_space), opacity);
+        // Shading functions are device-only in capypdf, so ICC stops are
+        // resolved to the shading's device space instead of being emitted as
+        // an IccColor (which aborts the function serializer).
+        auto c1 = get_device_color(stop_color(*vector.stops[i].color), *pdf_space, opacity);
         // A single stop gradient is a swatch, this makes a gradient but it might be better as a Spot Color
-        auto c2 = get_color(*vector.stops[i + (stops == 1 ? 0 : 1)].color->converted(color_space), opacity);
+        auto c2 = get_device_color(stop_color(*vector.stops[i + (stops == 1 ? 0 : 1)].color), *pdf_space, opacity);
 
         auto func = capypdf::Type2Function(domain.data(), domain.size(), c1, c2);
         functs.push_back(_gen.add_function(func));

@@ -1,0 +1,36 @@
+{
+  "svg": {
+    "namedview1": {"inkscape:output-profile": "cmyk-out"},
+    "profile1": {"xlink:href": ".*default_cmyk\\.icc"},
+    "fill-icc": {"fill": "#907f6f icc-color\\(cmyk-out, 0\\.1, 0\\.2, 0\\.3, 0\\.4\\)"},
+    "stroke-icc": {"stroke": "#112233 icc-color\\(cmyk-out, 0\\.5, 0\\.4, 0\\.3, 0\\.2\\)"},
+    "stop1": {"stop-color": "#907f6f icc-color\\(cmyk-out, 0\\.1, 0\\.2, 0\\.3, 0\\.4\\)"},
+    "stop2": {"stop-color": "#ffffff icc-color\\(cmyk-out, 0, 0, 0, 0\\)"},
+    "fill-icc-gradient": {"fill": "url\\(#grad-icc\\)"}
+  },
+  "plain": {
+    "profile1": {"xlink:href": ".*default_cmyk\\.icc"},
+    "fill-icc": {"fill": "#907f6f icc-color\\(cmyk-out, 0\\.1, 0\\.2, 0\\.3, 0\\.4\\)"},
+    "stroke-icc": {"stroke": "#112233 icc-color\\(cmyk-out, 0\\.5, 0\\.4, 0\\.3, 0\\.2\\)"},
+    "stop1": {"stop-color": "#907f6f icc-color\\(cmyk-out, 0\\.1, 0\\.2, 0\\.3, 0\\.4\\)"},
+    "stop2": {"stop-color": "#ffffff icc-color\\(cmyk-out, 0, 0, 0, 0\\)"},
+    "fill-icc-gradient": {"fill": "url\\(#grad-icc\\)"},
+    "absent": ["inkscape:"]
+  },
+  "pdf": {
+    "count": {
+      "/ICCBased": 1,
+      "/N 4": 1
+    },
+    "absent": ["/Separation"]
+  },
+  "png": {
+    "width": 40,
+    "samples": [
+      [8, 6, [152, 136, 121], 3],
+      [19, 6, [160, 145, 131], 3],
+      [28, 11, [206, 199, 191], 3]
+    ]
+  },
+  "_note": "The href rebase is asserted twice: the xlink:href regex (absolute file:// URI after save-elsewhere) and the checker's on-disk resolution of every <color-profile> href in a.svg and b.svg. PNG icc samples are the lcms conversion through cmyk-out (the fallback hex is NOT used for raster), +-3. pdf: SPEC values from the 02-04 plan (one cached /ICCBased with /N 4 for CMYK) - the pdf stage currently ABORTS before producing output (Task-2 finding F2: capypdf color2numbers 'Colorspace not supported yet.'), so these counts are pending Task 3, not observed."
+}
