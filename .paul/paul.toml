@@ -21,7 +21,9 @@ status = "complete"
 plans_completed = 3
 
 [loop]
-position = "IDLE"
+plan = "01-01"
+plan_path = "phases/01-fork-build-rebrand/01-01-PLAN.md"
+position = "PLAN"
 
 [satellite]
 groom = true

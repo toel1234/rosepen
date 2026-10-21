@@ -4,7 +4,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 
 # Packaging
 
-Packaging support for Penrose. The AppImage path, the Flatpak manifest and the
+Packaging support for Rosepen. The AppImage path, the Flatpak manifest and the
 CI workflow each have their own section here.
 
 ## AppImage
@@ -14,7 +14,7 @@ type-2 AppImage:
 
 ```sh
 fork/scripts/build-local.sh          # produces ./install
-fork/packaging/build-appimage.sh     # produces build/appimage/Penrose-x86_64.AppImage
+fork/packaging/build-appimage.sh     # produces build/appimage/Rosepen-x86_64.AppImage
 ```
 
 ### Why a manual AppDir
@@ -65,7 +65,7 @@ With FUSE available the AppImage runs directly. Without it, use the
 extraction runtime:
 
 ```sh
-APPIMAGE_EXTRACT_AND_RUN=1 Penrose-x86_64.AppImage
+APPIMAGE_EXTRACT_AND_RUN=1 Rosepen-x86_64.AppImage
 ```
 
 ### Tool pinning
@@ -97,7 +97,7 @@ image signing, and a release workflow are out of scope for this skeleton.
 
 ## Flatpak
 
-The manifest is `flatpak/io.github.toel1234.Penrose.yml`. It is a **skeleton**:
+The manifest is `flatpak/io.github.toel1234.Rosepen.yml`. It is a **skeleton**:
 it has not been built, and the first real build is a later plan. The
 development machine has no `flatpak-builder`, so the manifest is validated
 statically only:
@@ -106,7 +106,7 @@ statically only:
 python3 -I fork/packaging/lint-packaging.py
 ```
 
-- App-id `io.github.toel1234.Penrose`, command `penrose`.
+- App-id `io.github.toel1234.Rosepen`, command `rosepen`.
 - Runtime `org.gnome.Platform` 51, SDK `org.gnome.Sdk` 51. The version was
   resolved from the highest `gnome-NN` release branch in
   `git ls-remote --heads https://gitlab.gnome.org/GNOME/gnome-build-meta`.
@@ -114,14 +114,14 @@ python3 -I fork/packaging/lint-packaging.py
   moved from the GTK3 stack to GTK4: cairo, libsigc++-3, glibmm-2.68,
   cairomm-1.16, pangomm-2.48, gtkmm-4.0, boost (filesystem + stacktrace),
   double-conversion, gsl, bdwgc (with libatomic_ops), potrace, librevenge,
-  libwpd, libwpg, libvisio, libcdr, poppler-data, poppler, then Penrose.
-- Providing gtkmm and cairo in `/app` makes the Penrose CMake build skip its
+  libwpd, libwpg, libvisio, libcdr, poppler-data, poppler, then Rosepen.
+- Providing gtkmm and cairo in `/app` makes the Rosepen CMake build skip its
   `ExternalProject` downloads, which cannot work without network access.
 - Every archive source carries a real `sha256` computed from the downloaded
   tarball. There are no placeholder hashes.
 - `-DWITH_IMAGE_MAGICK=OFF` keeps the skeleton small; ImageMagick is deferred.
-- The Penrose module uses `type: dir` at the repository root. Release builds
-  will switch to `type: git` against `https://github.com/toel1234/penrose`.
+- The Rosepen module uses `type: dir` at the repository root. Release builds
+  will switch to `type: git` against `https://github.com/toel1234/rosepen`.
 
 ## CI
 
@@ -134,8 +134,8 @@ Steps: free disk space, checkout with recursive submodules, fetch the
 build dependencies, build with `fork/scripts/build-local.sh`, run
 `fork/scripts/verify-branding.sh`, build the AppImage with
 `fork/packaging/build-appimage.sh`, and upload
-`build/appimage/Penrose-x86_64.AppImage` as the artifact
-`Penrose-x86_64-<sha>` for 14 days.
+`build/appimage/Rosepen-x86_64.AppImage` as the artifact
+`Rosepen-x86_64-<sha>` for 14 days.
 
 The workflow uses read-only repository permissions, cancels superseded runs on
 the same ref, and has no matrix, release job, scheduled run or secrets.

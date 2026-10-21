@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # SPDX-License-Identifier: GPL-2.0-or-later
 #
-# build-appimage.sh — turn ./install into a self-contained Penrose AppImage.
+# build-appimage.sh — turn ./install into a self-contained Rosepen AppImage.
 #
 # Run from the repository root:
 #   fork/packaging/build-appimage.sh
@@ -12,7 +12,7 @@
 #   ./build/deps-cairo/lib   cairo 1.18.6 ExternalProject
 #   ./fork/packaging/appimage/AppRun
 # Output:
-#   build/appimage/Penrose-x86_64.AppImage (plus the kept build/appimage/AppDir)
+#   build/appimage/Rosepen-x86_64.AppImage (plus the kept build/appimage/AppDir)
 #
 # Approach: manual AppDir assembly + patchelf ($ORIGIN RUNPATHs) +
 # appimagetool type-2. Rationale: fork/packaging/README.md ("Why a manual
@@ -25,7 +25,6 @@ set -euo pipefail
 REPO_ROOT=$PWD
 INSTALL=$REPO_ROOT/install
 APPDIR=$REPO_ROOT/build/appimage/AppDir
-OUT=$REPO_ROOT/build/appimage/Penrose-x86_64.AppImage
 TOOLS=$REPO_ROOT/build/appimage/tools
 
 # --- Pinned build tools (TOFU: URLs + hashes resolved 2026-10-21; the script
@@ -46,11 +45,15 @@ log() { printf '== %s\n' "$*"; }
 die() { printf 'build-appimage: ERROR: %s\n' "$*" >&2; exit 1; }
 
 # --- 1. Preconditions -------------------------------------------------------
-[ -f "$INSTALL/bin/penrose" ] || die "install/bin/penrose missing — run fork/scripts/build-local.sh first"
+[ -f "$INSTALL/bin/rosepen" ] || die "install/bin/rosepen missing — run fork/scripts/build-local.sh first"
 [ -f "$REPO_ROOT/build/CMakeCache.txt" ] || die "build/CMakeCache.txt missing — run from the repository root"
 FORK_APP_ID=$(sed -n 's/^FORK_APP_ID:STRING=//p' "$REPO_ROOT/build/CMakeCache.txt" | head -n1)
 [ -n "$FORK_APP_ID" ] || die "FORK_APP_ID not found in build/CMakeCache.txt"
+FORK_PRODUCT=$(sed -n 's/^FORK_PRODUCT_NAME:STRING=//p' "$REPO_ROOT/build/CMakeCache.txt" | head -n1)
+[ -n "$FORK_PRODUCT" ] || die "FORK_PRODUCT_NAME not found in build/CMakeCache.txt"
+OUT=$REPO_ROOT/build/appimage/${FORK_PRODUCT}-x86_64.AppImage
 log "FORK_APP_ID=$FORK_APP_ID"
+log "FORK_PRODUCT_NAME=$FORK_PRODUCT"
 
 # --- 2. Pinned tools: download if absent, verify hashes unconditionally -----
 mkdir -p "$TOOLS"

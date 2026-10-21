@@ -3,10 +3,10 @@
   <requires lib="gtk" version="4.0"/>
   <object class="GtkWindow" id="about-screen-window">
     <property name="name">about</property>
-    <property name="title" translatable="yes">About Penrose</property>
+    <property name="title" translatable="yes">About Rosepen</property>
     <property name="resizable">False</property>
     <property name="modal">True</property>
-    <property name="icon-name">io.github.toel1234.Penrose</property>
+    <property name="icon-name">io.github.toel1234.Rosepen</property>
     <property name="child">
       <object class="GtkBox">
         <property name="orientation">vertical</property>
@@ -64,7 +64,7 @@
                     <child>
                       <object class="GtkLabel" id="header-authors">
                         <property name="margin-top">3</property>
-                        <property name="label" translatable="yes" context="Authors">&lt;big&gt;&lt;b&gt;Penrose is based on Inkscape. Do you want to get involved? &lt;a href="https://inkscape.org/contribute/"&gt;Check this page!&lt;/a&gt;&lt;/b&gt;&lt;/big&gt;</property>
+                        <property name="label" translatable="yes" context="Authors">&lt;big&gt;&lt;b&gt;Rosepen is based on Inkscape. Do you want to get involved? &lt;a href="https://inkscape.org/contribute/"&gt;Check this page!&lt;/a&gt;&lt;/b&gt;&lt;/big&gt;</property>
                         <property name="use-markup">True</property>
                       </object>
                     </child>
@@ -108,7 +108,7 @@
                     <child>
                       <object class="GtkLabel" id="header-translators">
                         <property name="margin-top">3</property>
-                        <property name="label" translatable="yes">&lt;big&gt;&lt;b&gt;Penrose is based on Inkscape. Do you want to contribute to translation activities? &lt;a href="https://inkscape.org/contribute/translations/"&gt;Join us here!&lt;/a&gt;&lt;/b&gt;&lt;/big&gt;</property>
+                        <property name="label" translatable="yes">&lt;big&gt;&lt;b&gt;Rosepen is based on Inkscape. Do you want to contribute to translation activities? &lt;a href="https://inkscape.org/contribute/translations/"&gt;Join us here!&lt;/a&gt;&lt;/b&gt;&lt;/big&gt;</property>
                         <property name="use-markup">True</property>
                       </object>
                     </child>
@@ -153,7 +153,7 @@
                       <object class="GtkLabel" id="header-license">
                         <property name="focusable">True</property>
                         <property name="margin-top">3</property>
-                        <property name="label" translatable="yes">&lt;big&gt;&lt;b&gt;Penrose is based on Inkscape. See the full details about the licenses &lt;a href="https://inkscape.org/about/license/"&gt;here&lt;/a&gt;!&lt;/b&gt;&lt;/big&gt;</property>
+                        <property name="label" translatable="yes">&lt;big&gt;&lt;b&gt;Rosepen is based on Inkscape. See the full details about the licenses &lt;a href="https://inkscape.org/about/license/"&gt;here&lt;/a&gt;!&lt;/b&gt;&lt;/big&gt;</property>
                         <property name="use-markup">True</property>
                       </object>
                     </child>
@@ -184,7 +184,7 @@
                 </property>
                 <property name="tab">
                   <object class="GtkLabel" id="license-label">
-                    <property name="tooltip-text" translatable="yes">Penrose license</property>
+                    <property name="tooltip-text" translatable="yes">Rosepen license</property>
                     <property name="hexpand">True</property>
                     <property name="label" translatable="yes">License</property>
                   </object>

@@ -4,7 +4,7 @@ type: Project
 about: "corel"
 ---
 
-# corel
+# corel (working name: Rosepen)
 
 ## What This Is
 
@@ -51,6 +51,7 @@ None yet.
 - Windows and macOS builds
 - Photo-Paint and other bundled Corel apps (to confirm)
 - Corel name, logo, icons, assets (trademark/copyright)
+- Final app name and trademark clearance (working name Rosepen; rename before public release)
 
 ## Constraints
 
@@ -70,7 +71,8 @@ None yet.
 |----------|-----------|------|--------|
 | Fork Inkscape, keep GTK4 | Qt rewrite is near-total UI rewrite | 2026-10-20 | Active |
 | Linux only | User does not need Windows/macOS | 2026-10-20 | Active |
-| Product name "Penrose" (binary `penrose`; app-id `io.github.toel1234.Penrose`, viewer `io.github.toel1234.PenroseView` — user decision 2026-10-21; supersedes interim "Pressmark" and the io.github.peter namespace the project did not own) | User's choice; tiling motif fits vector/geometry; trademark/domain checks still pending before public release | 2026-10-21 | Active |
+| Working name Rosepen, rename later | Penrose trademark crowded; Rosepen no hits found, not legally cleared | 2026-10-20 | Active |
+| Product name "Rosepen" (binary `rosepen`; app-id `io.github.toel1234.Rosepen`, viewer `io.github.toel1234.RosepenView`) — RENAMED from "Penrose" 2026-10-21: name collision, user decision | User's choice; tiling motif fits vector/geometry; trademark/domain checks still pending before public release | 2026-10-21 | Active |
 | Hosting: GitHub `toel1234/penrose` (public) + GitHub Actions CI; app-id namespace `io.github.toel1234` | User provided hosting and gh credentials 2026-10-21 | 2026-10-21 | Active |
 
 ## Success Metrics
@@ -78,7 +80,7 @@ None yet.
 | Metric | Target | Current | Status |
 |--------|--------|---------|--------|
 | v1 end-to-end | Open real .cdr, edit in CMYK, export print-ready PDF/X | - | Not started |
-| Build | Builds and runs on Ubuntu (local + CI) | Local: green; CI run in progress | In progress |
+| Build | Builds and runs on Ubuntu (local + CI) | CI run 39529586443 success (deps→build→sweep→AppImage) | Achieved |
 
 ## Tech Stack / Tools
 

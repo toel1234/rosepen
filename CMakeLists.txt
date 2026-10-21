@@ -26,7 +26,7 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/CMakeScripts/Modules")
 set(CMAKE_BUILD_TYPE "Release" CACHE STRING
     "Choose the type of build, options are: None(CMAKE_CXX_FLAGS or CMAKE_C_FLAGS used) Debug Release RelWithDebInfo MinSizeRel Strict.")
 
-project(penrose)
+project(rosepen)
 include(${CMAKE_SOURCE_DIR}/fork/cmake/ForkBranding.cmake)
 
 include(CMakeScripts/HelperFunctions.cmake)

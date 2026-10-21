@@ -400,7 +400,7 @@ SPDesktopWidget::~SPDesktopWidget() = default;
 /**
  * Set the title in the desktop-window (if desktop has an own window).
  *
- * The title has form file name: desktop number - Penrose.
+ * The title has form file name: desktop number - Rosepen.
  * The desktop number is only shown if it's 2 or higher,
  */
 void SPDesktopWidget::_updateTitle()

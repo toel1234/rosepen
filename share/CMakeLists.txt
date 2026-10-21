@@ -71,7 +71,7 @@ add_subdirectory(themes)
 # appdata and desktop files, bash completions
 if(UNIX)
   if (ENABLE_BINRELOC)
-    set(INKSCAPE_ICONPATH "\${SNAP}/share/inkscape/branding/penrose-logo.svg")
+    set(INKSCAPE_ICONPATH "\${SNAP}/share/inkscape/branding/rosepen-logo.svg")
   else()
     set(INKSCAPE_ICONPATH "${FORK_APP_ID}")
   endif()
@@ -151,9 +151,9 @@ if(UNIX)
     DESTINATION ${SHARE_INSTALL}/metainfo)
 
 
-  if(EXISTS ${CMAKE_SOURCE_DIR}/fork/branding/bash-completion/penrose)
+  if(EXISTS ${CMAKE_SOURCE_DIR}/fork/branding/bash-completion/rosepen)
     install(FILES
-      ${CMAKE_SOURCE_DIR}/fork/branding/bash-completion/penrose
+      ${CMAKE_SOURCE_DIR}/fork/branding/bash-completion/rosepen
       DESTINATION ${SHARE_INSTALL}/bash-completion/completions)
   endif()
 

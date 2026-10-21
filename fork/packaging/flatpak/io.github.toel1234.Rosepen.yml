@@ -20,11 +20,11 @@
 # All archive sha256 values were computed at execution time by downloading each
 # tarball. No placeholder hashes.
 
-id: io.github.toel1234.Penrose
+id: io.github.toel1234.Rosepen
 runtime: org.gnome.Platform
 runtime-version: "51"
 sdk: org.gnome.Sdk
-command: penrose
+command: rosepen
 
 finish-args:
   - --share=ipc
@@ -244,7 +244,7 @@ modules:
         url: https://poppler.freedesktop.org/poppler-25.09.0.tar.xz
         sha256: 758abfe0c77108c72d654b291dfbce54964b5315a53028e3875f07ef55ff20a3
 
-  - name: penrose
+  - name: rosepen
     buildsystem: cmake-ninja
     builddir: true
     config-opts:
@@ -261,6 +261,6 @@ modules:
           - .ccache
       # Release builds will replace the dir source above with:
       # - type: git
-      #   url: https://github.com/toel1234/penrose.git
+      #   url: https://github.com/toel1234/rosepen.git
       #   tag: <release tag>
       #   commit: <40-hex commit>

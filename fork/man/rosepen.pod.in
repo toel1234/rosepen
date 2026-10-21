@@ -8,11 +8,11 @@ SPDX-License-Identifier: GPL-2.0-or-later
 
 =head1 NAME
 
-Penrose - an SVG (Scalable Vector Graphics) editing program.
+Rosepen - an SVG (Scalable Vector Graphics) editing program.
 
 =head1 SYNOPSIS
 
-C<penrose [options] [filename_1 filename_2 ...]>
+C<rosepen [options] [filename_1 filename_2 ...]>
 
 options:
 
@@ -86,16 +86,16 @@ options:
 
 =head1 DESCRIPTION
 
-B<Penrose> is a Free and open source vector graphics editor. It offers a rich
+B<Rosepen> is a Free and open source vector graphics editor. It offers a rich
 set of features and is widely used for both artistic and technical
 illustrations such as cartoons, clip art, logos, typography, diagramming and
 flowcharting.
 It uses vector graphics to allow for sharp printouts and renderings at
 unlimited resolution and is not bound to a fixed number of pixels like raster
-graphics. Penrose uses the standardized B<SVG> file format as its main format,
+graphics. Rosepen uses the standardized B<SVG> file format as its main format,
 which is supported by many other applications including web browsers.
 
-B<Penrose> is a fork of Inkscape (L<https://inkscape.org>).
+B<Rosepen> is a fork of Inkscape (L<https://inkscape.org>).
 
 The interface is designed to be comfortable and efficient for skilled users,
 while remaining conformant to B<GNOME> standards so that users familiar with
@@ -108,7 +108,7 @@ shapes.  Colors, fonts, stroke width, and so forth are specified as
 standard, and since its files are text/xml, it will be possible to use
 SVG files in a sizeable number of programs and for a wide range of uses.
 
-B<Penrose> uses SVG as its native document format, and has the goal of
+B<Rosepen> uses SVG as its native document format, and has the goal of
 becoming the most fully compliant drawing program for SVG files
 available in the Open Source community.
 
@@ -135,22 +135,22 @@ Shows the GTK+ options.
 
 =item B<-V>, B<--version>
 
-Shows the Penrose version and build date.
+Shows the Rosepen version and build date.
 
 =item B<--debug-info>
 
-Prints technical information including Penrose version, dependency versions and operating system.
-This Information is useful when debugging issues with Penrose and should be included whenever
+Prints technical information including Rosepen version, dependency versions and operating system.
+This Information is useful when debugging issues with Rosepen and should be included whenever
 filing a bug report.
 
 =item B<--system-data-directory>
 
-Prints the system data directory where data files that ship with Penrose are stored. This includes
-files which Penrose requires to run (like unit definitions, built-in key maps, files describing UI
+Prints the system data directory where data files that ship with Rosepen are stored. This includes
+files which Rosepen requires to run (like unit definitions, built-in key maps, files describing UI
 layout, icon themes, etc.), core extensions, stock resources (filters, fonts, markers, color
 palettes, symbols, templates) and documentation (SVG example files, tutorials).
 
-The location in which Penrose expects the system data directory can be overridden with the
+The location in which Rosepen expects the system data directory can be overridden with the
 L<INKSCAPE_DATADIR> environment variable.
 
 =item B<--user-data-directory>
@@ -176,7 +176,7 @@ This replaces the I<--pdf-page> from previous Inkscape versions.
 
 =item B<--pdf-poppler>
 
-By default Penrose imports PDF files via an internal (poppler-derived) library.
+By default Rosepen imports PDF files via an internal (poppler-derived) library.
 Text is stored as text. Meshes are converted to tiles.
 Use L<--pdf-poppler> to import via an external (poppler with cairo backend) library
 instead. Text consists of groups containing cloned glyphs where each glyph is a path.
@@ -207,7 +207,7 @@ Sets the name of the output file. The default is to re-use the name of the input
 If L<--export-type> is also used, the file extension will be adjusted (or added) as appropriate.
 Otherwise the file type to export will be inferred from the extension of the specified filename.
 
-Usage of the special filename "-" makes Penrose write the image data to standard output (stdout).
+Usage of the special filename "-" makes Rosepen write the image data to standard output (stdout).
 
 =item B<--export-overwrite>
 
@@ -339,7 +339,7 @@ Set the antialiasing level for PNG export (0 to 3); default is 2.
 
 =item B<--export-png-use-dithering>=I<false|true>
 
-Forces dithering or disables it (the Penrose build must support dithering for this).
+Forces dithering or disables it (the Rosepen build must support dithering for this).
 
 =item B<--export-ps-level>=I<LEVEL>
 
@@ -381,13 +381,13 @@ appearance.
 
 While exporting to PNG, use export filename and DPI hints stored in the exported object (only
 with L<--export-id>).  These hints are set automatically when you export
-selection from within Penrose.  So, for example, if you export a shape
+selection from within Rosepen.  So, for example, if you export a shape
 with id="path231" as /home/me/shape.png at 300 dpi from document.svg
-using Penrose GUI, and save the document, then later you will be able
+using Rosepen GUI, and save the document, then later you will be able
 to reexport that shape to the same file with the same resolution simply
 with
 
-    penrose -i path231 -t document.svg
+    rosepen -i path231 -t document.svg
 
 If you use L<--export-dpi>, L<--export-width>, or L<--export-height>
 with this option, then the DPI hint will be ignored and the value from
@@ -399,7 +399,7 @@ command line will be used.
 
 Background color of exported PNG.  This may be any SVG supported color
 string, for example "#ff007f" or "rgb(255, 0, 128)".  If not set, then
-the page color set in Penrose in the Document Properties dialog will be
+the page color set in Rosepen in the Document Properties dialog will be
 used (stored in the pagecolor= attribute of sodipodi:namedview).
 
 
@@ -408,7 +408,7 @@ used (stored in the pagecolor= attribute of sodipodi:namedview).
 Opacity of the background of exported PNG.  This may be a value either
 between 0.0 and 1.0 (0.0 meaning full transparency, 1.0 full opacity) or
 greater than 1 up to 255 (255 meaning full opacity).  If not set and
-the -b option is not used, then the page opacity set in Penrose in the
+the -b option is not used, then the page opacity set in Rosepen in the
 Document Properties dialog will be used (stored in the
 inkscape:pageopacity= attribute of sodipodi:namedview).  If not set but
 the -b option is used, then the value of 255 (full opacity) will be
@@ -496,16 +496,16 @@ set).
 
 =item B<-q>, B<--active-window>
 
-Instead of launching a new Penrose process, this will run the command in the most recently focused Penrose document.
+Instead of launching a new Rosepen process, this will run the command in the most recently focused Rosepen document.
 
 =item B<--display>=I<DISPLAY>
 
-Sets the X display to use for the Penrose window.
+Sets the X display to use for the Rosepen window.
 
 =item B<--app-id-tag>=I<TAG>
 
-Creates a unique instance of Penrose with the application ID 'io.github.toel1234.Penrose.TAG'. 
-This is useful to separate the Penrose instances when running different Penrose versions 
+Creates a unique instance of Rosepen with the application ID 'io.github.toel1234.Rosepen.TAG'. 
+This is useful to separate the Rosepen instances when running different Rosepen versions 
 or using different preferences files concurrently.
 
 =item B<--batch-process>
@@ -514,20 +514,20 @@ Close GUI after executing all actions or verbs.
 
 =item B<--shell>
 
-With this parameter, Penrose will enter an interactive command line
+With this parameter, Rosepen will enter an interactive command line
 shell mode. In this mode, you type in commands at the prompt and
-Penrose executes them, without you having to run a new copy of Penrose
+Rosepen executes them, without you having to run a new copy of Rosepen
 for each command. This feature is mostly useful for scripting and server
 uses: it adds no new capabilities but allows you to improve the speed
-and memory requirements of any script that repeatedly calls Penrose to
+and memory requirements of any script that repeatedly calls Rosepen to
 perform command line tasks (such as export or conversions).
 
-In shell mode Penrose expects a sequence of actions (or verbs) as input.
+In shell mode Rosepen expects a sequence of actions (or verbs) as input.
 They will be processed line by line, that means typically when pressing enter.
 It is possible (but not necessary) to put all actions on a single line.
 
 This option can be combined with the L<--active-window> parameter, to execute the 
-shell commands in an already opened Penrose document.
+shell commands in an already opened Rosepen document.
 
 The following example opens a file and exports it into two different formats,
 then opens another file and exports a single object:
@@ -540,28 +540,28 @@ then opens another file and exports a single object:
 =head1 CONFIGURATION
 
 The main configuration file is located in
-~/.config/penrose/preferences.xml; it stores a variety of customization
-settings that you can change in Penrose (mostly in the Penrose
+~/.config/rosepen/preferences.xml; it stores a variety of customization
+settings that you can change in Rosepen (mostly in the Rosepen
 Preferences dialog).  Also in the subdirectories there, you can place
 your own:
 
-B<$HOME>/.config/penrose/extensions/ - extensions.
+B<$HOME>/.config/rosepen/extensions/ - extensions.
 
-B<$HOME>/.config/penrose/fonts/ - fonts.
+B<$HOME>/.config/rosepen/fonts/ - fonts.
 
-B<$HOME>/.config/penrose/icons/ - icon sets.
+B<$HOME>/.config/rosepen/icons/ - icon sets.
 
-B<$HOME>/.config/penrose/keys/ - keyboard maps.
+B<$HOME>/.config/rosepen/keys/ - keyboard maps.
 
-B<$HOME>/.config/penrose/paint/ - patterns and hatches.
+B<$HOME>/.config/rosepen/paint/ - patterns and hatches.
 
-B<$HOME>/.config/penrose/palettes/ - palettes.
+B<$HOME>/.config/rosepen/palettes/ - palettes.
 
-B<$HOME>/.config/penrose/symbols/ - symbol files.
+B<$HOME>/.config/rosepen/symbols/ - symbol files.
 
-B<$HOME>/.config/penrose/templates/ - new file templates.
+B<$HOME>/.config/rosepen/templates/ - new file templates.
 
-B<$HOME>/.config/penrose/ui/ - user interface files.
+B<$HOME>/.config/rosepen/ui/ - user interface files.
 
 =head1 DIAGNOSTICS
 
@@ -573,82 +573,82 @@ or crashes, it is useful to look at this output for clues.
 
 =head1 EXAMPLES
 
-While obviously B<Penrose> is primarily intended as a GUI application,
+While obviously B<Rosepen> is primarily intended as a GUI application,
 it can be used for doing SVG processing on the command line as well.
 
 Open an SVG file in the GUI:
 
-    penrose filename.svg
+    rosepen filename.svg
 
 Export an SVG file into PNG with the default resolution of 96 dpi (one
 SVG user unit translates to one bitmap pixel):
 
-    penrose --export-filename=filename.png filename.svg
+    rosepen --export-filename=filename.png filename.svg
 
 Same, but force the PNG file to be 600x400 pixels:
 
-    penrose --export-filename=filename.png -w 600 -h 400 filename.svg
+    rosepen --export-filename=filename.png -w 600 -h 400 filename.svg
 
 Same, but export the drawing (bounding box of all objects), not the
 page:
 
-    penrose --export-filename=filename.png --export-area-drawing filename.svg
+    rosepen --export-filename=filename.png --export-area-drawing filename.svg
 
 Export two different files into four distinct file formats each:
 
-    penrose --export-type=png,ps,eps,pdf filename1.svg filename2.svg
+    rosepen --export-type=png,ps,eps,pdf filename1.svg filename2.svg
 
 Export to PNG the object with id="text1555", using the output filename
 and the resolution that were used for that object last time when it was
 exported from the GUI:
 
-    penrose --export-id=text1555 --export-use-hints filename.svg
+    rosepen --export-id=text1555 --export-use-hints filename.svg
 
 Same, but use the default 96 dpi resolution, specify the filename, and
 snap the exported area outwards to the nearest whole SVG user unit
 values (to preserve pixel-alignment of objects and thus minimize
 aliasing):
 
-    penrose --export-id=text1555 --export-filename=text.png --export-area-snap filename.svg
+    rosepen --export-id=text1555 --export-filename=text.png --export-area-snap filename.svg
 
 Convert an Inkscape SVG document to plain SVG:
 
-    penrose --export-plain-svg --export-filename=filename2.svg filename1.svg
+    rosepen --export-plain-svg --export-filename=filename2.svg filename1.svg
 
 Convert an SVG document to EPS, converting all texts to paths:
 
-    penrose --export-filename=filename.eps --export-text-to-path filename.svg
+    rosepen --export-filename=filename.eps --export-text-to-path filename.svg
 
 Query the width of the object with id="text1555":
 
-    penrose --query-width --query-id=text1555 filename.svg
+    rosepen --query-width --query-id=text1555 filename.svg
 
 Duplicate the objects with id="path1555" and id="rect835", rotate the duplicates 90
 degrees, save SVG, and quit:
 
-    penrose --select=path1555,rect835 --actions="duplicate;object-rotate-90-cw" --export-overwrite filename.svg
+    rosepen --select=path1555,rect835 --actions="duplicate;object-rotate-90-cw" --export-overwrite filename.svg
 
 Select all objects with ellipse tag, rotate them 30 degrees, save the file, and quit.
 
-    penrose --actions="select-by-element:ellipse;transform-rotate:30" --export-overwrite filename.svg
+    rosepen --actions="select-by-element:ellipse;transform-rotate:30" --export-overwrite filename.svg
 
 Export the object with the ID MyTriangle with a semi transparent purple background
 to the file triangle_purple.png and with a red background to the file triangle_red.png.
 
-    penrose --actions="export-id:MyTriangle; export-id-only; export-background:purple; export-background-opacity:0.5;export-filename:triangle_purple.png; export-do; export-background:red; export-background-opacity:1; export-filename:triangle_red.png; export-do" filename.svg
+    rosepen --actions="export-id:MyTriangle; export-id-only; export-background:purple; export-background-opacity:0.5;export-filename:triangle_purple.png; export-do; export-background:red; export-background-opacity:1; export-filename:triangle_red.png; export-do" filename.svg
 
 Read an SVG from standard input (stdin) and export it to PDF format:
 
-    cat filename.svg | penrose --pipe --export-filename=filename.pdf
+    cat filename.svg | rosepen --pipe --export-filename=filename.pdf
 
 Export an SVG to PNG format and write it to standard output (stdout), then convert it 
 to JPG format with ImageMagick's convert program:
 
-    penrose --export-type=png --export-filename=- filename.svg | convert - filename.jpg
+    rosepen --export-type=png --export-filename=- filename.svg | convert - filename.jpg
 
 Same as above, but also reading from a pipe (--export-filename can be omitted in this case)
 
-    cat filename.svg | penrose --pipe --export-type=png | convert - filename.jpg
+    cat filename.svg | rosepen --pipe --export-type=png | convert - filename.jpg
 
 =head1 ENVIRONMENT VARIABLES
 
@@ -660,8 +660,8 @@ Set a custom location for the user profile directory.
 
 =item B<INKSCAPE_DATADIR>
 
-Set a custom location for the Penrose data directory (e.g. B<$PREFIX>/share
-if Penrose's shared files are in B<$PREFIX>/share/inkscape).
+Set a custom location for the Rosepen data directory (e.g. B<$PREFIX>/share
+if Rosepen's shared files are in B<$PREFIX>/share/inkscape).
 
 =item B<INKSCAPE_LOCALEDIR>
 
@@ -674,7 +674,7 @@ L<http://wiki.inkscape.org/wiki/index.php/Environment_variables>
 
 =head1 OTHER INFO
 
-Penrose is a fork of Inkscape. Upstream project information is at
+Rosepen is a fork of Inkscape. Upstream project information is at
 L<https://www.inkscape.org/>.  The website has news, documentation,
 tutorials, examples, mailing list archives, the latest released version
 of the program, bugs and feature requests databases, forums, and more.
@@ -708,27 +708,27 @@ L<https://www.w3.org/TR/DOM-Level-2-Core/>
 
 =head1 GUI NOTES
 
-To learn Penrose's GUI operation, read the manual in Help > Penrose
+To learn Rosepen's GUI operation, read the manual in Help > Rosepen
 manual, and the tutorials in Help > Tutorials.
 
-Apart from SVG, Penrose can import (File > Import) most bitmap formats
+Apart from SVG, Rosepen can import (File > Import) most bitmap formats
 (PNG, BMP, JPG, XPM, GIF, etc.), plain text (requires Perl), PS and EPS
 (requires Ghostscript), PDF and AI format (AI version 9.0 or newer).
 
-Penrose exports 32-bit PNG images (File > Export PNG Image) as well as
+Rosepen exports 32-bit PNG images (File > Export PNG Image) as well as
 AI, PS, EPS, PDF, DXF, and several other formats via File > Save as.
 
-Penrose can use the pressure and tilt of a graphic tablet pen for
+Rosepen can use the pressure and tilt of a graphic tablet pen for
 width, angle, and force of action of several tools, including the
 Calligraphic pen.
 
-Penrose includes a GUI front-end to the Potrace bitmap tracing engine
-(L<http://potrace.sf.net>) which is embedded into Penrose.
+Rosepen includes a GUI front-end to the Potrace bitmap tracing engine
+(L<http://potrace.sf.net>) which is embedded into Rosepen.
 
-Penrose can use external scripts (stdin-to-stdout filters) that are
+Rosepen can use external scripts (stdin-to-stdout filters) that are
 represented by commands in the Extensions menu. A script can have a GUI
 dialog for setting various parameters and can get the IDs of the
-selected objects on which to act via the command line. Penrose comes
+selected objects on which to act via the command line. Rosepen comes
 with an assortment of effects written in Python.
 
 =head1 KEYBINDINGS
@@ -738,14 +738,14 @@ doc/keys.html, or use the Keys and Mouse command in Help menu.
 
 =head1 BUGS
 
-Penrose has no public bug tracker yet; report issues to the project
+Rosepen has no public bug tracker yet; report issues to the project
 maintainers.  Upstream Inkscape's reported bugs are listed at
 L<https://www.inkscape.org/>.  See also the Known Issues section in the
 Release Notes for your version (file `NEWS').
 
 =head1 HISTORY
 
-Penrose is forked from Inkscape. Upstream history follows.
+Rosepen is forked from Inkscape. Upstream history follows.
 
 The codebase that would become Inkscape began life in 1999 as the
 program Gill, the GNOME Illustrator application, created by Raph Levien.
@@ -802,7 +802,7 @@ ${INKSCAPE_AUTHORS}
 
 B<Copyright (C)> 1999-2023 by Authors.
 
-B<Penrose> is free software; you can redistribute it and/or modify it
+B<Rosepen> is free software; you can redistribute it and/or modify it
 under the terms of the GPL version 2 or later.
 
 

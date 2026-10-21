@@ -1,7 +1,7 @@
 #!/bin/sh
 # SPDX-License-Identifier: GPL-2.0-or-later
 #
-# AppRun for the Penrose AppImage (POSIX sh, no bashisms).
+# AppRun for the Rosepen AppImage (POSIX sh, no bashisms).
 #
 # INKSCAPE_DATADIR semantics, proven against the source:
 #   src/path-prefix.cpp get_inkscape_datadir() uses $INKSCAPE_DATADIR as the
@@ -28,4 +28,4 @@ export XDG_DATA_DIRS="$HERE/usr/share:$XDG_DATA_DIRS"
 # RUNPATHs (set by fork/packaging/build-appimage.sh), and LD_LIBRARY_PATH
 # would leak into extension subprocesses (python) and hijack their imports.
 
-exec "$HERE/usr/bin/penrose" "$@"
+exec "$HERE/usr/bin/rosepen" "$@"

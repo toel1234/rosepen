@@ -72,7 +72,7 @@
     </columns>
     <data>
       <row>
-        <col id="0" translatable="yes">Penrose (default)</col>
+        <col id="0" translatable="yes">Rosepen (default)</col>
         <col id="1">default</col>
       </row>
       <row>
@@ -207,7 +207,7 @@
       </row>
       <row>
         <col id="0">classic</col>
-        <col id="1" translatable="yes">Classic Penrose</col>
+        <col id="1" translatable="yes">Classic Rosepen</col>
         <col id="2">Default</col>
         <col id="3">Adwaita</col>
         <col id="4">0</col>
@@ -512,7 +512,7 @@
                 <property name="margin-end">30</property>
                 <property name="margin-top">10</property>
                 <property name="margin-bottom">10</property>
-                <property name="label" translatable="yes">&lt;b&gt;Penrose is based on Inkscape.&lt;/b&gt; The Inkscape project is supported by users like you. Through our collective time, money and skill, we have made this software for everyone in the world to enjoy free from restrictions and free from costs. &lt;b&gt;
+                <property name="label" translatable="yes">&lt;b&gt;Rosepen is based on Inkscape.&lt;/b&gt; The Inkscape project is supported by users like you. Through our collective time, money and skill, we have made this software for everyone in the world to enjoy free from restrictions and free from costs. &lt;b&gt;
                 If you would like to get involved and make the next version of Inkscape even better, please consider joining the Inkscape project today.&lt;/b&gt;</property>
                 <property name="use-markup">True</property>
                 <property name="wrap">True</property>
@@ -587,7 +587,7 @@
                             <property name="margin-end">8</property>
                             <property name="margin-top">8</property>
                             <property name="margin-bottom">8</property>
-                            <property name="label" translatable="yes">Penrose is based on Inkscape: learn how to Fund Inkscape</property>
+                            <property name="label" translatable="yes">Rosepen is based on Inkscape: learn how to Fund Inkscape</property>
                             <property name="justify">center</property>
                             <property name="wrap">True</property>
                             <attributes>

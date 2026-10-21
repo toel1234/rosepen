@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- SPDX-License-Identifier: GPL-2.0-or-later -->
 <svg xmlns="http://www.w3.org/2000/svg" width="700" height="220" viewBox="0 0 700 220">
-  <title>Welcome to Penrose</title>
+  <title>Welcome to Rosepen</title>
   <rect width="700" height="220" fill="#F8F9FA" />
   <polygon points="655.1,110.0 655.1,171.3 691.2,159.6" fill="#1FA59A" fill-opacity="0.06" stroke="#2B2D6E" stroke-opacity="0.08" stroke-width="0.5" />
   <polygon points="655.1,171.3 655.1,110.0 596.9,190.2" fill="#F2A541" fill-opacity="0.03" stroke="#2B2D6E" stroke-opacity="0.08" stroke-width="0.5" />

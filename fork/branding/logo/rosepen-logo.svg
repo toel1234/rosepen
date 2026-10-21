@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- SPDX-License-Identifier: GPL-2.0-or-later -->
 <svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
-  <title>Penrose Logo</title>
+  <title>Rosepen Logo</title>
   <path d="M 49.25,205.94 L 206.75,205.94 L 218.00,186.46 L 83.00,186.46 L 128.00,108.51 L 116.75,89.03 Z" fill="#2B2D6E" />
   <path d="M 116.75,50.06 L 38.00,186.46 L 49.25,205.94 L 116.75,89.03 L 161.75,166.97 L 184.25,166.97 Z" fill="#1FA59A" />
   <path d="M 218.00,186.46 L 139.25,50.06 L 116.75,50.06 L 184.25,166.97 L 94.25,166.97 L 83.00,186.46 Z" fill="#F2A541" />

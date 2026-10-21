@@ -72,7 +72,7 @@
             <property name="name">StatusbarSelection</property>
             <property name="halign">start</property>
             <property name="xalign">0</property>
-            <property name="label" translatable="yes">&lt;b&gt;Welcome to Penrose!&lt;/b&gt; Use shape or freehand tools to create objects; use selector (arrow) to move or transform them.</property>
+            <property name="label" translatable="yes">&lt;b&gt;Welcome to Rosepen!&lt;/b&gt; Use shape or freehand tools to create objects; use selector (arrow) to move or transform them.</property>
             <property name="use-markup">True</property>
             <!--
             do not wrap is necesary need for fast render in windows a non ellipsize label https://docs.gtk.org/Pango/method.Layout.is_wrapped.html

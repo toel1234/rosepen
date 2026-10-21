@@ -41,22 +41,22 @@ After rebasing, move the `fork-base` tag to `<new-base>` and update
 
 | Item | Value |
 |------|-------|
-| Product | Penrose |
-| Editor binary | `penrose` |
-| Viewer product / binary | Penrose Viewer / `penrose-view` |
-| Editor app-id | `io.github.toel1234.Penrose` |
-| Viewer app-id | `io.github.toel1234.PenroseView` |
-| User config and cache dir | `penrose` (`$XDG_CONFIG_HOME/penrose`, `$XDG_CACHE_HOME/penrose`) |
-| Gettext domain | `penrose` (`penrose.mo`) |
-| Homepage | `https://github.com/toel1234/penrose` |
-| Bug tracker | `https://github.com/toel1234/penrose/issues` |
+| Product | Rosepen |
+| Editor binary | `rosepen` |
+| Viewer product / binary | Rosepen Viewer / `rosepen-view` |
+| Editor app-id | `io.github.toel1234.Rosepen` |
+| Viewer app-id | `io.github.toel1234.RosepenView` |
+| User config and cache dir | `rosepen` (`$XDG_CONFIG_HOME/rosepen`, `$XDG_CACHE_HOME/rosepen`) |
+| Gettext domain | `rosepen` (`rosepen.mo`) |
+| Homepage | `https://github.com/toel1234/rosepen` |
+| Bug tracker | `https://github.com/toel1234/rosepen/issues` |
 
 ## Hosting
 
 | Item | Value |
 |------|-------|
-| Repository | `https://github.com/toel1234/penrose` |
-| Issues | `https://github.com/toel1234/penrose/issues` |
+| Repository | `https://github.com/toel1234/rosepen` |
+| Issues | `https://github.com/toel1234/rosepen/issues` |
 | CI | GitHub Actions, `.github/workflows/build.yml` |
 | App-id namespace | `io.github.toel1234` (owned via the GitHub account `toel1234`) |
 
@@ -66,7 +66,7 @@ After rebasing, move the `fork-base` tag to `<new-base>` and update
 `FORK_BINARY_NAME`, `FORK_APP_ID`, `FORK_CONFIG_DIR_NAME`,
 `FORK_GETTEXT_DOMAIN`, `FORK_HOMEPAGE_URL`, `FORK_BUGTRACKER_URL` and the
 viewer equivalents. The top-level `CMakeLists.txt` includes it right after
-`project(penrose)`, and `config.h.cmake` turns the values into `config.h`
+`project(rosepen)`, and `config.h.cmake` turns the values into `config.h`
 macros (`FORK_PRODUCT_NAME`, `FORK_BINARY_NAME`, `FORK_APP_ID`,
 `FORK_VIEWER_APP_ID`, `FORK_CONFIG_DIR_NAME`, `FORK_HOMEPAGE_URL`,
 `FORK_BUGTRACKER_URL`, and `GETTEXT_PACKAGE` = `FORK_GETTEXT_DOMAIN`). C++

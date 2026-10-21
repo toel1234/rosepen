@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: GPL-2.0-or-later
-"""Static validation for Penrose packaging files.
+"""Static validation for Rosepen packaging files.
 
 Checks the Flatpak manifest and the GitHub Actions workflow without building
 anything. With --check-noble, also verifies that every package listed in
@@ -25,7 +25,7 @@ except ImportError:
     sys.exit(2)
 
 ROOT = Path(__file__).resolve().parents[2]
-MANIFEST = ROOT / "fork/packaging/flatpak/io.github.toel1234.Penrose.yml"
+MANIFEST = ROOT / "fork/packaging/flatpak/io.github.toel1234.Rosepen.yml"
 WORKFLOW = ROOT / ".github/workflows/build.yml"
 DEPS_SCRIPT = ROOT / "fork/scripts/install-build-deps-ubuntu.sh"
 CACHE = ROOT / "build/CMakeCache.txt"
@@ -93,8 +93,8 @@ def check_manifest():
     app_id = cache_value("FORK_APP_ID")
     if app_id is not None and data.get("id") != app_id:
         fail(f"manifest id {data.get('id')!r} != cached FORK_APP_ID {app_id!r}")
-    if data.get("command") != "penrose":
-        fail(f"manifest command must be 'penrose', got {data.get('command')!r}")
+    if data.get("command") != "rosepen":
+        fail(f"manifest command must be 'rosepen', got {data.get('command')!r}")
     if data.get("runtime") != "org.gnome.Platform":
         fail(f"manifest runtime must be 'org.gnome.Platform', got {data.get('runtime')!r}")
     if data.get("sdk") != "org.gnome.Sdk":
@@ -164,14 +164,14 @@ def check_workflow():
                 fail("workflow: checkout does not set fetch-depth: 1")
         if re.match(r"^actions/upload-artifact@", uses):
             upload = step.get("with") or {}
-            if "build/appimage/Penrose-x86_64.AppImage" not in str(upload.get("path", "")):
+            if "build/appimage/Rosepen-x86_64.AppImage" not in str(upload.get("path", "")):
                 fail("workflow: upload-artifact path is not the AppImage")
             if upload.get("if-no-files-found") != "error":
                 fail("workflow: upload-artifact if-no-files-found must be error")
             if "retention-days" not in upload:
                 fail("workflow: upload-artifact retention-days missing")
-            if not str(upload.get("name", "")).startswith("Penrose-x86_64-"):
-                fail("workflow: upload-artifact name must start with Penrose-x86_64-")
+            if not str(upload.get("name", "")).startswith("Rosepen-x86_64-"):
+                fail("workflow: upload-artifact name must start with Rosepen-x86_64-")
             upload_ok = True
         if "run" in step:
             all_runs.append(str(step["run"]))

@@ -15,11 +15,11 @@ See: .paul/PROJECT.md (updated 2026-10-20)
 
 ## Current Position
 
-Milestone: v0.1 Initial Release
-Phase: 1 of 6 (Fork, build and rebrand) — COMPLETE (3 of 3 plans)
-Plan: 01-03 COMPLETE — published as toel1234/penrose (see 01-03-SUMMARY.md)
-Status: Ready for Phase 2 (CMYK/ICC color pipeline) planning
-Last activity: 2026-10-21 — Phase 1 transition complete; CI run in progress
+Milestone: v0.1 Corel parity v1
+Phase: 1 of 6 (Fork, build, rebrand) — Planning
+Plan: 01-01 created, awaiting approval
+Status: PLAN created, ready for APPLY
+Last activity: 2026-10-21 — Created phases/01-fork-build-rebrand/01-01-PLAN.md
 
 Progress:
 - Milestone: [█░░░░░░░░░] 17%
@@ -51,8 +51,8 @@ PLAN ──▶ APPLY ──▶ UNIFY
 
 Last session: 2026-10-21 (Phase 1 complete, published)
 Stopped at: Phase 1 transition done; repo live at github.com/toel1234/penrose
-Next action: /paul:plan for Phase 2 (CMYK/ICC color pipeline); check CI run result
-Resume file: .paul/phases/01-fork-build/01-03-SUMMARY.md
+Next action: Review plan, run /paul:apply .paul/phases/01-fork-build-rebrand/01-01-PLAN.md
+Resume file: .paul/phases/01-fork-build-rebrand/01-01-PLAN.md
 
 ---
 *STATE.md — Updated after every significant action*

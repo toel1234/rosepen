@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- SPDX-License-Identifier: GPL-2.0-or-later -->
 <svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
-  <title>Penrose Application Icon</title>
+  <title>Rosepen Application Icon</title>
   <path d="M 15.00,112.50 L 113.00,112.50 L 120.00,100.37 L 36.00,100.37 L 64.00,51.88 L 57.00,39.75 Z" fill="#2B2D6E" />
   <path d="M 57.00,15.50 L 8.00,100.37 L 15.00,112.50 L 57.00,39.75 L 85.00,88.25 L 99.00,88.25 Z" fill="#1FA59A" />
   <path d="M 120.00,100.37 L 71.00,15.50 L 57.00,15.50 L 99.00,88.25 L 43.00,88.25 L 36.00,100.37 Z" fill="#F2A541" />

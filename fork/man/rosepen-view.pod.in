@@ -8,11 +8,11 @@ SPDX-License-Identifier: GPL-2.0-or-later
 
 =head1 NAME
 
-penrose-view - the Penrose Viewer, an SVG viewer and slideshow program.
+rosepen-view - the Rosepen Viewer, an SVG viewer and slideshow program.
 
 =head1 SYNOPSIS
 
-C<penrose-view [options] [filename ...]>
+C<rosepen-view [options] [filename ...]>
 
 options:
 
@@ -27,17 +27,17 @@ options:
 
 =head1 DESCRIPTION
 
-B<Penrose Viewer> is an B<Scalable Vector Graphics (SVG)> viewer that can also be
+B<Rosepen Viewer> is an B<Scalable Vector Graphics (SVG)> viewer that can also be
 used for slideshows or presentations. One or more B<FILES> or B<FOLDERS> can
-be specified on the command-line for opening. Penrose Viewer will display all SVG
+be specified on the command-line for opening. Rosepen Viewer will display all SVG
 files in the given order. Folders will be expanded to a list of contained SVG
 files.
 
-You can also launch Penrose Viewer without any command-line arguments, which will
+You can also launch Rosepen Viewer without any command-line arguments, which will
 bring up a file chooser that allows to select files and folders via a
 graphical user interface.
 
-B<Penrose> is a fork of Inkscape (L<https://inkscape.org>).
+B<Rosepen> is a fork of Inkscape (L<https://inkscape.org>).
 
 =head1 OPTIONS
 
@@ -49,11 +49,11 @@ Show help options
 
 =item B<-V>, B<--version>
 
-Print Penrose Viewer version and build date (this is usually matches the Penrose version).
+Print Rosepen Viewer version and build date (this is usually matches the Rosepen version).
 
 =item B<-f>, B<--fullscreen>
 
-Launch Penrose Viewer in fullscreen mode.
+Launch Rosepen Viewer in fullscreen mode.
 
 =item B<-r>, B<--recursive>
 
@@ -70,7 +70,7 @@ Show image scaled by a factor of NUMBER instead of using the file's native size.
 
 =item B<-p>, B<--preload>
 
-Preloads all SVG files. Penrose Viewer still needs to render images upon showing,
+Preloads all SVG files. Rosepen Viewer still needs to render images upon showing,
 however this option ensures all SVG files are already parsed and loaded into
 memory. This option can also be used to verify if all files can be opened
 properly, without having to cycle through all files manually.
@@ -105,31 +105,31 @@ properly, without having to cycle through all files manually.
 
 Open two SVG files for viewing:
 
-    penrose-view file1.svg file2.svg
+    rosepen-view file1.svg file2.svg
 
-Open all SVG files in the examples folder shipped with Penrose:
+Open all SVG files in the examples folder shipped with Rosepen:
 
-    penrose-view B<${CMAKE_INSTALL_PREFIX}/${SHARE_INSTALL}>/inkscape/examples
+    rosepen-view B<${CMAKE_INSTALL_PREFIX}/${SHARE_INSTALL}>/inkscape/examples
 
 Launch a fullscreen slideshow that automatically changes to the next image every 5 seconds:
 
-    penrose-view --fullscreen --timer=5 [files/folders ...]
+    rosepen-view --fullscreen --timer=5 [files/folders ...]
 
 =head1 SEE ALSO
 
-L<penrose>
+L<rosepen>
 
 L<http://www.inkscape.org/>
 
 =head1 AUTHORS
 
-See L<penrose(1)>
+See L<rosepen(1)>
 
 =head1 COPYRIGHT AND LICENSE
 
 B<Copyright (C)> 1999-2023 by Authors.
 
-B<Penrose> is free software; you can redistribute it and/or modify it
+B<Rosepen> is free software; you can redistribute it and/or modify it
 under the terms of the GPL version 3 or later.
 
 

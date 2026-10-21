@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- SPDX-License-Identifier: GPL-2.0-or-later -->
 <svg xmlns="http://www.w3.org/2000/svg" width="150" height="150" viewBox="0 0 150 150">
-  <title>Contribute to Penrose</title>
+  <title>Contribute to Rosepen</title>
   <rect width="150" height="150" fill="#F8F9FA" />
   <polygon points="149.11,75.00 149.11,89.88 157.85,87.04" fill="#2B2D6E" stroke="#FFFFFF" stroke-width="0.8" stroke-linejoin="round" />
   <polygon points="149.11,89.88 149.11,75.00 134.95,94.48" fill="#373A85" stroke="#FFFFFF" stroke-width="0.8" stroke-linejoin="round" />

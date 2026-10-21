@@ -1,34 +1,34 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- SPDX-License-Identifier: GPL-2.0-or-later -->
 <component type="desktop-application">
-  <id>io.github.toel1234.Penrose</id>
-  <launchable type="desktop-id">io.github.toel1234.Penrose.desktop</launchable>
+  <id>io.github.toel1234.Rosepen</id>
+  <launchable type="desktop-id">io.github.toel1234.Rosepen.desktop</launchable>
   <metadata_license>CC0-1.0</metadata_license>
   <project_license>GPL-2.0-or-later</project_license>
-  <name>Penrose</name>
+  <name>Rosepen</name>
   <summary>Vector graphics editor</summary>
   <description>
     <p>
-      Penrose is a fork of Inkscape, a Free and open source vector graphics editor.
+      Rosepen is a fork of Inkscape, a Free and open source vector graphics editor.
       It offers a rich set of features for artistic and technical illustrations such as
       cartoons, clip art, logos, typography, diagramming and flowcharting.
     </p>
     <p>
-      Penrose uses the standardized SVG file format as its main format and supports
+      Rosepen uses the standardized SVG file format as its main format and supports
       advanced SVG features such as markers, clones, alpha blending and live path effects.
     </p>
   </description>
   <developer id="io.github.toel1234">
-    <name>Penrose contributors</name>
+    <name>Rosepen contributors</name>
   </developer>
-  <url type="homepage">https://github.com/toel1234/penrose</url>
-  <url type="bugtracker">https://github.com/toel1234/penrose/issues</url>
-  <url type="vcs-browser">https://github.com/toel1234/penrose</url>
+  <url type="homepage">https://github.com/toel1234/rosepen</url>
+  <url type="bugtracker">https://github.com/toel1234/rosepen/issues</url>
+  <url type="vcs-browser">https://github.com/toel1234/rosepen</url>
   <categories>
     <category>Graphics</category>
   </categories>
   <provides>
-    <binary>penrose</binary>
+    <binary>rosepen</binary>
   </provides>
   <content_rating type="oars-1.1"/>
   <releases>

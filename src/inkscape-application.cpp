@@ -533,10 +533,10 @@ InkscapeApplication::InkscapeApplication()
                  Gio::Application::Flags::CAN_OVERRIDE_APP_ID;
     auto non_unique = false;
 
-    // Allow an independent instance of Penrose to run. Will have matching DBus name and paths
-    // (e.g io.github.toel1234.Penrose.tag, /io/github/toel1234/Penrose/tag/window/1).
-    // If this flag isn't set, any new instance of Penrose will be merged with the already running
-    // instance of Penrose before on_open() or on_activate() is called.
+    // Allow an independent instance of Rosepen to run. Will have matching DBus name and paths
+    // (e.g io.github.toel1234.Rosepen.tag, /io/github/toel1234/Rosepen/tag/window/1).
+    // If this flag isn't set, any new instance of Rosepen will be merged with the already running
+    // instance of Rosepen before on_open() or on_activate() is called.
     if (auto tag = Glib::getenv("INKSCAPE_APP_ID_TAG"); tag != "") {
         app_id += "." + tag;
         if (!Gio::Application::id_is_valid(app_id)) {
@@ -639,7 +639,7 @@ InkscapeApplication::InkscapeApplication()
     gapp->add_main_option_entry(T::OptionType::BOOL,     "system-data-directory",  '\0', N_("Print system data directory"),                                             "");
     gapp->add_main_option_entry(T::OptionType::BOOL,     "user-data-directory",    '\0', N_("Print user data directory"),                                               "");
     gapp->add_main_option_entry(T::OptionType::BOOL,     "list-input-types",       '\0', N_("List all available input file extensions"),                                               "");
-    gapp->add_main_option_entry(T::OptionType::STRING,   "app-id-tag",             '\0', N_("Create a unique instance of Penrose with the application ID 'io.github.toel1234.Penrose.TAG'"), "");
+    gapp->add_main_option_entry(T::OptionType::STRING,   "app-id-tag",             '\0', N_("Create a unique instance of Rosepen with the application ID 'io.github.toel1234.Rosepen.TAG'"), "");
     gapp->add_main_option_entry(T::OptionType::BOOL,     "no-extensions",          '\0', N_("Don't load any extensions"), "");
 
     // Open/Import

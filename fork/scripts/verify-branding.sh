@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # SPDX-License-Identifier: GPL-2.0-or-later
 #
-# Re-run the whole Penrose branding acceptance sweep against a local install.
+# Re-run the whole Rosepen branding acceptance sweep against a local install.
 #
 # Run from the repository root after a clean reinstall:
 #
@@ -68,48 +68,48 @@ ALLOW=(
 # ---------------------------------------------------------------------------
 # AC-1: binaries, version, gettext, profile
 # ---------------------------------------------------------------------------
-if grep -q 'FORK_PRODUCT_NAME:STRING=Penrose' build/CMakeCache.txt &&
-   grep -q 'FORK_APP_ID:STRING=io.github.toel1234.Penrose' build/CMakeCache.txt; then
-    pass "CMake cache holds the Penrose FORK_* values"
+if grep -q 'FORK_PRODUCT_NAME:STRING=Rosepen' build/CMakeCache.txt &&
+   grep -q 'FORK_APP_ID:STRING=io.github.toel1234.Rosepen' build/CMakeCache.txt; then
+    pass "CMake cache holds the Rosepen FORK_* values"
 else
-    bad "CMake cache holds the Penrose FORK_* values"
+    bad "CMake cache holds the Rosepen FORK_* values"
 fi
 
-if [ -n "$(find build -maxdepth 3 -name config.h -exec grep -l 'GETTEXT_PACKAGE "penrose"' {} +)" ] &&
-   [ -n "$(find build -maxdepth 3 -name config.h -exec grep -l 'FORK_APP_ID "io.github.toel1234.Penrose"' {} +)" ]; then
+if [ -n "$(find build -maxdepth 3 -name config.h -exec grep -l 'GETTEXT_PACKAGE "rosepen"' {} +)" ] &&
+   [ -n "$(find build -maxdepth 3 -name config.h -exec grep -l 'FORK_APP_ID "io.github.toel1234.Rosepen"' {} +)" ]; then
     pass "config.h has GETTEXT_PACKAGE and FORK_APP_ID"
 else
     bad "config.h has GETTEXT_PACKAGE and FORK_APP_ID"
 fi
 
-if [ -x "$BIN/penrose" ] && [ -x "$BIN/penrose-view" ] &&
+if [ -x "$BIN/rosepen" ] && [ -x "$BIN/rosepen-view" ] &&
    [ ! -e "$BIN/inkscape" ] && [ ! -e "$BIN/inkview" ]; then
-    pass "install/bin has penrose and penrose-view only"
+    pass "install/bin has rosepen and rosepen-view only"
 else
-    bad "install/bin has penrose and penrose-view only"
+    bad "install/bin has rosepen and rosepen-view only"
 fi
 
-if "$BIN/penrose" --version | grep -cE '^Penrose [0-9]' >/dev/null; then
-    pass "penrose --version prints the Penrose product name"
+if "$BIN/rosepen" --version | grep -cE '^Rosepen [0-9]' >/dev/null; then
+    pass "rosepen --version prints the Rosepen product name"
 else
-    bad "penrose --version prints the Penrose product name"
+    bad "rosepen --version prints the Rosepen product name"
 fi
 
-ldd_out="$(ldd "$BIN/penrose" 2>&1 || true)"
+ldd_out="$(ldd "$BIN/rosepen" 2>&1 || true)"
 if ! printf '%s\n' "$ldd_out" | grep -q 'not found'; then
-    pass "ldd on penrose reports no missing libraries"
+    pass "ldd on rosepen reports no missing libraries"
 else
-    bad "ldd on penrose reports no missing libraries"
+    bad "ldd on rosepen reports no missing libraries"
 fi
 
-if [ -n "$(find "$INSTALL" -name penrose.mo)" ] && [ -z "$(find "$INSTALL" -name inkscape.mo)" ]; then
-    pass "penrose.mo installed, no inkscape.mo"
+if [ -n "$(find "$INSTALL" -name rosepen.mo)" ] && [ -z "$(find "$INSTALL" -name inkscape.mo)" ]; then
+    pass "rosepen.mo installed, no inkscape.mo"
 else
-    bad "penrose.mo installed, no inkscape.mo"
+    bad "rosepen.mo installed, no inkscape.mo"
 fi
 
 if locale -a 2>/dev/null | grep -qiE '^de_DE\.utf-?8$'; then
-    if [ "$(LC_ALL=C "$BIN/penrose" --help 2>&1 | md5sum)" != "$(LC_ALL=de_DE.UTF-8 "$BIN/penrose" --help 2>&1 | md5sum)" ]; then
+    if [ "$(LC_ALL=C "$BIN/rosepen" --help 2>&1 | md5sum)" != "$(LC_ALL=de_DE.UTF-8 "$BIN/rosepen" --help 2>&1 | md5sum)" ]; then
         pass "gettext catalog binds at runtime (de_DE)"
     else
         bad "gettext catalog binds at runtime (de_DE)"
@@ -121,14 +121,14 @@ fi
 # ---------------------------------------------------------------------------
 # AC-2: desktop integration, app-id, isolated profile
 # ---------------------------------------------------------------------------
-if desktop-file-validate "$INSTALL/share/applications/io.github.toel1234.Penrose.desktop" &&
-   desktop-file-validate "$INSTALL/share/applications/io.github.toel1234.PenroseView.desktop"; then
+if desktop-file-validate "$INSTALL/share/applications/io.github.toel1234.Rosepen.desktop" &&
+   desktop-file-validate "$INSTALL/share/applications/io.github.toel1234.RosepenView.desktop"; then
     pass "desktop-file-validate passes for both desktop files"
 else
     bad "desktop-file-validate passes for both desktop files"
 fi
 
-if appstreamcli validate --no-net "$INSTALL/share/metainfo/io.github.toel1234.Penrose.metainfo.xml"; then
+if appstreamcli validate --no-net "$INSTALL/share/metainfo/io.github.toel1234.Rosepen.metainfo.xml"; then
     pass "appstreamcli validate passes for the metainfo file"
 else
     bad "appstreamcli validate passes for the metainfo file"
@@ -162,13 +162,13 @@ tmp="$(mktemp -d)"
 mkdir -p "$tmp/config" "$tmp/cache" "$tmp/work"
 printf '<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect width="100" height="100" fill="red"/></svg>\n' > "$tmp/work/in.svg"
 if env -u INKSCAPE_PROFILE_DIR XDG_CONFIG_HOME="$tmp/config" XDG_CACHE_HOME="$tmp/cache" \
-       "$BIN/penrose" --export-type=png --export-filename="$tmp/work/out.png" "$tmp/work/in.svg" >/dev/null 2>&1 &&
+       "$BIN/rosepen" --export-type=png --export-filename="$tmp/work/out.png" "$tmp/work/in.svg" >/dev/null 2>&1 &&
    [ -f "$tmp/work/out.png" ] &&
-   [ -d "$tmp/config/penrose" ] &&
+   [ -d "$tmp/config/rosepen" ] &&
    [ ! -e "$tmp/config/inkscape" ] && [ ! -e "$tmp/cache/inkscape" ]; then
-    pass "headless run uses the penrose profile dir only"
+    pass "headless run uses the rosepen profile dir only"
 else
-    bad "headless run uses the penrose profile dir only"
+    bad "headless run uses the rosepen profile dir only"
 fi
 rm -rf "$tmp"
 
@@ -189,7 +189,7 @@ while IFS= read -r f; do
         bad "forbidden element in: $f"; assets=1
     fi
     # AC-3: every SVG must render through our own binary
-    if ! "$BIN/penrose" --export-type=png --export-filename="$about_png" "$f" >/dev/null 2>&1; then
+    if ! "$BIN/rosepen" --export-type=png --export-filename="$about_png" "$f" >/dev/null 2>&1; then
         bad "render failed: $f"; assets=1
     fi
 done < <(find fork/branding -name '*.svg')
@@ -202,7 +202,7 @@ while IFS= read -r z; do
     if ! zcat "$z" | grep -c 'SPDX-License-Identifier: GPL-2.0-or-later' >/dev/null; then
         bad "SPDX header missing: $z"; assets=1
     fi
-    if ! "$BIN/penrose" --export-type=png --export-filename="$about_png" "$z" >/dev/null 2>&1; then
+    if ! "$BIN/rosepen" --export-type=png --export-filename="$about_png" "$z" >/dev/null 2>&1; then
         bad "render failed: $z"; assets=1
     fi
 done < <(find fork/branding/screens/about -name '*.svgz')
@@ -218,7 +218,7 @@ fi
 
 icons=0
 for N in 16 22 24 32 48 96 128 256; do
-    p="$INSTALL/share/icons/hicolor/${N}x${N}/apps/io.github.toel1234.Penrose.png"
+    p="$INSTALL/share/icons/hicolor/${N}x${N}/apps/io.github.toel1234.Rosepen.png"
     if [ ! -f "$p" ] ||
        [ "$(python3 -I -c "import struct,sys;d=open(sys.argv[1],'rb').read(24);print(*struct.unpack('>II',d[16:24]))" "$p")" != "$N $N" ]; then
         bad "icon missing or wrong size: ${N}x${N}"; icons=1
@@ -228,8 +228,8 @@ if [ "$icons" -eq 0 ]; then
     pass "hicolor PNGs installed at 16/22/24/32/48/96/128/256"
 fi
 
-if [ -f "$INSTALL/share/icons/hicolor/scalable/apps/io.github.toel1234.Penrose.svg" ] &&
-   [ -f "$INSTALL/share/icons/hicolor/symbolic/apps/io.github.toel1234.Penrose-symbolic.svg" ]; then
+if [ -f "$INSTALL/share/icons/hicolor/scalable/apps/io.github.toel1234.Rosepen.svg" ] &&
+   [ -f "$INSTALL/share/icons/hicolor/symbolic/apps/io.github.toel1234.Rosepen-symbolic.svg" ]; then
     pass "scalable and symbolic icons installed"
 else
     bad "scalable and symbolic icons installed"
@@ -266,36 +266,36 @@ fi
 
 if ! grep -q '" - Inkscape"' src/ui/widget/desktop-widget.cpp &&
    grep -q '" - " FORK_PRODUCT_NAME' src/ui/widget/desktop-widget.cpp; then
-    pass "window title suffix is the Penrose product name"
+    pass "window title suffix is the Rosepen product name"
 else
-    bad "window title suffix is the Penrose product name"
+    bad "window title suffix is the Rosepen product name"
 fi
 
 # ---------------------------------------------------------------------------
 # AC-4: man pages, placeholders, boundaries, scope
 # ---------------------------------------------------------------------------
 man_ok=1
-for m in penrose penrose-view; do
+for m in rosepen rosepen-view; do
     [ -f "$INSTALL/share/man/man1/$m.1.gz" ] || { bad "missing man page: $m.1.gz"; man_ok=0; }
 done
 for m in inkscape inkview; do
     [ ! -e "$INSTALL/share/man/man1/$m.1.gz" ] || { bad "stale man page installed: $m.1.gz"; man_ok=0; }
 done
 if [ "$man_ok" -eq 1 ]; then
-    pass "penrose.1.gz and penrose-view.1.gz installed, no upstream man pages"
+    pass "rosepen.1.gz and rosepen-view.1.gz installed, no upstream man pages"
 fi
 
-if zcat "$INSTALL/share/man/man1/penrose.1.gz" | grep -c 'fork of Inkscape' >/dev/null; then
+if zcat "$INSTALL/share/man/man1/rosepen.1.gz" | grep -c 'fork of Inkscape' >/dev/null; then
     pass "man page carries the fork attribution"
 else
     bad "man page carries the fork attribution"
 fi
 
-if [ -f "$INSTALL/share/bash-completion/completions/penrose" ] &&
-   grep -q 'complete -F _penrose' "$INSTALL/share/bash-completion/completions/penrose"; then
-    pass "penrose bash completion installed"
+if [ -f "$INSTALL/share/bash-completion/completions/rosepen" ] &&
+   grep -q 'complete -F _rosepen' "$INSTALL/share/bash-completion/completions/rosepen"; then
+    pass "rosepen bash completion installed"
 else
-    bad "penrose bash completion installed"
+    bad "rosepen bash completion installed"
 fi
 
 if [ -z "$(git grep -niE 'forknametbd' -- . ':!.paul' ':!fork/scripts/verify-branding.sh' 2>/dev/null || true)" ] &&
@@ -303,6 +303,13 @@ if [ -z "$(git grep -niE 'forknametbd' -- . ':!.paul' ':!fork/scripts/verify-bra
     pass "no ForkNameTBD placeholders remain"
 else
     bad "no ForkNameTBD placeholders remain"
+fi
+
+if [ -z "$(git grep -niE 'penrose' -- . ':!.paul' ':!fork/scripts/verify-branding.sh' 2>/dev/null || true)" ]; then
+    pass "no old Penrose name remains anywhere"
+else
+    bad "no old Penrose name remains anywhere"
+    git grep -niE 'penrose' -- . ':!.paul' ':!fork/scripts/verify-branding.sh' 2>/dev/null || true
 fi
 
 old_appid="$(git grep -nE 'io[.]github[.]peter' -- . ':!.paul' 2>/dev/null || true)"
@@ -318,8 +325,8 @@ fi
 cache_home="$(sed -n 's/^FORK_HOMEPAGE_URL:STRING=//p' build/CMakeCache.txt | head -1)"
 cache_bug="$(sed -n 's/^FORK_BUGTRACKER_URL:STRING=//p' build/CMakeCache.txt | head -1)"
 if [ -n "$cache_home" ] && [ -n "$cache_bug" ] &&
-   grep -qF "$cache_home" "$INSTALL/share/metainfo/io.github.toel1234.Penrose.metainfo.xml" &&
-   grep -qF "$cache_bug" "$INSTALL/share/metainfo/io.github.toel1234.Penrose.metainfo.xml" &&
+   grep -qF "$cache_home" "$INSTALL/share/metainfo/io.github.toel1234.Rosepen.metainfo.xml" &&
+   grep -qF "$cache_bug" "$INSTALL/share/metainfo/io.github.toel1234.Rosepen.metainfo.xml" &&
    grep -qF "$cache_bug" share/ui/dialog-crash.glade; then
     pass "public homepage and bug tracker URLs match the CMake cache"
 else
@@ -377,7 +384,7 @@ fi
 
 spdx_missing="$(grep -rL 'SPDX-License-Identifier: GPL-2.0-or-later' fork/ \
     --include='*.sh' --include='*.cmake' --include='*.md' --include='*.svg' \
-    --include='*.in' --include='*.template' --include='penrose' \
+    --include='*.in' --include='*.template' --include='rosepen' \
     --include='*.yml' --include='*.py' --include='AppRun' || true)"
 if [ -z "$spdx_missing" ]; then
     pass "every fork script, cmake, doc, SVG, template, yml and py carries SPDX"

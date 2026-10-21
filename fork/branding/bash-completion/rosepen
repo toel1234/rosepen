@@ -1,0 +1,29 @@
+# SPDX-License-Identifier: GPL-2.0-or-later
+# rosepen(1) completion                                     -*- shell-script -*-
+
+_rosepen_optlist=""
+_rosepen_extlist=""
+
+_have rosepen &&
+_rosepen()
+{
+    local cur
+
+    COMPREPLY=()
+    cur=${COMP_WORDS[COMP_CWORD]}
+
+
+    if [[ "$cur" == -* ]]; then
+        if [[ -z "$_rosepen_optlist" ]]; then
+            _rosepen_optlist="$(rosepen --help | grep '^ *-' | sed 's/^  *//;s/  .*//;s/=.*/=/;s/,//')"
+        fi
+        COMPREPLY=( $(compgen -W "$_rosepen_optlist" -- "$cur") )
+    else
+        if [[ -z "$_rosepen_extlist" ]]; then
+            _rosepen_extlist="$(rosepen --list-input-types | tr '\n' '|' | sed 's/|$//')"
+        fi
+        _filedir "@($_rosepen_extlist)"
+    fi
+
+}
+complete -F _rosepen $filenames rosepen

@@ -16,13 +16,13 @@
         <child>
           <object class="GtkLabel">
             <property name="margin-top">2</property>
-            <property name="label" translatable="yes">&lt;b&gt;Penrose has crashed and will now close.&lt;/b&gt;</property>
+            <property name="label" translatable="yes">&lt;b&gt;Rosepen has crashed and will now close.&lt;/b&gt;</property>
             <property name="use-markup">True</property>
           </object>
         </child>
         <child>
           <object class="GtkLabel">
-            <property name="label" translatable="yes">If you can reproduce this crash, please &lt;a href="https://github.com/toel1234/penrose/issues"&gt;file a bug&lt;/a&gt; and include the backtrace from the area below.</property>
+            <property name="label" translatable="yes">If you can reproduce this crash, please &lt;a href="https://github.com/toel1234/rosepen/issues"&gt;file a bug&lt;/a&gt; and include the backtrace from the area below.</property>
             <property name="use-markup">True</property>
             <property name="margin-start">30</property>
             <property name="margin-end">30</property>

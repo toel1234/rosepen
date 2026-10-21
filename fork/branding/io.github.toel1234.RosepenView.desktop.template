@@ -1,9 +1,9 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 [Desktop Entry]
 Version=1.0
-Name=Penrose Viewer
+Name=Rosepen Viewer
 GenericName=Vector Graphics Viewer
-X-GNOME-FullName=Penrose Viewer Vector Graphics Viewer
+X-GNOME-FullName=Rosepen Viewer Vector Graphics Viewer
 Comment=View Scalable Vector Graphics images
 Keywords=image;viewer;vector;drawing;
 Type=Application

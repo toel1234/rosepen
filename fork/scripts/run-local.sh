@@ -8,4 +8,4 @@
 set -euo pipefail
 
 export INKSCAPE_PROFILE_DIR="$PWD/.profile"
-exec "$PWD/install/bin/penrose" "$@"
+exec "$PWD/install/bin/rosepen" "$@"
