@@ -25,7 +25,7 @@
 static char const preferences_skeleton[] =
     R"=====(
 <inkscape version="1">
-  <group id="window">
+  <group id="window" interface_mode="0">
     <group id="menu"        state="1"/>
     <group id="commands"    state="1"/>
     <group id="snaptoolbox" state="1"/>
@@ -262,6 +262,7 @@ static char const preferences_skeleton[] =
 
   <group id="options"
      rotationlock="1">
+    <group id="kbshortcuts" shortcutfile="rosepen.xml"/>
     <group id="renderingcache" size="512" />
     <group id="useoldpdfexporter" value="0" />
     <group id="highlightoriginal" value="1" />

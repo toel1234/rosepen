@@ -49,6 +49,7 @@
 #include "ui/dialog/swatches.h"
 #include "ui/popup-menu.h"
 #include "ui/themes.h"
+#include "ui/workspace-defaults.h"
 #include "ui/toolbar/command-toolbar.h"
 #include "ui/toolbar/snap-toolbar.h"
 #include "ui/toolbar/tool-toolbar.h"
@@ -80,7 +81,7 @@ Gtk::PopoverMenu create_toolbar_context_menu()
     auto section = Gio::Menu::create();
     section->append_item(Gio::MenuItem::create(_("Commands Bar"), "win.canvas-commands-bar"));
     section->append_item(Gio::MenuItem::create(_("Snap Controls Bar"), "win.canvas-snap-controls-bar"));
-    section->append_item(Gio::MenuItem::create(_("Tool Controls Bar"), "win.canvas-tool-control-bar"));
+    section->append_item(Gio::MenuItem::create(_("Property Bar"), "win.canvas-tool-control-bar"));
     section->append_item(Gio::MenuItem::create(_("Toolbox"), "win.canvas-toolbox"));
     section->append_item(Gio::MenuItem::create(_("Rulers"), "win.canvas-rulers"));
     section->append_item(Gio::MenuItem::create(_("Scroll bars"), "win.canvas-scroll-bars"));
@@ -111,8 +112,15 @@ SPDesktopWidget::SPDesktopWidget(InkscapeWindow *inkscape_window)
 
     /* Swatch Bar */
     _panels = Gtk::make_managed<Inkscape::UI::Dialog::SwatchesPanel>(UI::Dialog::SwatchesPanel::Compact, "/embedded/swatches");
-    _panels->set_vexpand(false);
-    prepend(*_panels);
+    // Rosepen 04-04: with the "right" placement the palette is docked as a
+    // vertical strip at the right edge of the desktop instead of a row above
+    // the status bar; the default "bottom" path stays upstream. Like the
+    // toolbox layout pref, placement applies to new windows.
+    bool const palette_right = Inkscape::UI::Workspace::palette_placement(prefs->getString(Inkscape::UI::Workspace::palette_placement_pref)) == Inkscape::UI::Workspace::PalettePlacement::Right;
+    if (!palette_right) {
+        _panels->set_vexpand(false);
+        prepend(*_panels);
+    }
 
     /* DesktopHBox (Vertical toolboxes, canvas) */
     _hbox = Gtk::make_managed<Gtk::Box>();
@@ -125,6 +133,12 @@ SPDesktopWidget::SPDesktopWidget(InkscapeWindow *inkscape_window)
     _hbox->append(*_tbbox);
 
     prepend(*_hbox);
+
+    if (palette_right) {
+        _panels->set_vexpand(true);
+        _panels->set_hexpand(false);
+        _hbox->append(*_panels); // keep_palette_last() keeps it the rightmost strip
+    }
 
     _top_toolbars = Gtk::make_managed<Gtk::Grid>();
     _top_toolbars->set_name("TopToolbars");
@@ -672,6 +686,7 @@ void SPDesktopWidget::layoutWidgets()
     }
 
     repack_snaptoolbar();
+    keep_palette_last();
 }
 
 Gtk::Widget *SPDesktopWidget::get_toolbar_by_name(const Glib::ustring &name)
@@ -754,6 +769,8 @@ void SPDesktopWidget::repack_snaptoolbar()
             _top_toolbars->attach(snap, 1, 0, 1, 2);
         }
     }
+
+    keep_palette_last();
 
     // Always reset the various constraints, even if not repacked.
     if (is_perm) {
@@ -873,6 +890,23 @@ void SPDesktopWidget::remove_from_top_toolbar_or_hbox(Gtk::Widget &widget)
         _hbox->remove(widget);
     } else {
         g_critical("SPDesktopWidget::remove_from_top_toolbar_or_hbox(): unexpected parent!");
+    }
+}
+
+/**
+ * Rosepen 04-04: with the palette docked to the right edge ("right" placement)
+ * it lives inside the desktop hbox; widescreen command-bar and permanent snap
+ * bar repacks append their widgets at the end, so re-move the palette after
+ * them to keep it the rightmost strip.
+ */
+void SPDesktopWidget::keep_palette_last()
+{
+    g_assert(_hbox);
+
+    if (_panels->get_parent() == _hbox) {
+        if (auto *last = _hbox->get_last_child(); last && last != _panels) {
+            _hbox->reorder_child_after(*_panels, *last);
+        }
     }
 }
 

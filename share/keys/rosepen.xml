@@ -1,0 +1,95 @@
+<?xml version="1.0"?>
+<keys name="Rosepen" xmlns:xi="http://www.w3.org/2001/XInclude">
+
+<!-- CorelDRAW-style defaults; Inkscape bindings inherited.
+     Everything not overridden here comes from inkscape.xml through the
+     xi:include below. Rosepen 04-04; validated by check_corel_keys.py. -->
+
+<xi:include href="inkscape.xml" />
+
+<!-- Tools -->
+
+<!-- Shape/Node -->
+<bind gaction="win.tool-switch('Node')"                 keys="F10" />
+<!-- Freehand/Pencil -->
+<bind gaction="win.tool-switch('Pencil')"               keys="F5" />
+<!-- Rectangle -->
+<bind gaction="win.tool-switch('Rect')"                 keys="F6" />
+<!-- Ellipse/Arc -->
+<bind gaction="win.tool-switch('Arc')"                  keys="F7" />
+<!-- Text -->
+<bind gaction="win.tool-switch('Text')"                 keys="F8" />
+<!-- Polygon/Star -->
+<bind gaction="win.tool-switch('Star')"                 keys="y, Y" />
+<!-- Spiral -->
+<bind gaction="win.tool-switch('Spiral')"               keys="a, A" />
+<!-- Zoom -->
+<bind gaction="win.tool-switch('Zoom')"                 keys="F2" />
+<!-- Interactive Fill/Gradient -->
+<bind gaction="win.tool-switch('Gradient')"             keys="g" />
+<!-- Eraser -->
+<bind gaction="win.tool-switch('Eraser')"               keys="x, X" />
+<!-- Mesh Fill -->
+<bind gaction="win.tool-switch('Mesh')"                 keys="m, M" />
+<!-- Artistic Media stand-in (Calligraphic) -->
+<bind gaction="win.tool-switch('Calligraphic')"         keys="i, I" />
+<!-- Pick, from any tool -->
+<bind gaction="win.tool-switch('Select')"               keys="&lt;primary&gt;space" />
+
+<!-- Help -->
+<bind gaction="win.help-url-manual"                     keys="F1" />
+
+<!-- Fill and outline dialogs (one dialog, no per-tab actions) -->
+<bind gaction="win.dialog-open('FillStroke')"           keys="F11, &lt;shift&gt;F11, F12, &lt;shift&gt;F12" />
+
+<!-- View -->
+
+<bind gaction="win.canvas-zoom-out"                     keys="F3" />
+<bind gaction="win.canvas-zoom-drawing"                 keys="F4" />
+<bind gaction="win.canvas-zoom-selection"               keys="&lt;shift&gt;F2" />
+<bind gaction="win.canvas-zoom-page"                    keys="&lt;shift&gt;F4" />
+<bind gaction="win.view-full-screen-focus"              keys="F9" />
+<bind gaction="win.canvas-display-mode-cycle"           keys="&lt;shift&gt;F9" />
+<bind gaction="win.canvas-rulers"                       keys="&lt;alt&gt;&lt;shift&gt;r" />
+
+<!-- Object: convert, shaping, stacking -->
+
+<bind gaction="app.object-to-path"                      keys="&lt;primary&gt;q, &lt;primary&gt;Q" />
+<bind gaction="app.object-stroke-to-path"               keys="&lt;primary&gt;&lt;shift&gt;q, &lt;primary&gt;&lt;shift&gt;Q" />
+<bind gaction="app.path-combine"                        keys="&lt;primary&gt;l, &lt;primary&gt;L" />
+<bind gaction="app.path-break-apart"                    keys="&lt;primary&gt;k, &lt;primary&gt;K" />
+<bind gaction="app.selection-raise"                     keys="&lt;primary&gt;Page_Up" />
+<bind gaction="app.selection-lower"                     keys="&lt;primary&gt;Page_Down" />
+<bind gaction="app.selection-top"                       keys="&lt;shift&gt;Page_Up, &lt;primary&gt;Home" />
+<bind gaction="app.selection-bottom"                    keys="&lt;shift&gt;Page_Down, &lt;primary&gt;End" />
+
+<!-- Align (single letters; align to the active, i.e. last selected, object) -->
+
+<bind gaction="app.object-align('left last')"           keys="l, L" />
+<bind gaction="app.object-align('right last')"          keys="r, R" />
+<bind gaction="app.object-align('top last')"            keys="t, T" />
+<bind gaction="app.object-align('bottom last')"         keys="b, B" />
+<bind gaction="app.object-align('hcenter last')"        keys="c, C" />
+<bind gaction="app.object-align('vcenter last')"        keys="e, E" />
+
+<!-- Pages -->
+
+<bind gaction="app.page-previous"                       keys="Page_Up, KP_Page_Up" />
+<bind gaction="app.page-next"                           keys="Page_Down, KP_Page_Down" />
+
+<!-- Dockers and dialogs -->
+
+<bind gaction="win.dialog-open('ObjectProperties')"     keys="&lt;alt&gt;Return" />
+<bind gaction="win.dialog-open('Transform')"            keys="&lt;alt&gt;F7, &lt;alt&gt;F8, &lt;alt&gt;F9, &lt;alt&gt;F10" />
+<bind gaction="app.preferences"                         keys="&lt;primary&gt;j, &lt;primary&gt;J" />
+<bind gaction="win.dialog-open('Export')"               keys="&lt;primary&gt;e, &lt;primary&gt;E" />
+<bind gaction="win.dialog-open('Text')"                 keys="&lt;primary&gt;t" />
+<bind gaction="win.dialog-open('Symbols')"              keys="&lt;primary&gt;F3" />
+
+<!-- Snapping -->
+
+<bind gaction="win.snap-grid"                           keys="&lt;primary&gt;y, &lt;primary&gt;Y" />
+<bind gaction="win.snap-global-toggle"                  keys="&lt;alt&gt;q" />
+<bind gaction="win.snap-alignment"                      keys="&lt;alt&gt;&lt;shift&gt;a" />
+
+</keys>

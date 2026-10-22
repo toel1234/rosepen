@@ -1279,6 +1279,7 @@ add_page_ops_test(move-to)
 add_page_ops_test(remove-contents)
 add_page_ops_test(remove-last-refused)
 add_page_ops_test(resize-all)
+add_page_ops_test(page-nav)
 
 #############################################################################################
 ### master-layer render lock (03-02 task 2)                                                 ###
@@ -1381,6 +1382,25 @@ add_test(NAME cli_docker-defaults
                  ${CMAKE_SOURCE_DIR}/src/ui/dialog/dialog-data.cpp
                  ${CMAKE_SOURCE_DIR}/src/ui/dialog/dialog-container.cpp)
 set_tests_properties(cli_docker-defaults PROPERTIES LABELS docker)
+
+# Rosepen 04-04: validate the Corel-order menubar and the Rosepen key profile
+add_test(NAME cli_corel-menus
+         COMMAND python3 -I ${CMAKE_CURRENT_SOURCE_DIR}/check_corel_menus.py
+                 ${CMAKE_SOURCE_DIR}/share/ui/menus.ui
+                 ${CMAKE_SOURCE_DIR}/share/ui/menus-corel.ui
+                 ${CMAKE_SOURCE_DIR}/src/ui/dialog/dialog-data.cpp
+                 ${CMAKE_SOURCE_DIR}/share/ui/toolbox-groups.ini
+                 ${CMAKE_SOURCE_DIR}/src/actions)
+set_tests_properties(cli_corel-menus PROPERTIES LABELS workspace)
+
+add_test(NAME cli_corel-keys
+         COMMAND python3 -I ${CMAKE_CURRENT_SOURCE_DIR}/check_corel_keys.py
+                 ${CMAKE_SOURCE_DIR}/share/keys
+                 ${CMAKE_SOURCE_DIR}/share/keys/rosepen.xml
+                 ${CMAKE_SOURCE_DIR}/src/ui/dialog/dialog-data.cpp
+                 ${CMAKE_SOURCE_DIR}/share/ui/toolbox-groups.ini
+                 ${CMAKE_SOURCE_DIR}/src/actions)
+set_tests_properties(cli_corel-keys PROPERTIES LABELS workspace)
 
 ###########################
 ### file format support ###

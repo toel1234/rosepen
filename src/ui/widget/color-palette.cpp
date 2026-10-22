@@ -425,6 +425,13 @@ void ColorPalette::set_compact(bool compact) {
     }
 }
 
+void ColorPalette::set_vertical(bool vertical) {
+    if (_vertical == vertical) return;
+
+    _vertical = vertical;
+    set_up_scrolling();
+}
+
 bool ColorPalette::is_scrollbar_enabled() const {
     return _force_scrollbar;
 }
@@ -492,7 +499,7 @@ void ColorPalette::set_up_scrolling() {
 
     auto alloc_width = _normal_box.get_parent()->get_allocated_width();
     // if page-size is defined, align color tiles in columns
-    if (!(_rows == 1 && _force_scrollbar) && _page_size > 1 && alloc_width > 1 && !_show_labels && n_colors > 0) {
+    if (!(_rows == 1 && _force_scrollbar) && !(_compact && _vertical) && _page_size > 1 && alloc_width > 1 && !_show_labels && n_colors > 0) {
         int width = get_tile_width();
         if (width > 1) {
             int cols = alloc_width / (width + _border);
@@ -503,7 +510,38 @@ void ColorPalette::set_up_scrolling() {
         }
     }
 
-    if (_compact) {
+    if (_compact && _vertical) {
+        // Rosepen 04-04: vertical strip for a palette docked at the right edge;
+        // _rows is the column count here and scrolling is vertical.
+        box.set_orientation(Gtk::Orientation::VERTICAL);
+        box.set_valign(Gtk::Align::FILL);
+        box.set_vexpand(true);
+        btn_menu.set_margin_bottom(0);
+        btn_menu.set_margin_end(0);
+        set_valign(Gtk::Align::FILL);
+        set_vexpand(true);
+        set_halign(Gtk::Align::END);
+
+        auto const cols = std::max(_rows, 1);
+        _normal_box.set_max_children_per_line(cols);
+        _normal_box.set_min_children_per_line(cols);
+        _pinned_box.set_max_children_per_line(cols);
+        _pinned_box.set_min_children_per_line(cols);
+        _pinned_box.set_margin_end(_border);
+
+        _scroll.set_valign(Gtk::Align::FILL);
+        _scroll.set_vexpand(true);
+        _normal_box.set_valign(Gtk::Align::START);
+
+        // 'external' allows scrollbar to shrink vertically
+        _scroll.set_policy(Gtk::PolicyType::NEVER, Gtk::PolicyType::EXTERNAL);
+        _scroll_up.set_visible(true);
+        _scroll_down.set_visible(true);
+        _scroll_left.set_visible(false);
+        _scroll_right.set_visible(false);
+        _scroll_btn.set_visible(true);
+    }
+    else if (_compact) {
         box.set_orientation(Gtk::Orientation::HORIZONTAL);
         box.set_valign(Gtk::Align::START);
         box.set_vexpand(false);
@@ -602,6 +640,10 @@ int ColorPalette::get_palette_height() const {
     return (get_tile_height() + _border) * _rows;
 }
 
+int ColorPalette::get_palette_width() const {
+    return (get_tile_width() + _border) * std::max(_rows, 1);
+}
+
 void ColorPalette::set_large_pinned_panel(bool large) {
     auto& checkbox = get_widget<Gtk::CheckButton>(_builder, "enlarge");
     checkbox.set_active(large);
@@ -624,7 +666,11 @@ bool ColorPalette::are_labels_enabled() const {
 }
 
 void ColorPalette::resize() {
-    if ((_rows == 1 && _force_scrollbar) || !_compact) {
+    if (_compact && _vertical) {
+        // vertical strip: fixed width for _rows columns, height expands
+        _scroll.set_size_request(get_palette_width() - _border, -1);
+    }
+    else if ((_rows == 1 && _force_scrollbar) || !_compact) {
         // auto size for single row to allocate space for scrollbar
         _scroll.set_size_request(-1, -1);
     }

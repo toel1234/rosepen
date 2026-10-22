@@ -240,6 +240,31 @@ bool goto_page(SPDocument *doc, int pos)
     return pm.selectPage(pos - 1);
 }
 
+bool step_page(SPDocument *doc, int delta)
+{
+    if (!doc || delta == 0) {
+        return false;
+    }
+    auto &pm = doc->getPageManager();
+    int const count = pm.getPageCount();
+
+    // The implicit single page is not a stepping target: materializing it as a
+    // side effect of a navigation would change the document. There is also
+    // nowhere to step to, so the actions stop there.
+    if (count == 0) {
+        return false;
+    }
+
+    // No wrap: CorelDRAW's PgUp/PgDn stop at the first and last page. The
+    // bounds check must come before selectPage(), which would deselect the
+    // page for an out-of-range index.
+    int const target = pm.getSelectedPageIndex() + delta;
+    if (target < 0 || target >= count) {
+        return false;
+    }
+    return pm.selectPage(target);
+}
+
 bool move_to(SPDocument *doc, SPPage *page, int pos)
 {
     if (!doc || !page) {
@@ -562,6 +587,32 @@ void page_goto(Glib::VariantBase const &value, InkscapeApplication *app)
     g_message("page-goto: selected page %d", pos);
 }
 
+void page_step(InkscapeApplication *app, int delta, char const *action)
+{
+    auto doc = active_document(app, action);
+    if (!doc) {
+        return;
+    }
+    if (!Inkscape::PageOps::step_page(doc, delta)) {
+        return;
+    }
+    auto &pm = doc->getPageManager();
+    if (auto *desktop = app->get_active_desktop()) {
+        pm.centerToSelectedPage(desktop);
+    }
+    g_message("%s: selected page %d", action, pm.getSelectedPageIndex() + 1);
+}
+
+void page_next(InkscapeApplication *app)
+{
+    page_step(app, 1, "page-next");
+}
+
+void page_previous(InkscapeApplication *app)
+{
+    page_step(app, -1, "page-previous");
+}
+
 void page_insert(Glib::VariantBase const &value, InkscapeApplication *app)
 {
     auto doc = active_document(app, "page-insert");
@@ -783,6 +834,8 @@ const Glib::ustring SECTION = NC_("Action Section", "Page");
 std::vector<std::vector<Glib::ustring>> raw_data_page_manager = {
     // clang-format off
     {"app.page-goto",            N_("Go to Page"),           SECTION, N_("Select a page by position (1-based)")},
+    {"app.page-next",            N_("Next Page"),             SECTION, N_("Select and show the next page")},
+    {"app.page-previous",        N_("Previous Page"),         SECTION, N_("Select and show the previous page")},
     {"app.page-insert",          N_("Insert Page"),          SECTION, N_("Insert a page before, after or at the end")},
     {"app.page-duplicate-after", N_("Duplicate Page After"), SECTION, N_("Duplicate the current page and place the copy after it")},
     {"app.page-remove",          N_("Remove Page"),          SECTION, N_("Remove the current page, with or without its contents")},
@@ -805,6 +858,8 @@ void add_actions_page_manager(InkscapeApplication *app)
 
     // clang-format off
     gapp->add_action_with_parameter("page-goto",            Int,    sigc::bind(sigc::ptr_fun(&page_goto),            app));
+    gapp->add_action(                "page-next",                    sigc::bind(sigc::ptr_fun(&page_next),            app));
+    gapp->add_action(                "page-previous",                sigc::bind(sigc::ptr_fun(&page_previous),        app));
     gapp->add_action_with_parameter("page-insert",          String, sigc::bind(sigc::ptr_fun(&page_insert),          app));
     gapp->add_action(                "page-duplicate-after",         sigc::bind(sigc::ptr_fun(&page_duplicate_after), app));
     gapp->add_action_with_parameter("page-remove",          String, sigc::bind(sigc::ptr_fun(&page_remove),          app));

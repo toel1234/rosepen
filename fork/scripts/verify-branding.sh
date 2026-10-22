@@ -162,6 +162,18 @@ ALLOW=(
     "src/ui/contextmenu.cpp"
     "share/ui/dialog-objects.glade"
     "share/ui/default-dialog-state.ini"
+    # 04-04 Corel workspace
+    "src/ui/workspace-defaults.h"
+    "src/ui/workspace-defaults.cpp"
+    "share/ui/menus-corel.ui"
+    "share/keys/rosepen.xml"
+    "src/ui/desktop/menubar.cpp"
+    "src/ui/dialog/startup.cpp"
+    "src/ui/widget/color-palette.h"
+    "src/ui/widget/color-palette.cpp"
+    "src/ui/dialog/swatches.cpp"
+    "src/ui/widget/desktop-widget.h"
+    "src/actions/actions-view-mode.cpp"
 )
 
 # ---------------------------------------------------------------------------

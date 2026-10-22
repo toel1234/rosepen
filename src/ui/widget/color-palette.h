@@ -48,6 +48,8 @@ public:
     void set_palettes(const std::vector<palette_t>& palettes);
     // enable compact mode (true) with mini-scroll buttons, or normal mode (false) with regular scrollbars
     void set_compact(bool compact);
+    // lay the palette out as a vertical strip (compact mode only); _rows counts columns then
+    void set_vertical(bool vertical);
     // enlarge color tiles in a pinned panel
     void set_large_pinned_panel(bool large);
     // preferred number of colors in a group (used for color alignment in columns)
@@ -112,6 +114,7 @@ private:
     int get_tile_width() const;
     int get_tile_height() const;
     int get_palette_height() const;
+    int get_palette_width() const;
 
     Gtk::Widget *_get_widget(Dialog::ColorItem *item);
     void rebuild_widgets();
@@ -136,6 +139,7 @@ private:
     int _rows = 1;
     double _aspect = 0.0;
     bool _compact = true;
+    bool _vertical = false;
     sigc::signal<void (Glib::ustring)> _signal_palette_selected;
     sigc::signal<void ()> _signal_settings_changed;
     bool _in_update = false;

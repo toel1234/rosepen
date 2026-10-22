@@ -66,6 +66,20 @@ constexpr auto kOnePageDoc = R"A(<?xml version="1.0" encoding="UTF-8" standalone
   <rect id="rect1" x="10" y="10" width="20" height="20" fill="red"/>
 </svg>)A"sv;
 
+constexpr auto kThreePageDoc = R"A(<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg width="100mm" height="100mm" viewBox="0 0 100 100" version="1.1" id="svg1"
+     xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+     xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <view id="p1" viewBox="0 0 100 100"/>
+    <view id="p2" viewBox="110 0 100 100"/>
+    <view id="p3" viewBox="220 0 100 100"/>
+  </defs>
+  <rect id="rect1" x="10" y="10" width="20" height="20" fill="red"/>
+  <rect id="rect2" x="120" y="10" width="20" height="20" fill="green"/>
+  <rect id="rect3" x="230" y="10" width="20" height="20" fill="blue"/>
+</svg>)A"sv;
+
 } // namespace
 
 class PageOpsTest : public ::testing::Test
@@ -648,6 +662,59 @@ TEST_F(PageOpsTest, undoMovePage)
     ASSERT_TRUE(Inkscape::DocumentUndo::undo(doc.get()));
     EXPECT_EQ(pm.getPage(0), p1);
     EXPECT_EQ(pm.getPage(1), p2);
+}
+
+TEST_F(PageOpsTest, stepPageNullDocument)
+{
+    EXPECT_FALSE(Inkscape::PageOps::step_page(nullptr, 1));
+    EXPECT_FALSE(Inkscape::PageOps::step_page(nullptr, -1));
+}
+
+TEST_F(PageOpsTest, stepPageImplicitPageDoesNotMaterialize)
+{
+    use(kZeroPageDoc);
+    auto &pm = doc->getPageManager();
+    ASSERT_EQ(pm.getPageCount(), 0);
+
+    EXPECT_FALSE(Inkscape::PageOps::step_page(doc.get(), 1));
+    EXPECT_FALSE(Inkscape::PageOps::step_page(doc.get(), -1));
+    EXPECT_EQ(pm.getPageCount(), 0);
+}
+
+TEST_F(PageOpsTest, stepPageForwardStopsAtLastPage)
+{
+    use(kThreePageDoc);
+    auto &pm = doc->getPageManager();
+    ASSERT_EQ(pm.getPageCount(), 3);
+    pm.selectPage(0);
+    ASSERT_EQ(pm.getSelectedPageIndex(), 0);
+
+    EXPECT_TRUE(Inkscape::PageOps::step_page(doc.get(), 1));
+    EXPECT_EQ(pm.getSelectedPageIndex(), 1);
+    EXPECT_TRUE(Inkscape::PageOps::step_page(doc.get(), 1));
+    EXPECT_EQ(pm.getSelectedPageIndex(), 2);
+
+    // No wrap: the step past the last page is refused and the selection stays.
+    EXPECT_FALSE(Inkscape::PageOps::step_page(doc.get(), 1));
+    EXPECT_EQ(pm.getSelectedPageIndex(), 2);
+}
+
+TEST_F(PageOpsTest, stepPageBackStopsAtFirstPage)
+{
+    use(kThreePageDoc);
+    auto &pm = doc->getPageManager();
+    ASSERT_EQ(pm.getPageCount(), 3);
+    pm.selectPage(0);
+    ASSERT_EQ(pm.getSelectedPageIndex(), 0);
+
+    // No wrap: the step before the first page is refused and the selection stays.
+    EXPECT_FALSE(Inkscape::PageOps::step_page(doc.get(), -1));
+    EXPECT_EQ(pm.getSelectedPageIndex(), 0);
+
+    pm.selectPage(2);
+    ASSERT_EQ(pm.getSelectedPageIndex(), 2);
+    EXPECT_TRUE(Inkscape::PageOps::step_page(doc.get(), -1));
+    EXPECT_EQ(pm.getSelectedPageIndex(), 1);
 }
 
 /*

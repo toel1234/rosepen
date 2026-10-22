@@ -36,6 +36,7 @@
 #include "ui/util.h" // ellipsize()
 #include "ui/widget/color-palette-preview.h"
 #include "ui/widget/color-palette.h"
+#include "ui/workspace-defaults.h"
 #include "util/variant-visitor.h"
 
 namespace Inkscape::Colors {
@@ -124,11 +125,21 @@ SwatchesPanel::SwatchesPanel(PanelType panel_type, char const *prefsPath)
     bool embedded = panel_type == Compact;
     _palette->set_compact(embedded);
 
+    // Rosepen 04-04: the embedded palette is a horizontal row at the bottom
+    // (upstream default, as in the reference) or an opt-in vertical strip on the
+    // right edge. Each placement keeps its own row/column count, so switching
+    // placement never reinterprets a saved value. Other panel types stay upstream.
+    auto const placement = embedded
+        ? Workspace::palette_placement(prefs->getString(Workspace::palette_placement_pref))
+        : Workspace::PalettePlacement::Bottom;
+    auto const lines_key = Workspace::palette_lines_key(placement);
+    _palette->set_vertical(placement == Workspace::PalettePlacement::Right);
+
     // restore palette settings
     _palette->set_tile_size(prefs->getInt(_prefs_path + "/tile_size", 16));
     _palette->set_aspect(prefs->getDoubleLimited(_prefs_path + "/tile_aspect", 0.0, -2, 2));
     _palette->set_tile_border(prefs->getInt(_prefs_path + "/tile_border", 1));
-    _palette->set_rows(prefs->getInt(_prefs_path + "/rows", 2));
+    _palette->set_rows(prefs->getInt(Glib::ustring(_prefs_path + "/") + lines_key, Workspace::default_palette_lines(placement)));
     _palette->enable_stretch(prefs->getBool(_prefs_path + "/tile_stretch", true));
     _palette->set_large_pinned_panel(embedded && prefs->getBool(_prefs_path + "/enlarge_pinned", true));
     _palette->enable_labels(!embedded && prefs->getBool(_prefs_path + "/show_labels", true));
@@ -138,7 +149,7 @@ SwatchesPanel::SwatchesPanel(PanelType panel_type, char const *prefsPath)
         prefs->setInt(_prefs_path + "/tile_size", _palette->get_tile_size());
         prefs->setDouble(_prefs_path + "/tile_aspect", _palette->get_aspect());
         prefs->setInt(_prefs_path + "/tile_border", _palette->get_tile_border());
-        prefs->setInt(_prefs_path + "/rows", _palette->get_rows());
+        prefs->setInt(Glib::ustring(_prefs_path + "/") + lines_key, _palette->get_rows());
         prefs->setBool(_prefs_path + "/tile_stretch", _palette->is_stretch_enabled());
         prefs->setBool(_prefs_path + "/enlarge_pinned", _palette->is_pinned_panel_large());
         prefs->setBool(_prefs_path + "/show_labels", !embedded && _palette->are_labels_enabled());

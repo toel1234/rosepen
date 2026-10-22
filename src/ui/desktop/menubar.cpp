@@ -32,22 +32,34 @@
 #include "io/recent-files.h"
 #include "io/resource.h" // UI File location
 #include "preferences.h" // max recent documents
+#include "ui/workspace-defaults.h" // menubar layout pref
 
 // Rebuild menu with icons enabled or disabled. Recursive.
 static void rewrite_menu(Glib::RefPtr<Gio::Menu> const &menu, int use_icons);
 
 void build_menu()
 {
-    auto const filename = Inkscape::IO::Resource::get_filename(Inkscape::IO::Resource::UIS, "menus.ui");
+    auto prefs = Inkscape::Preferences::get();
+    auto filename = Inkscape::IO::Resource::get_filename(
+        Inkscape::IO::Resource::UIS, Inkscape::UI::Workspace::menubar_ui_file(prefs->getString(Inkscape::UI::Workspace::menubar_layout_pref).raw()).c_str());
     auto const builder = Gtk::Builder::create();
 
     try {
         builder->add_from_file(filename);
     } catch (Glib::Error const &err) {
-        std::cerr << "build_menu: failed to load Main menu from: "
-                  << filename << ": "
-                  << err.what() << std::endl;
-        return;
+        g_warning("build_menu: failed to load Main menu from: %s: %s. Falling back to the classic menu.",
+                  filename.c_str(),
+                  err.what());
+        // A broken or missing custom menu file must never leave the window without a menu.
+        filename = Inkscape::IO::Resource::get_filename(Inkscape::IO::Resource::UIS, "menus.ui");
+        try {
+            builder->add_from_file(filename);
+        } catch (Glib::Error const &err2) {
+            std::cerr << "build_menu: failed to load Main menu from: "
+                      << filename << ": "
+                      << err2.what() << std::endl;
+            return;
+        }
     }
 
     auto const menu = builder->get_object<Gio::Menu>("menus");
@@ -156,7 +168,6 @@ void build_menu()
     rebuild_recent(recent_menu);
 
     // Remove all or some icons. Also create label to tooltip map.
-    auto prefs = Inkscape::Preferences::get();
     auto use_icons = prefs->getInt("/theme/menuIcons", 0);
     rewrite_menu(menu, use_icons);
 

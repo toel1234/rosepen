@@ -27,7 +27,7 @@ std::span<const DialogData> get_dialog_data_list() {
         // clang-format off
     // BASICs ----------------------------------------
     {"FillStroke",         _("_Fill and Stroke"),      INKSCAPE_ICON("dialog-fill-and-stroke"),      DialogData::Basic,          ScrollProvider::NOPROVIDE },
-    {"Objects",            _("Layers and Object_s"),   INKSCAPE_ICON("dialog-objects"),              DialogData::Basic,          ScrollProvider::PROVIDE   },
+    {"Objects",            _("Object _Manager"),       INKSCAPE_ICON("dialog-objects"),              DialogData::Basic,          ScrollProvider::PROVIDE   },
     {"AlignDistribute",    _("_Align and Distribute"), INKSCAPE_ICON("dialog-align-and-distribute"), DialogData::Basic,          ScrollProvider::NOPROVIDE },
     {"Transform",          _("Transfor_m"),            INKSCAPE_ICON("dialog-transform"),            DialogData::Basic,          ScrollProvider::NOPROVIDE },
     {"ObjectProperties",   _("_Object Properties"),    INKSCAPE_ICON("dialog-object-properties"),    DialogData::Basic,          ScrollProvider::NOPROVIDE },

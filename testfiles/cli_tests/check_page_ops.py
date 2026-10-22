@@ -30,7 +30,11 @@ Usage:
 Prints one "STAGE <name> OK|FAIL: <reason>" line per stage and exits
 non-zero on the first FAIL.  A non-zero rosepen exit or CRITICAL/g_error on
 stderr is a FAIL; a WARNING is only tolerated when the scenario lists its
-substring in "allow_warnings".  python3 stdlib only, `python3 -I` safe.
+substring in "allow_warnings".  An optional "stderr_contains" list requires
+each substring on stderr (used for the page-nav g_message lines, since the
+selected page is not exported), and an optional "stderr_absent" list forbids
+substrings (page-nav: no wrap); both are checked by the pages stage.
+python3 stdlib only, `python3 -I` safe.
 """
 
 import json
@@ -91,7 +95,7 @@ def run_rosepen(binary, args, allow_warnings):
     for ln in stderr.splitlines():
         if "WARNING" in ln and not any(allowed in ln for allowed in allow_warnings):
             fail(f"unexpected WARNING on stderr: {ln.strip()[:400]}")
-    return proc.stdout or ""
+    return proc.stdout or "", stderr
 
 
 def delete_stale(path):
@@ -417,10 +421,19 @@ def main(argv):
         return run_rosepen(binary, [fixture, f"--actions={actions}"], allow_warnings)
 
     try:
-        page_list = stage_run()
+        page_list, stderr = stage_run()
     except StageFail as err:
         print(f"STAGE pages FAIL: {err}")
         return 1
+
+    for wanted in expect.get("stderr_contains") or []:
+        if wanted not in stderr:
+            print(f"STAGE pages FAIL: stderr is missing {wanted!r}")
+            return 1
+    for unwanted in expect.get("stderr_absent") or []:
+        if unwanted in stderr:
+            print(f"STAGE pages FAIL: stderr unexpectedly has {unwanted!r}")
+            return 1
 
     if not run_stage("pages", lambda: check_pages_stage(expect, target, page_list)):
         return 1

@@ -37,6 +37,7 @@ enum class Orientation
 
 SPPage *current_page(SPDocument *doc);
 bool goto_page(SPDocument *doc, int pos);
+bool step_page(SPDocument *doc, int delta);
 bool move_to(SPDocument *doc, SPPage *page, int pos);
 SPPage *insert_page(SPDocument *doc, Where where);
 SPPage *duplicate_after(SPDocument *doc);

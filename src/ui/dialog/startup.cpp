@@ -38,6 +38,7 @@
 #include "ui/interface.h" // sp_ui_error_dialog
 #include "ui/shortcuts.h"
 #include "ui/themes.h"
+#include "ui/workspace-defaults.h" // Rosepen keys default
 #include "ui/util.h"
 
 using namespace Inkscape::IO;
@@ -663,9 +664,9 @@ void
 StartScreen::refresh_keys_warning()
 {
     auto prefs = Inkscape::Preferences::get();
-    auto current_file = prefs->getString("/options/kbshortcuts/shortcutfile", "inkscape.xml");
+    auto current_file = prefs->getString("/options/kbshortcuts/shortcutfile", Inkscape::UI::Workspace::rosepen_keys_file);
     auto &keys_warning = get_widget<Gtk::InfoBar>(build_welcome, "keys_warning");
-    if (current_file != "inkscape.xml" && current_file != "default.xml") {
+    if (!Inkscape::UI::Workspace::is_default_keys_file(current_file.raw())) {
         keys_warning.set_visible(true);
     } else {
         keys_warning.set_message_type(Gtk::MessageType::WARNING);
@@ -691,7 +692,7 @@ StartScreen::enlist_keys()
     auto prefs = Inkscape::Preferences::get();
     auto current = prefs->getString("/options/kbshortcuts/shortcutfile");
     if (current.empty()) {
-        current = "inkscape.xml";
+        current = Inkscape::UI::Workspace::rosepen_keys_file;
     }
     keys.set_active_id(current);
 }

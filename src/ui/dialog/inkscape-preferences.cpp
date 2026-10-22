@@ -58,6 +58,7 @@
 #include <glibmm/miscutils.h>
 
 #include "actions/actions-extra-data.h"
+#include "actions/actions-view-mode.h" // get_widescreen_default
 #include "auto-save.h"
 #include "colors/cms/system.h"
 #include "colors/manager.h"
@@ -90,6 +91,7 @@
 #include "ui/util.h"
 #include "ui/widget/desktop-widget.h"
 #include "ui/widget/style-swatch.h"
+#include "ui/workspace-defaults.h"
 #include "util/recently-used-fonts.h"
 #include "util/trim.h"
 #include "widgets/spw-utilities.h"
@@ -2039,6 +2041,42 @@ void InkscapePreferences::initPageUI()
                               Inkscape::UI::Toolbar::object_sections_pref_path, true);
         _page_toolbars.add_line(false, "", *object_sections, "",
                                 _("With the Select or Node tool, add the selected rectangle, ellipse, star, spiral or text controls to the tool controls bar (CorelDRAW-style property bar)."));
+
+        // Rosepen 04-04: escape hatches — every workspace default is one
+        // preference away from upstream.
+        Glib::ustring menubar_labels[] = {_("Rosepen"), _("Classic")};
+        Glib::ustring menubar_values[] = {"corel", "classic"};
+        auto const menubar_layout = Gtk::make_managed<UI::Widget::PrefCombo>();
+        menubar_layout->init(Workspace::menubar_layout_pref, menubar_labels, menubar_values, "corel");
+        _page_toolbars.add_line(false, _("Menu bar layout:"), *menubar_layout, "",
+                                _("Switch between the Rosepen menu order and the classic upstream menu. Applies after restart."));
+
+        Glib::ustring palette_labels[] = {_("Bottom (horizontal)"), _("Right (vertical)")};
+        Glib::ustring palette_values[] = {"bottom", "right"};
+        auto const palette_position = Gtk::make_managed<UI::Widget::PrefCombo>();
+        palette_position->init(Workspace::palette_placement_pref, palette_labels, palette_values, "bottom");
+        _page_toolbars.add_line(false, _("Color palette position:"), *palette_position, "",
+                                _("Dock the color palette as a horizontal row at the bottom of the window or as a vertical strip on its right edge. Applies to new windows."));
+
+        auto const rosepen_button = Gtk::make_managed<Gtk::Button>(_("Use Rosepen workspace"));
+        rosepen_button->signal_clicked().connect([]() {
+            Workspace::apply_workspace(Workspace::rosepen_workspace());
+            Inkscape::Shortcuts::getInstance().init();
+        });
+        auto const inkscape_button = Gtk::make_managed<Gtk::Button>(_("Use Inkscape workspace"));
+        inkscape_button->signal_clicked().connect([]() {
+            // Upstream's command bar placement follows the screen aspect ratio.
+            Workspace::apply_workspace(Workspace::inkscape_workspace(), get_widescreen_default());
+            Inkscape::Shortcuts::getInstance().init();
+        });
+        auto const workspace_buttons = Gtk::make_managed<Gtk::Box>(Gtk::Orientation::HORIZONTAL, 6);
+        workspace_buttons->append(*rosepen_button);
+        workspace_buttons->append(*inkscape_button);
+        _page_toolbars.add_line(false, _("Workspace:"), *workspace_buttons, "",
+                                _("Reset the toolbox, property bar, menu bar, color palette, keyboard shortcuts and command bar layout all at once."));
+        auto const workspace_note = Gtk::make_managed<Gtk::Label>(_("Restart or open a new window to apply all changes"));
+        workspace_note->set_halign(Gtk::Align::START);
+        _page_toolbars.add_line(false, "", *workspace_note, "", "");
 
         struct tbar_info {const char* label; const char* prefs;} toolbars[] = {
             {_("Toolbox icon size:"),     Inkscape::UI::Toolbar::tools_icon_size},

@@ -168,6 +168,8 @@ public:
     void update_zoom();
     void update_rotation();
     void repack_snaptoolbar();
+    // Rosepen 04-04: keep a right-docked palette the last (rightmost) child of _hbox.
+    void keep_palette_last();
 
     void layoutWidgets();
     void toggle_scrollbars();

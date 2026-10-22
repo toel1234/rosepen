@@ -209,7 +209,7 @@ target_sources(inkscape_base PRIVATE
   ${CMAKE_BINARY_DIR}/src/inkscape-version.cpp
 )
 
-# Rosepen 04-01/04-02/04-03: Corel-style toolbox + property bar + dockers (kept out of src/ui/CMakeLists.txt, see .paul 04-01 integration points)
+# Rosepen 04-01/04-02/04-03/04-04: Corel-style toolbox + property bar + dockers + workspace (kept out of src/ui/CMakeLists.txt, see .paul 04-01 integration points)
 target_sources(inkscape_base PRIVATE
   ui/toolbar/toolbox-groups.cpp
   ui/toolbar/toolbox-groups.h
@@ -221,6 +221,8 @@ target_sources(inkscape_base PRIVATE
   ui/dialog/object-manager-filter.h
   ui/dialog/properties-panel-kind.cpp
   ui/dialog/properties-panel-kind.h
+  ui/workspace-defaults.cpp
+  ui/workspace-defaults.h
 )
 
 

@@ -321,6 +321,57 @@
           ]
         ]
       }
+    },
+    "page-nav": {
+      "_note": "PgUp/PgDn page navigation (04-04 task 1). The document loads with its last page selected, so page-goto:1 selects Front; page-next then selects Back and prints 'page-next: selected page 2'. The second page-next is refused at the last page (no wrap) and prints nothing. page-previous returns to Front ('page-previous: selected page 1') and the second page-previous is refused at the first page. Stepping only selects a page and the selection is not exported, so the SVG is unchanged: both pages keep their geometry, label and preset. The selection is asserted through the g_message lines (the stderr_contains key), because page-list does not mark the selected page.",
+      "actions": "page-goto:1;page-next;page-next;page-previous;page-previous",
+      "stderr_contains": [
+        "page-next: selected page 2",
+        "page-previous: selected page 1"
+      ],
+      "stderr_absent": [
+        "page-next: selected page 1",
+        "page-previous: selected page 2"
+      ],
+      "pages": [
+        {
+          "label": "Front",
+          "w": 100,
+          "h": 100,
+          "preset": null
+        },
+        {
+          "label": "Back",
+          "w": 210,
+          "h": 148,
+          "preset": "A5"
+        }
+      ],
+      "root": {
+        "viewBox": [
+          0,
+          0,
+          100,
+          100
+        ]
+      },
+      "items": {
+        "rect1": 1,
+        "rect2": 2
+      },
+      "absent": [],
+      "pdf": {
+        "pages": [
+          [
+            283.46,
+            283.46
+          ],
+          [
+            595.28,
+            419.53
+          ]
+        ]
+      }
     }
   }
 }

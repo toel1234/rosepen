@@ -282,7 +282,7 @@ std::vector<std::vector<Glib::ustring>> raw_data_view_mode =
     // clang-format off
     {"win.canvas-commands-bar",      N_("Commands Bar"),            SECTION, N_("Show or hide the Commands bar (under the menu)")},
     {"win.canvas-snap-controls-bar", N_("Snap Controls Bar"),       SECTION, N_("Show or hide the snapping controls")},
-    {"win.canvas-tool-control-bar",  N_("Tool Controls Bar"),       SECTION, N_("Show or hide the Tool Controls bar")},
+    {"win.canvas-tool-control-bar",  N_("Property Bar"),            SECTION, N_("Show or hide the Property Bar")},
     {"win.canvas-toolbox",           N_("Toolbox"),                 SECTION, N_("Show or hide the main toolbox (on the left)")},
     {"win.canvas-rulers",            N_("Rulers"),                  SECTION, N_("Show or hide the canvas rulers")},
     {"win.canvas-scroll-bars",       N_("Scroll bars"),             SECTION, N_("Show or hide the canvas scrollbars")},
