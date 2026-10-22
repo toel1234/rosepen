@@ -81,6 +81,7 @@ ALLOW=(
     "src/ui/widget/paint-attribute.cpp"
     "src/ui/widget/swatch-editor.h"
     "src/ui/widget/swatch-editor.cpp"
+    "share/ui/style.css"
     "share/ui/swatch-editor.ui"
     "src/actions/actions-canvas-mode.cpp"
     "src/actions/actions-page-manager.h"

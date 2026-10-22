@@ -341,26 +341,21 @@ iconview *:hover {
 .dark #InkRuler {
     color: alpha(@theme_fg_color, 0.7);
 }
-:root {
-    --ruler-separator-color: alpha(@borders, 0.6);
-    --ruler-size: 18px;
-    /* increase contrast between background and page area in light theme */
-    --ruler-light-background: shade(@theme_bg_color, 0.97);
-    --ruler-dark-background: @theme_bg_color;
-}
+/* GTK 4.14 (host) has no :root/var(): the four values below are inlined
+   at each use site. Keep both copies in sync when restyling. */
 #InkRuler.horz {
-    min-height: var(--ruler-size);
-    border-top: solid 1px var(--ruler-separator-color);
+    min-height: 18px;
+    border-top: solid 1px alpha(@borders, 0.6);
 }
 #InkRuler.vert {
-    min-width: var(--ruler-size);
-    border-left: solid 1px var(--ruler-separator-color);
+    min-width: 18px;
+    border-left: solid 1px alpha(@borders, 0.6);
 }
 #InkRuler {
-    background-color: var(--ruler-light-background);
+    background-color: shade(@theme_bg_color, 0.97);
 }
 .dark #InkRuler {
-    background-color: var(--ruler-dark-background);
+    background-color: @theme_bg_color;
 }
 
 /* Ensure ui/themes.cpp excludes these classes on applying overridebasecolor: */
@@ -404,24 +399,24 @@ SPCanvas {
     outline: none;
     border-radius: 0;
     border-width: 0;
-    min-width: var(--ruler-size);
-    min-height: var(--ruler-size);
+    min-width: 18px;
+    min-height: 18px;
 }
 #LockGuides {
-    border-top:  solid 1px var(--ruler-separator-color);
-    border-left: solid 1px var(--ruler-separator-color);
+    border-top:  solid 1px alpha(@borders, 0.6);
+    border-left: solid 1px alpha(@borders, 0.6);
 }
 .dark #LockGuides {
-    background-image: image(var(--ruler-dark-background));
+    background-image: image(@theme_bg_color);
 }
 .dark #LockGuides image {
-    background-color: var(--ruler-dark-background);
+    background-color: @theme_bg_color;
 }
 .bright #LockGuides {
-    background-image: image(var(--ruler-light-background));
+    background-image: image(shade(@theme_bg_color, 0.97));
 }
 .bright #LockGuides image {
-    background-color: var(--ruler-light-background);
+    background-color: shade(@theme_bg_color, 0.97);
 }
 /* Don't let images inside those buttons inflate their sizes */
 #QuickActions *, #LockGuides *, #CMS_Adjust * {
