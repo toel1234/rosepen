@@ -176,6 +176,7 @@ ALLOW=(
     "src/ui/dialog/swatches.cpp"
     "src/ui/widget/desktop-widget.h"
     "src/actions/actions-view-mode.cpp"
+    "src/ui/dialog/dialog-manager.cpp"
 )
 
 # ---------------------------------------------------------------------------

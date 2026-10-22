@@ -23,6 +23,9 @@ namespace {
 using Inkscape::UI::Workspace::PalettePlacement;
 using Inkscape::UI::Workspace::PrefValue;
 using Inkscape::UI::Workspace::apply_workspace;
+using Inkscape::UI::Workspace::apply_workspace_revision;
+using Inkscape::UI::Workspace::workspace_revision;
+using Inkscape::UI::Workspace::workspace_revision_pref;
 using Inkscape::UI::Workspace::default_palette_lines;
 using Inkscape::UI::Workspace::inkscape_workspace;
 using Inkscape::UI::Workspace::is_default_keys_file;
@@ -205,6 +208,27 @@ TEST_F(WorkspaceDefaultsTest, applyWorkspaceRemovesNullValue)
     apply_workspace(values);
 
     EXPECT_FALSE(prefs->getEntry("/options/kbshortcuts/shortcutfile").isSet());
+}
+
+TEST_F(WorkspaceDefaultsTest, revisionMigratesOldProfileOnce)
+{
+    // An old profile: dark theme, symbolic icons, no revision marker.
+    prefs->setInt(workspace_revision_pref, 0);
+    prefs->setBool("/theme/darkTheme", true);
+    prefs->setBool("/theme/preferDarkTheme", true);
+    prefs->setBool("/theme/symbolicIcons", true);
+
+    EXPECT_TRUE(apply_workspace_revision());
+    EXPECT_FALSE(prefs->getBool("/theme/darkTheme", true));
+    EXPECT_FALSE(prefs->getBool("/theme/preferDarkTheme", true));
+    EXPECT_FALSE(prefs->getBool("/theme/symbolicIcons", true));
+    EXPECT_EQ(prefs->getString("/options/menubar/layout"), "corel");
+    EXPECT_EQ(prefs->getInt(workspace_revision_pref, 0), workspace_revision);
+
+    // A later user choice survives the next start.
+    prefs->setBool("/theme/darkTheme", true);
+    EXPECT_FALSE(apply_workspace_revision());
+    EXPECT_TRUE(prefs->getBool("/theme/darkTheme", false));
 }
 
 /*

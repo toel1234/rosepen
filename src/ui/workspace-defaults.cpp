@@ -112,6 +112,17 @@ void apply_workspace(std::span<PrefValue const> values, bool computed_default)
     }
 }
 
+bool apply_workspace_revision()
+{
+    auto *prefs = Preferences::get();
+    if (prefs->getInt(workspace_revision_pref, 0) >= workspace_revision) {
+        return false;
+    }
+    apply_workspace(rosepen_workspace());
+    prefs->setInt(workspace_revision_pref, workspace_revision);
+    return true;
+}
+
 } // namespace Inkscape::UI::Workspace
 
 /*

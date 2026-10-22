@@ -115,6 +115,7 @@
 #include "ui/interface.h"                 // sp_ui_error_dialog
 #include "ui/tools/shortcuts.h"
 #include "ui/widget/desktop-widget.h"
+#include "ui/workspace-defaults.h"
 #include "util/scope_exit.h"
 
 #ifdef WITH_GNU_READLINE
@@ -973,6 +974,12 @@ void InkscapeApplication::on_startup()
 {
     // Autosave
     Inkscape::AutoSave::getInstance().init(this);
+
+    // Rosepen: bring existing profiles to the current workspace before the
+    // theme and the first window read it.
+    if (_with_gui) {
+        Inkscape::UI::Workspace::apply_workspace_revision();
+    }
 
     // Deprecated...
     Inkscape::Application::create(_with_gui);

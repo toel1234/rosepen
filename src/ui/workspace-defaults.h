@@ -119,6 +119,20 @@ std::span<PrefValue const> inkscape_workspace();
  */
 void apply_workspace(std::span<PrefValue const> values, bool computed_default = false);
 
+/// Marker recording which Rosepen workspace revision a profile has received.
+inline constexpr char const *workspace_revision_pref = "/options/workspace/rosepen-revision";
+
+/// Bump when the Rosepen preset gains values that existing profiles must get.
+inline constexpr int workspace_revision = 1;
+
+/**
+ * Apply the Rosepen workspace once per revision, so that existing profiles
+ * (which store older values such as the dark theme) start with the Rosepen
+ * look without a manual "Use Rosepen workspace" click. Later user changes,
+ * including "Use Inkscape workspace", are kept. Returns true if it applied.
+ */
+bool apply_workspace_revision();
+
 } // namespace Inkscape::UI::Workspace
 
 #endif // SEEN_UI_WORKSPACE_DEFAULTS_H
