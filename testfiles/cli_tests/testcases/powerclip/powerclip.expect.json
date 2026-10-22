@@ -1,0 +1,119 @@
+{
+  "_header": "Spec-derived expectations for 05-01 task 3 (.paul/phases/05-corel-tools/05-01-PLAN.md). Every colour is hand-derived from the fixture invariants: the topmost painted object wins at the sample after clipping; the container paints where only it covers; an unplaced object paints normally; else white. Page-relative user units (1 unit = 1 px at 96 dpi). Fixture rects: box 20..60 x 20..60 #0000ff, red 40..80 x 40..80 #ff0000, green 10..30 x 30..50 #00ff00 (unplaced by 'place'), mbox 5..35 x 2..16 #0000ff and mred 25..55 x 5..15 #ff0000 in master layer M (below L1, nothing of L1 above y=20). A value that a render contradicts is a FINDING, never a reason to retune.",
+  "scenarios": {
+    "place": {
+      "_comment": "red placed into box keeps its page position; visible red = red n box = 40..60 x 40..60. green is NOT placed and paints over box at 20..30 x 30..50. (50,50): red over box inside both -> red. (70,70): red would cover, box ends at x=60 -> clipped away -> white. (75,45): same, right of box -> white. (25,25): box only, green starts at y=30 -> blue.",
+      "actions": "select-by-id:red,box;object-powerclip-place",
+      "list": { "count": 1, "frames": [ { "container": "box", "contents": ["red"] } ] },
+      "svg": { "frames": [ { "container": "box" } ] },
+      "png": {
+        "p1": {
+          "red_inside": [50, 50, "#ff0000"],
+          "red_clipped_below_right": [70, 70, "#ffffff"],
+          "red_clipped_right": [75, 45, "#ffffff"],
+          "box_only": [25, 25, "#0000ff"]
+        }
+      }
+    },
+    "transform-follow": {
+      "_comment": "place, then translate the frame +30,0: box moves to 50..90 x 20..60 and red follows (absolute 70..110 x 40..80), visible red = 70..90 x 40..60. (80,50): inside visible red -> red. (60,30): box only, red starts at x=70 -> blue. (95,50): box ends at x=90, red clipped there -> white. (40,25): vacated by the move (box now starts at x=50), green starts at y=30 -> white.",
+      "actions": "select-by-id:red,box;object-powerclip-place;transform-translate:30,0",
+      "list": { "count": 1, "frames": [ { "container": "box", "contents": ["red"] } ] },
+      "svg": { "frames": [ { "container": "box" } ] },
+      "png": {
+        "p1": {
+          "red_moved": [80, 50, "#ff0000"],
+          "box_moved": [60, 30, "#0000ff"],
+          "red_clipped_at_new_edge": [95, 50, "#ffffff"],
+          "vacated": [40, 25, "#ffffff"]
+        }
+      }
+    },
+    "container-move": {
+      "_comment": "place, then move the container alone -10,0 (select-clear first: select-by-id ADDS to the selection, and ObjectSet::add refuses a box whose ancestor, the frame, is in the set): box 10..50 x 20..60 and the LIVE clip follows it, while red keeps its absolute 40..80 -> visible red = 40..50 x 40..60. green is unplaced and paints over box at 10..30 x 30..50. (45,50): inside box n red, right of green -> red. (55,50): right of the moved box, red clipped at x=50 -> white; this is the follow/anti-follow discriminator, an anti-followed clip would still cover 20..60 and paint red here. (35,25): box only (red starts y=40, green ends x=30) -> blue. (35,45): box interior left of the red edge, right of green -> blue (the contents did not follow). The move is applied with object-set-attribute (a repr-level transform write, which does not fire SPItem's transformed signal); moving the container through the select tool (ObjectSet::applyAffine with compensation) triggers SPUse::move_compensate (sp-use.cpp:496), which counter-moves the clip's <use> so the clip STAYS and the container/clip diverge - recorded as a 05-01 finding, not lockable as correct here.",
+      "actions": "select-by-id:red,box;object-powerclip-place;select-clear;select-by-id:box;object-set-attribute:transform, translate(-10,0)",
+      "list": { "count": 1, "frames": [ { "container": "box", "contents": ["red"] } ] },
+      "svg": { "frames": [ { "container": "box" } ] },
+      "png": {
+        "p1": {
+          "red_in_followed_clip": [45, 50, "#ff0000"],
+          "right_of_moved_box": [55, 50, "#ffffff"],
+          "box_only_moved": [35, 25, "#0000ff"],
+          "contents_did_not_follow": [35, 45, "#0000ff"]
+        }
+      }
+    },
+    "extract": {
+      "_comment": "place then extract: frame, contents group and clipPath dissolve; container and contents come back at their current visual position in the original z-order (box, red, green). (70,70): red unclipped again -> red. (50,50): red over box -> red. (25,25): box only (green starts y=30) -> blue.",
+      "actions": "select-by-id:red,box;object-powerclip-place;object-powerclip-extract",
+      "list": { "count": 0, "frames": [] },
+      "svg": { "no_roles": true, "no_clip_paths": true, "frames": [] },
+      "png": {
+        "p1": {
+          "red_unclipped": [70, 70, "#ff0000"],
+          "red_over_box": [50, 50, "#ff0000"],
+          "box_only": [25, 25, "#0000ff"]
+        }
+      }
+    },
+    "add-to-frame": {
+      "_comment": "place red into box, then place green with box selected last: the frame is reused, contents = [red, green]. select-clear first because select-by-id ADDS to the selection and ObjectSet::add refuses an object whose ancestor is in the set (the frame). green keeps 10..30 x 30..50, clipped to box -> visible green = 20..30 x 30..50. (25,40): inside visible green -> green. (15,40): green's own area but left of the box edge x=20 -> clipped -> white. (50,50): visible red (green ends at x=30) -> red.",
+      "actions": "select-by-id:red,box;object-powerclip-place;select-clear;select-by-id:green,box;object-powerclip-place",
+      "list": { "count": 1, "frames": [ { "container": "box", "contents": ["red", "green"] } ] },
+      "svg": { "frames": [ { "container": "box" } ] },
+      "png": {
+        "p1": {
+          "green_clipped_into_box": [25, 40, "#00ff00"],
+          "green_clipped_left_of_box": [15, 40, "#ffffff"],
+          "red_still_visible": [50, 50, "#ff0000"]
+        }
+      }
+    },
+    "duplicate-move": {
+      "_comment": "place, duplicate, move the copy +35,0: the copy's box is 55..95 x 20..60, the copy's red follows to 75..115 x 40..80, visible 75..95 x 40..60. The duplicate shares the clipPath (no fork): its clip <use> still names the original container, which has identical geometry, so the copy clips correctly in its own frame space. (85,50): copy red -> red. (90,70): copy red ends y=60, original red clipped to the original box ending y=60 -> white. (70,30): copy box only (copy red starts y=40, original red visible ends x=60) -> blue. (50,50): original red (copy box starts x=55) -> red.",
+      "actions": "select-by-id:red,box;object-powerclip-place;duplicate;transform-translate:35,0",
+      "shared_clip_ok": true,
+      "list": {
+        "count": 2,
+        "frames": [
+          { "container": "box", "contents": ["red"] },
+          { "container": "*", "contents": ["*"] }
+        ]
+      },
+      "svg": { "frames": [ { "container": "box" }, { "container": "*" } ], "shared_clip_ok": true, "distinct_containers": true },
+      "png": {
+        "p1": {
+          "copy_red": [85, 50, "#ff0000"],
+          "below_both_reds": [90, 70, "#ffffff"],
+          "copy_box": [70, 30, "#0000ff"],
+          "original_red": [50, 50, "#ff0000"]
+        }
+      }
+    },
+    "master": {
+      "_comment": "mred placed into mbox inside master layer M: visible mred = 25..35 x 5..15. The master layer renders on page 1 in place and on page 2 as the MasterLayerDisplay copy (+110,0), clip included. Page-relative on BOTH pages: (30,10) inside mbox n mred -> red; (45,10) mred only, mbox ends x=35 -> clipped -> white; (15,10) mbox only, mred starts x=25 -> blue. L1 paints only y>=20 so it never interferes at y=10.",
+      "actions": "select-by-id:mred,mbox;object-powerclip-place",
+      "list": { "count": 1, "frames": [ { "container": "mbox", "contents": ["mred"] } ] },
+      "svg": { "frames": [ { "container": "mbox" } ] },
+      "png": {
+        "p1": {
+          "red_on_p1": [30, 10, "#ff0000"],
+          "clipped_on_p1": [45, 10, "#ffffff"],
+          "container_on_p1": [15, 10, "#0000ff"]
+        },
+        "p2": {
+          "red_on_p2": [30, 10, "#ff0000"],
+          "clipped_on_p2": [45, 10, "#ffffff"],
+          "container_on_p2": [15, 10, "#0000ff"]
+        }
+      }
+    },
+    "refuse-single": {
+      "_comment": "A single selected object is refused (TooFewItems) and nothing changes: 0 frames, no role attribute anywhere in the exported SVG. The refusal text goes to stderr headless (show_output writes to cerr by default).",
+      "actions": "select-by-id:box;object-powerclip-place",
+      "stderr_contains": ["PowerClip: select at least two objects, the frame last"],
+      "list": { "count": 0, "frames": [] },
+      "svg": { "no_roles": true, "frames": [] }
+    }
+  }
+}

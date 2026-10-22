@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!--
+  Invariants of this fixture (05-01 task 3, do not casually change):
+
+  * Pixel document: width/height in px over viewBox "0 0 100 100", i.e.
+    1 user unit = 1 px = 1 output px at 96 dpi export; translate arguments
+    in the scenarios are user units.
+  * Two pages, each 100x100 user units: p1 at the origin (its viewBox equals
+    the root viewBox, the viewport page constraint) and p2 at x=110, outside
+    the root viewBox like the 03-02 master-layer fixture.  (The 05-01 plan
+    sketched a 220x100 root viewBox with p1 100x100 at the origin, but
+    SPNamedView::updateViewPort stretches an origin page that differs from
+    the root viewBox up to the root size, so p1 must BE the root viewBox.)
+  * Layer M is a master layer BELOW layer L1 (mbox 5..35 x 2..16 #0000ff,
+    mred 25..55 x 5..15 #ff0000 above it).  Nothing of L1 lies above y=20,
+    so the master strip (y 2..16) and L1 never overlap on page 1; page 2
+    shows only the master copy.
+  * L1 holds, bottom to top: box 20..60 x 20..60 #0000ff, red 40..80 x 40..80
+    #ff0000, green 10..30 x 30..50 #00ff00 (topmost).  green is left unplaced
+    by `place`, so the "unplaced object paints normally" rule is exercised.
+  * All fills are flat sRGB, there are no strokes, and every sample in
+    powerclip.expect.json is >= 3 px away from every painted edge, so no
+    sample is antialiasing-sensitive.
+  * Colour rule (hand derivation, see the _comment fields in
+    powerclip.expect.json): the topmost painted object wins at the sample
+    after clipping; the container paints where only it covers; an unplaced
+    object paints normally; else white.
+  * The expectations are spec-derived from .paul/phases/05-corel-tools/
+    05-01-PLAN.md (task 3); contradicting observed output is a finding, never
+    a reason to loosen the checker or retune an expectation.
+-->
+<svg
+   width="100"
+   height="100"
+   viewBox="0 0 100 100"
+   version="1.1"
+   id="powerclip"
+   inkscape:docname="powerclip.svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:xlink="http://www.w3.org/1999/xlink">
+  <sodipodi:namedview
+     id="namedview1"
+     inkscape:document-units="px"
+     pagecolor="#ffffff"
+     inkscape:pageopacity="1"
+     showgrid="false" />
+  <defs
+     id="defs1">
+    <view
+       id="p1"
+       viewBox="0 0 100 100"
+       inkscape:label="Page 1" />
+    <view
+       id="p2"
+       viewBox="110 0 100 100"
+       inkscape:label="Page 2" />
+  </defs>
+  <g
+     inkscape:groupmode="layer"
+     inkscape:master-layer="true"
+     inkscape:label="Master"
+     id="M">
+    <rect
+       id="mbox"
+       x="5"
+       y="2"
+       width="30"
+       height="14"
+       fill="#0000ff" />
+    <rect
+       id="mred"
+       x="25"
+       y="5"
+       width="30"
+       height="10"
+       fill="#ff0000" />
+  </g>
+  <g
+     inkscape:groupmode="layer"
+     inkscape:label="Content"
+     id="L1">
+    <rect
+       id="box"
+       x="20"
+       y="20"
+       width="40"
+       height="40"
+       fill="#0000ff" />
+    <rect
+       id="red"
+       x="40"
+       y="40"
+       width="40"
+       height="40"
+       fill="#ff0000" />
+    <rect
+       id="green"
+       x="10"
+       y="30"
+       width="20"
+       height="20"
+       fill="#00ff00" />
+  </g>
+</svg>
