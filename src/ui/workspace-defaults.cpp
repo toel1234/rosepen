@@ -33,6 +33,7 @@ constexpr PrefValue rosepen_values[] = {
     {"/options/notebooklabels/value", "1"},
     {"/toolbox/tools/iconsize", "24"},
     {"/toolbox/controlbars/iconsize", "20"},
+    {document_tabs_pref, "true"},
 };
 
 constexpr PrefValue inkscape_values[] = {
@@ -49,6 +50,7 @@ constexpr PrefValue inkscape_values[] = {
     {"/options/notebooklabels/value", "0"},
     {"/toolbox/tools/iconsize", "16"},
     {"/toolbox/controlbars/iconsize", "16"},
+    {document_tabs_pref, "false"},
 };
 
 bool is_bool_literal(char const *value)

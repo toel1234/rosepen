@@ -8,6 +8,8 @@
 
 #include <gtkmm/box.h>
 
+#include "preferences.h"
+
 namespace Gio { class Menu; }
 namespace Gtk {
 class Button;
@@ -44,7 +46,12 @@ private:
     Gtk::Button *_nextbtn;
     Gtk::Viewport *_viewport;
     Gtk::ScrolledWindow *_scrollwin;
+    Gtk::Button *_newbtn;
+    Gtk::Widget *_menubtn;
     sigc::scoped_connection _on_idle_scroll;
+    // Rosepen: keep the tab bar (and its New Document button) visible with a
+    // single document, as in the reference workspace.
+    PrefObserver _always_visible_pref;
 
     class Instances;
 

@@ -2,6 +2,7 @@
 
 #include <giomm/menu.h>
 #include <giomm/simpleactiongroup.h>
+#include <glibmm/i18n.h>
 #include <glibmm/main.h>
 #include <gtkmm/button.h>
 #include <gtkmm/menubutton.h>
@@ -12,6 +13,7 @@
 #include "ui/widget/desktop-tab-controls.h"
 #include "ui/widget/desktop-tab-row.h"
 #include "ui/widget/desktop-widget.h"
+#include "ui/workspace-defaults.h"
 
 namespace Inkscape::UI::Widget {
 
@@ -99,6 +101,14 @@ DesktopTabControls::DesktopTabControls(SPDesktopWidget *desktop_widget)
     _nextbtn->signal_clicked().connect(sigc::mem_fun(*_tabs, &DesktopTabRow::switchToNextDesktop));
     append(*_nextbtn);
 
+    // Rosepen: a New Document button right after the tabs.
+    _newbtn = Gtk::make_managed<Gtk::Button>();
+    _newbtn->set_has_frame(false);
+    _newbtn->set_icon_name("list-add-symbolic");
+    _newbtn->set_tooltip_text(_("New Document"));
+    _newbtn->set_action_name("win.document-new");
+    append(*_newbtn);
+
     auto const menubtn = Gtk::make_managed<Gtk::MenuButton>();
     menubtn->set_has_frame(false);
     menubtn->set_halign(Gtk::Align::END);
@@ -106,6 +116,7 @@ DesktopTabControls::DesktopTabControls(SPDesktopWidget *desktop_widget)
     menubtn->set_menu_model(_menu);
     menubtn->set_name("DesktopTabMenu");
     append(*menubtn);
+    _menubtn = menubtn;
 
     auto actiongroup = Gio::SimpleActionGroup::create();
     actiongroup->add_action_with_parameter("switch-to", Glib::VARIANT_TYPE_INT32, [this] (const Glib::VariantBase &val) {
@@ -114,6 +125,8 @@ DesktopTabControls::DesktopTabControls(SPDesktopWidget *desktop_widget)
     insert_action_group("tab-controls", actiongroup);
 
     Instances::get().add(this);
+    _always_visible_pref = Preferences::get()->createObserver(Workspace::document_tabs_pref,
+                                                              [this] { _updateVisibility(); });
     _updateVisibility();
 }
 
@@ -172,7 +185,14 @@ SPDesktop *DesktopTabControls::tabAtPosition(int i) const
 
 void DesktopTabControls::_updateVisibility()
 {
-    set_visible(_tabs->size() > 1 || Instances::get().forceVisible());
+    bool const always = Preferences::get()->getBool(Workspace::document_tabs_pref, false);
+    set_visible(always || _tabs->size() > 1 || Instances::get().forceVisible());
+    _newbtn->set_visible(always);
+    // With the New Document button the tabs take their natural width, so the
+    // button follows the last tab and the menu button stays at the right end.
+    _scrollwin->set_propagate_natural_width(always);
+    _scrollwin->set_hexpand(!always);
+    _menubtn->set_hexpand(always);
 
     auto adj = _scrollwin->get_hadjustment();
     auto scroll_has_hidden_tabs = adj->get_page_size() < adj->get_upper();

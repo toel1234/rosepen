@@ -264,6 +264,7 @@ static char const preferences_skeleton[] =
      rotationlock="1">
     <group id="kbshortcuts" shortcutfile="rosepen.xml"/>
     <group id="notebooklabels" value="1"/>
+    <group id="documenttabs" always="1"/>
     <group id="renderingcache" size="512" />
     <group id="useoldpdfexporter" value="0" />
     <group id="highlightoriginal" value="1" />
@@ -542,6 +543,7 @@ static char const preferences_skeleton[] =
      preferDarkTheme="0"
      darkTheme="0"
      symbolicIcons="0"
+     iconTheme="rosepen"
      symbolicDefaultBaseColors="1"/>
 </inkscape>
 )=====";

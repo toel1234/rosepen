@@ -179,6 +179,7 @@ TEST_F(WorkspaceDefaultsTest, applyInkscapePreset)
     EXPECT_EQ(prefs->getInt("/options/notebooklabels/value", -1), 0);
     EXPECT_EQ(prefs->getInt("/toolbox/tools/iconsize", -1), 16);
     EXPECT_EQ(prefs->getString("/theme/iconTheme"), "multicolor");
+    EXPECT_FALSE(prefs->getBool("/options/documenttabs/always", true));
 
     // On a non-widescreen display the upstream default is "off".
     apply_workspace(inkscape_workspace(), false);
@@ -205,6 +206,7 @@ TEST_F(WorkspaceDefaultsTest, applyRosepenPreset)
     EXPECT_EQ(prefs->getInt("/toolbox/tools/iconsize", -1), 24);
     EXPECT_EQ(prefs->getString("/theme/iconTheme"), "rosepen");
     EXPECT_EQ(prefs->getInt("/toolbox/controlbars/iconsize", -1), 20);
+    EXPECT_TRUE(prefs->getBool("/options/documenttabs/always", false));
 }
 
 TEST_F(WorkspaceDefaultsTest, applyWorkspaceRemovesNullValue)

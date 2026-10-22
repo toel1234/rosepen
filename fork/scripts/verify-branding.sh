@@ -183,6 +183,9 @@ ALLOW=(
     "share/icons/rosepen/*"
     "share/ui/toolbar-commands-corel.ui"
     "src/ui/toolbar/command-toolbar.cpp"
+    # Always-visible document tabs with a New Document button
+    "src/ui/widget/desktop-tab-controls.h"
+    "src/ui/widget/desktop-tab-controls.cpp"
 )
 
 # ---------------------------------------------------------------------------

@@ -28,6 +28,9 @@ inline constexpr char const *menubar_layout_pref = "/options/menubar/layout";
 /// Preference holding the colour palette placement ("bottom" or "right").
 inline constexpr char const *palette_placement_pref = "/embedded/swatches/placement";
 
+/// Show the document tab bar even with a single document open.
+inline constexpr char const *document_tabs_pref = "/options/documenttabs/always";
+
 /// The Rosepen key profile; a default, so no keys warning is shown for it.
 inline constexpr char const *rosepen_keys_file = "rosepen.xml";
 
@@ -127,7 +130,7 @@ void apply_workspace(std::span<PrefValue const> values, bool computed_default = 
 inline constexpr char const *workspace_revision_pref = "/options/workspace/rosepen-revision";
 
 /// Bump when the Rosepen preset gains values that existing profiles must get.
-inline constexpr int workspace_revision = 2;
+inline constexpr int workspace_revision = 3;
 
 /**
  * Apply the Rosepen workspace once per revision, so that existing profiles
