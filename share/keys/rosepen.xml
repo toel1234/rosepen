@@ -31,8 +31,8 @@
 <bind gaction="win.tool-switch('Eraser')"               keys="x, X" />
 <!-- Mesh Fill -->
 <bind gaction="win.tool-switch('Mesh')"                 keys="m, M" />
-<!-- Artistic Media stand-in (Calligraphic) -->
-<bind gaction="win.tool-switch('Calligraphic')"         keys="i, I" />
+<!-- Artistic Media -->
+<bind gaction="win.tool-switch('ArtisticMedia')"        keys="i, I" />
 <!-- Pick, from any tool -->
 <bind gaction="win.tool-switch('Select')"               keys="&lt;primary&gt;space" />
 

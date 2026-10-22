@@ -38,6 +38,9 @@ NEW_ITEMS = {
     ('app.object-powerclip-extract', ''),
     # 05-02 Dimension tool: Corel-only tool, no classic menubar counterpart
     ('win.tool-switch', 'Dimension'),
+    # 05-03 Artistic Media: Corel-only tool and command, no classic counterpart
+    ('win.tool-switch', 'ArtisticMedia'),
+    ('app.artistic-break', ''),
 }
 
 # Classic pairs intentionally unreachable from the Corel menubar, with reasons.

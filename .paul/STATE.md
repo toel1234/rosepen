@@ -16,19 +16,19 @@ See: .paul/PROJECT.md (updated 2026-10-20)
 ## Current Position
 
 Milestone: v0.1 Corel parity v1
-Phase: 5 IN PROGRESS (05-01 ✓ 05-02 ✓ 2026-10-22); Phases 1-4 COMPLETE
-Plan: 05-01 PowerClip + 05-02 dimension tools applied in one tree, opus gate PASS-WITH-FIXES (9 fixes, 1 HIGH deferred structural), committed this session
-Status: 03-01 ✓ 03-02 ✓ 03-03 ✓ 04-01 ✓ 04-02 ✓ 04-03 ✓ 04-04 ✓ 05-01 ✓ 05-02 ✓ — next: 05-03 (Artistic Media) or 06-01 (.cdr import — TraceDraw FFI option recorded); Phase 5 polish plan owes the container-move clone-compensation fix (opus gate finding #2)
-Last activity: 2026-10-22 — 05-01+05-02 gated, summarized, committed (orchestrator session)
+Phase: 5 IN PROGRESS (05-01 ✓ 05-02 ✓ 05-03 ✓); Phases 1-4 COMPLETE
+Plan: 05-03 Artistic Media applied + gated (opus PASS-WITH-FIXES, 9 fixes) + committed this session
+Status: 03-01 ✓ 03-02 ✓ 03-03 ✓ 04-01 ✓ 04-02 ✓ 04-03 ✓ 04-04 ✓ 05-01 ✓ 05-02 ✓ 05-03 ✓ — next: 05-04 (Smart Fill) authoring via opus; also owed: Rosepen MCP interface delivered (tools/rosepen-mcp, agents paint headlessly); Phase 5 polish plan owes the container-move clone-compensation fix (05-01 gate finding #2)
+Last activity: 2026-10-23 — 05-03 gated, summarized, committed (orchestrator session)
 
 Progress:
-- Milestone: [████████░░] 81% (17 of 21 plans)
+- Milestone: [█████████░] 86% (18 of 21 plans)
 
 ## Loop Position
 
 ```
-Phase 4: COMPLETE ✓   Phase 5: 05-01 ✓ 05-02 ✓ | 05-03 05-04 05-05 pending   Phase 6: 06-01 06-02 pending
-→ next: 05-03 (Artistic Media) authoring via opus; Phase 5 polish plan (container-move clone compensation)
+Phase 4: COMPLETE ✓   Phase 5: 05-01 ✓ 05-02 ✓ 05-03 ✓ | 05-04 05-05 pending   Phase 6: 06-01 06-02 pending
+→ next: 05-04 (Smart Fill) authoring via opus; Phase 5 polish plan (container-move clone compensation)
 ```
 
 ## Accumulated Context
@@ -57,9 +57,9 @@ Phase 4: COMPLETE ✓   Phase 5: 05-01 ✓ 05-02 ✓ | 05-03 05-04 05-05 pending
 
 ## Session Continuity
 
-Last session: 2026-10-22 (05-01 PowerClip + 05-02 dimension tools applied, gated, summarized)
-Stopped at: both plans committed by the orchestrator; UATs 05-01/05-02 OWED
-Next action: Author 05-03-PLAN.md (Artistic Media) via opus — Phase 5; Phase 5 polish plan should absorb the PowerClip container-move clone-compensation fix (opus gate finding #2, HIGH, structural)
+Last session: 2026-10-23 (05-03 Artistic Media applied, gated, summarized; MCP server delivered)
+Stopped at: 05-03 committed; UATs 05-01/05-02/05-03 OWED
+Next action: Author 05-04-PLAN.md (Smart Fill) via opus, then 05-05 (LiveSketch), 06-01/06-02 (.cdr); Phase 5 polish plan should absorb the PowerClip container-move clone-compensation fix (HIGH, structural)
 Resume file: .paul/ROADMAP.md (Phase 5)
 
 ---

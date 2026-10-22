@@ -163,3 +163,17 @@ phase = "5"
 plan = "05-01+05-02"
 action = "APPLY complete (parallel workers, one tree): PowerClip (Gtk-free model, 5 actions, context/Corel menu, Ctrl+Alt+P, 22-case gtest, 8-scenario corpus) + dimension tools (pure geometry model 33 cases, live LPE 14 cases, 9-scenario CLI corpus, Dimension tool + flyout + toolbar); opus gate PASS-WITH-FIXES both plans — 9 fixes (extract extra-children data loss, angular arrow tangency, scaled-parent value, watcher use-after-free, dimension-set atomicity, tool offset/capture/undo, toolbar guard); 1 HIGH deferred structural (container-only Select move vs clone compensation, normalize repairs via Edit/Finish); regression 63-selection green (1 flake attributed to concurrent install), negative self-tests 3/3, sweep ALL_BRANDING_CHECKS_OK; committed by orchestrator"
 models = "worker pipeline per .paul/config.md (implementation); claude-opus-5-5 (gate + 9 fixes); glm-5.3-flash (orchestrator: verification, allow-list integration, summaries, commit)"
+
+[[entries]]
+date = "2026-10-22 23:00"
+phase = "tools"
+plan = "-"
+action = "Rosepen MCP server delivered: tools/rosepen-mcp (stdlib-only stdio server, 14 tools; document file = state, headless action surface for editor semantics, render returns real PNGs); fixes found by agent e2e (export-do is an action not a flag, sodipodi-0.dtd canonical URI, string-coerced nested args + real input schemas); registered claude CLI user scope + command-code; opus agent painted a greeting card autonomously via the tools (verified render + export); committed 5eaf95aa17, CI dispatched; branding allow-list completed with the newly tracked 05-02 sources"
+models = "glm-5.3-flash (orchestrator: server, tests, registration, commit); claude-opus-5-5 (end-to-end agent test; found the stringified-args bug); deepseek-v4.1-flash (05-03 Tasks 1-2 apply started in parallel)"
+
+[[entries]]
+date = "2026-10-23 01:20"
+phase = "5"
+plan = "05-03"
+action = "APPLY complete (serial workers): Artistic Media — pure geometry model (arc-length map-along, one shape copy per subpath, ring-stitched corners) + 11-stroke library + live artistic_media LPE (page-fixed nib via inverse i2doc, scale-with-object delta transform) + 6 app.artistic-* actions + interactive tool/toolbar/flyout/key i (documented Spiral override); opus gate PASS-WITH-FIXES (9 defects: per-edge shape copies, px/user-unit mismatch on mm docs, nib rotation, transform delta, break-apart transform, validate-before-fork, toolbar dropdown/mode, width clamp, apply errors/color); gtests 25+26 cases, cli_artistic 13/13, toolbox tools=26, menus items=256, keys binds=77 overrides=40, sweep ALL_BRANDING_CHECKS_OK, regression green incl. fills 49/49; committed by orchestrator"
+models = "deepseek-v4.1-flash via command-code (Tasks 1-2; hit 100-turn cap, finished via session -c continuation); GLM-5.3 subagent (Task 3, 38 min); claude-opus-5-5 (gate + 9 fixes); glm-5.3-flash (orchestrator: verification, summaries, commit)"

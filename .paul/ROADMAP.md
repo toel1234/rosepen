@@ -71,7 +71,7 @@ Phases: 4 of 6 complete
 **Plans:**
 - [x] 05-01: PowerClip (place inside frame, edit contents in place, extract, normalize repair; Gtk-free model + 5 actions + 22-case gtest + 8-scenario corpus; opus gate PASS-WITH-FIXES — extract extra-children fix, container-move clone-compensation HIGH deferred to polish plan; UAT owed)
 - [x] 05-02: Dimension tools (live dimension LPE + pure geometry model 33+14 gtests, app.dimension-add/list/set, Dimension tool as flyout face, 9-scenario corpus incl. live-move/freeze; opus gate PASS-WITH-FIXES — 7 fixes; UAT owed)
-- [ ] 05-03: Artistic Media brushes
+- [x] 05-03: Artistic Media (live preset/brush/calligraphic strokes on an editable skeleton; pure geometry model 25 cases + live LPE 26 cases + 13-scenario corpus; tool as flyout face, key i; opus gate PASS-WITH-FIXES — 9 fixes incl. per-edge copies, mm-doc unit mismatch, page-fixed nib; UAT owed)
 - [ ] 05-04: Smart Fill
 - [ ] 05-05: LiveSketch
 

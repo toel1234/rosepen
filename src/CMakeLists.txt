@@ -247,6 +247,22 @@ target_sources(inkscape_base PRIVATE
   ui/toolbar/dimension-toolbar.h
 )
 
+# Rosepen 05-03: artistic media
+target_sources(inkscape_base PRIVATE
+  live_effects/artistic-media-geometry.cpp
+  live_effects/artistic-media-geometry.h
+  live_effects/artistic-media-library.cpp
+  live_effects/artistic-media-library.h
+  live_effects/lpe-artistic-media.cpp
+  live_effects/lpe-artistic-media.h
+  actions/actions-artistic-media.cpp
+  actions/actions-artistic-media.h
+  ui/tools/artistic-media-tool.cpp
+  ui/tools/artistic-media-tool.h
+  ui/toolbar/artistic-media-toolbar.cpp
+  ui/toolbar/artistic-media-toolbar.h
+)
+
 # -----------------------------------------------------------------------------
 # Load in subdirectories
 # -----------------------------------------------------------------------------

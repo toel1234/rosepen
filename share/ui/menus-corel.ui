@@ -722,6 +722,13 @@
           </section>
         </submenu>
       </section>
+      <!-- Rosepen 05-03: Artistic Media -->
+      <section>
+        <item>
+          <attribute name="label" translatable="yes">Break Artistic _Media Apart</attribute>
+          <attribute name="action">app.artistic-break</attribute>
+        </item>
+      </section>
       <submenu id="object-mask">
         <attribute name="label" translatable="yes">Mas_k</attribute>
         <section>
@@ -1272,6 +1279,15 @@
           <attribute name="action">win.tool-switch</attribute>
           <attribute name="target">Dimension</attribute>
           <attribute name="icon">measure-segments</attribute>
+        </item>
+      </section>
+      <!-- Rosepen 05-03: Artistic Media -->
+      <section>
+        <item>
+          <attribute name="label" translatable="yes">_Artistic Media Tool</attribute>
+          <attribute name="action">win.tool-switch</attribute>
+          <attribute name="target">ArtisticMedia</attribute>
+          <attribute name="icon">taper-stroke</attribute>
         </item>
       </section>
     </submenu>

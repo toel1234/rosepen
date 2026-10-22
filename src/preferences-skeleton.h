@@ -141,6 +141,7 @@ static char const preferences_skeleton[] =
        id="geometric"
        mode="drag" />
     <group id="dimension" mode="auto" precision="2" unit="mm" offset="5" text="above" horizontal="0" units="1" />
+    <eventcontext id="artistic" style="fill:black;fill-opacity:1;fill-rule:nonzero;stroke:none;" usecurrent="0" mode="preset" preset="lens" brush="dry-brush" width="10" angle="30" smoothing="50" scale_with_object="1" selcue="1" />
   </group>
 
   <group id="palette">

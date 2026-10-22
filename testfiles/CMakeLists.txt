@@ -109,6 +109,9 @@ set(TEST_SOURCES
     workspace-defaults-test
     # 05-01 PowerClip
     powerclip-test
+    # 05-03 artistic media
+    artistic-media-geometry-test
+    artistic-media-lpe-test
     path-reverse-lpe-test
     preferences-test
     rebase-hrefs-test

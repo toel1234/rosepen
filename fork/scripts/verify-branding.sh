@@ -209,6 +209,22 @@ ALLOW=(
     "src/ui/tools/tool-data.h"
     "src/ui/toolbar/dimension-toolbar.h"
     "src/ui/toolbar/dimension-toolbar.cpp"
+    # 05-03 artistic media (new files; visible to the scope check once committed)
+    "share/ui/toolbar-artistic-media.ui"
+    "src/live_effects/artistic-media-geometry.h"
+    "src/live_effects/artistic-media-geometry.cpp"
+    "src/live_effects/artistic-media-library.h"
+    "src/live_effects/artistic-media-library.cpp"
+    "src/live_effects/lpe-artistic-media.h"
+    "src/live_effects/lpe-artistic-media.cpp"
+    "src/actions/actions-artistic-media.h"
+    "src/actions/actions-artistic-media.cpp"
+    "src/ui/tools/artistic-media-tool.h"
+    "src/ui/tools/artistic-media-tool.cpp"
+    "src/ui/toolbar/artistic-media-toolbar.h"
+    "src/ui/toolbar/artistic-media-toolbar.cpp"
+    # Rosepen MCP server (committed after the 05-03 plan was written)
+    "tools/rosepen-mcp/*"
 )
 
 # ---------------------------------------------------------------------------

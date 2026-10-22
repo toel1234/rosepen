@@ -72,6 +72,7 @@ enum EffectType {
     FILL_BETWEEN_STROKES,
     // Hidden Experimental LPE's
     DIMENSION,
+    ARTISTIC_MEDIA,
     DOEFFECTSTACK_TEST,
     DYNASTROKE,
     LATTICE,

@@ -1556,3 +1556,47 @@ add_dimension_test(live-move)
 add_dimension_test(precision-unit)
 add_dimension_test(freeze-on-delete)
 add_dimension_test(bad-input)
+
+#############################################################################################
+### artistic media lock (05-03 task 2)                                                     ###
+#############################################################################################
+# Headless live artistic-media lock: every scenario in artistic.expect.json creates and edits
+# Rosepen artistic media strokes through app.artistic-add / app.artistic-apply /
+# app.artistic-set / app.artistic-break, then proves the model (artistic-list TSV), the
+# plain-SVG export (effect attributes, embedded shape data, per-path structure, path bbox)
+# and RGB pixels on the PNG export.  With --pdf (capypdf builds) the PDF export is
+# additionally re-imported through Rosepen's own PDF importer and the same pixels are
+# checked on the rasterized result.  CLI tests run SERIALLY (D-Bus app-id race).
+function(add_artistic_media_test scenario)
+    set(SOURCE_SVG "${CMAKE_CURRENT_SOURCE_DIR}/testcases/artistic-media/artistic.svg")
+    set(LEGACY_SVG "${CMAKE_CURRENT_SOURCE_DIR}/testcases/artistic-media/artistic-legacy.svg")
+    set(EXPECT_JSON "${CMAKE_CURRENT_SOURCE_DIR}/testcases/artistic-media/artistic.expect.json")
+    # Watching fixtures + expectations means changes re-run cmake on change
+    watch("${SOURCE_SVG}" "${LEGACY_SVG}" "${EXPECT_JSON}")
+    add_test(NAME cli_artistic-media-${scenario}
+        COMMAND python3 -I ${CMAKE_CURRENT_SOURCE_DIR}/check_artistic_media.py
+                $<TARGET_FILE:inkscape>
+                ${SOURCE_SVG}
+                ${EXPECT_JSON}
+                ${CMAKE_CURRENT_BINARY_DIR}/artistic-media/${scenario}
+                ${scenario}
+                $<$<BOOL:${WITH_CAPYPDF}>:--pdf>)
+    set_tests_properties(cli_artistic-media-${scenario} PROPERTIES
+        ENVIRONMENT "${INKSCAPE_TEST_PROFILE_DIR_ENV}/cli_artistic-media-${scenario};${CMAKE_CTEST_ENV}"
+        LABELS artistic-media
+        RUN_SERIAL TRUE)
+endfunction()
+
+add_artistic_media_test(preset-uniform)
+add_artistic_media_test(preset-taper-end)
+add_artistic_media_test(brush-split)
+add_artistic_media_test(brush-bristle)
+add_artistic_media_test(calligraphic-45)
+add_artistic_media_test(calligraphic-square)
+add_artistic_media_test(add-calligraphic)
+add_artistic_media_test(live-edit)
+add_artistic_media_test(width-set)
+add_artistic_media_test(set-mode)
+add_artistic_media_test(break-apart)
+add_artistic_media_test(repair-fallback)
+add_artistic_media_test(bad-input)

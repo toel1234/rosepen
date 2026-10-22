@@ -34,7 +34,8 @@ enum tools_enum // Todo: Make enum class.
     TOOLS_LPETOOL,
     TOOLS_PAGES,
     TOOLS_PICKER,
-    TOOLS_DIMENSION
+    TOOLS_DIMENSION,
+    TOOLS_ARTISTIC_MEDIA
 };
 
 struct ToolData

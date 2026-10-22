@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+  <requires lib="gtk" version="4.0"/>
+  <object class="GtkAdjustment" id="_width_adj">
+    <property name="lower">0.1</property>
+    <property name="upper">1000</property>
+    <property name="value">10</property>
+    <property name="step-increment">0.1</property>
+    <property name="page-increment">1</property>
+  </object>
+  <object class="GtkAdjustment" id="_angle_adj">
+    <property name="lower">0</property>
+    <property name="upper">180</property>
+    <property name="value">30</property>
+    <property name="step-increment">1</property>
+    <property name="page-increment">15</property>
+  </object>
+  <object class="GtkAdjustment" id="_smoothing_adj">
+    <property name="lower">0</property>
+    <property name="upper">100</property>
+    <property name="value">50</property>
+    <property name="step-increment">1</property>
+    <property name="page-increment">10</property>
+  </object>
+
+  <object class="GtkBox" id="artistic-media-toolbar">
+    <property name="halign">start</property>
+    <property name="valign">center</property>
+    <property name="hexpand">True</property>
+    <child>
+      <object class="GtkToggleButton" id="mode_preset">
+        <property name="valign">center</property>
+        <property name="focusable">True</property>
+        <property name="focus-on-click">False</property>
+        <property name="receives-default">True</property>
+        <property name="group">artisticmode</property>
+        <property name="has-frame">True</property>
+        <property name="label" translatable="yes">Preset</property>
+        <property name="tooltip-text" translatable="yes">Draw a preset stroke profile (taper, lens, teardrop, ...) along the drag</property>
+      </object>
+    </child>
+    <child>
+      <object class="GtkToggleButton" id="mode_brush">
+        <property name="valign">center</property>
+        <property name="focusable">True</property>
+        <property name="focus-on-click">False</property>
+        <property name="receives-default">True</property>
+        <property name="group">artisticmode</property>
+        <property name="has-frame">True</property>
+        <property name="label" translatable="yes">Brush</property>
+        <property name="tooltip-text" translatable="yes">Draw a multi-part brush stroke with gaps and holes along the drag</property>
+      </object>
+    </child>
+    <child>
+      <object class="GtkToggleButton" id="mode_calligraphic">
+        <property name="valign">center</property>
+        <property name="focusable">True</property>
+        <property name="focus-on-click">False</property>
+        <property name="receives-default">True</property>
+        <property name="group">artisticmode</property>
+        <property name="has-frame">True</property>
+        <property name="label" translatable="yes">Calligraphic</property>
+        <property name="tooltip-text" translatable="yes">Draw the exact sweep of a flat nib held at a fixed page angle</property>
+      </object>
+    </child>
+    <child>
+      <object class="GtkSeparator"/>
+    </child>
+    <child>
+      <object class="GtkBox" id="shape_box">
+        <property name="tooltip-text" translatable="yes">The stroke shape drawn along the path</property>
+        <child>
+          <object class="GtkLabel">
+            <property name="margin-start">5</property>
+            <property name="label" translatable="yes">Shape</property>
+          </object>
+        </child>
+        <child>
+          <object class="GtkDropDown" id="shape_combo"/>
+        </child>
+      </object>
+    </child>
+    <child>
+      <object class="GtkBox" id="width_box">
+        <property name="tooltip-text" translatable="yes">Maximum width of the stroke, in millimetres</property>
+        <child>
+          <object class="GtkLabel">
+            <property name="margin-start">5</property>
+            <property name="label" translatable="yes">Width</property>
+          </object>
+        </child>
+        <child>
+          <object class="gtkmm__CustomObject_InkSpinButton" id="width_item">
+            <property name="focusable">True</property>
+            <property name="adjustment">_width_adj</property>
+            <property name="climb-rate">0.1</property>
+            <property name="digits">2</property>
+            <property name="unit" translatable="no">mm</property>
+          </object>
+        </child>
+      </object>
+    </child>
+    <child>
+      <object class="GtkBox" id="angle_box">
+        <property name="tooltip-text" translatable="yes">Nib angle in degrees, counter-clockwise on the page; calligraphic mode only</property>
+        <child>
+          <object class="GtkLabel">
+            <property name="margin-start">5</property>
+            <property name="label" translatable="yes">Angle</property>
+          </object>
+        </child>
+        <child>
+          <object class="gtkmm__CustomObject_InkSpinButton" id="angle_item">
+            <property name="focusable">True</property>
+            <property name="adjustment">_angle_adj</property>
+            <property name="climb-rate">1</property>
+            <property name="digits">1</property>
+          </object>
+        </child>
+      </object>
+    </child>
+    <child>
+      <object class="GtkBox" id="smoothing_box">
+        <property name="tooltip-text" translatable="yes">How much the drawn stroke is smoothed into curves; used when drawing a new stroke</property>
+        <child>
+          <object class="GtkLabel">
+            <property name="margin-start">5</property>
+            <property name="label" translatable="yes">Smoothing</property>
+          </object>
+        </child>
+        <child>
+          <object class="gtkmm__CustomObject_InkSpinButton" id="smoothing_item">
+            <property name="focusable">True</property>
+            <property name="adjustment">_smoothing_adj</property>
+            <property name="climb-rate">1</property>
+            <property name="digits">0</property>
+          </object>
+        </child>
+      </object>
+    </child>
+    <child>
+      <object class="GtkSeparator"/>
+    </child>
+    <child>
+      <object class="GtkToggleButton" id="scale_toggle">
+        <property name="valign">center</property>
+        <property name="focusable">True</property>
+        <property name="focus-on-click">False</property>
+        <property name="receives-default">True</property>
+        <property name="has-frame">True</property>
+        <property name="label" translatable="yes">Scale stroke with object</property>
+        <property name="tooltip-text" translatable="yes">Scale the stroke width when the object is resized</property>
+      </object>
+    </child>
+    <style>
+      <class name="inkscape-toolbar"/>
+    </style>
+  </object>
+</interface>

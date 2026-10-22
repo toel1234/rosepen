@@ -39,7 +39,7 @@ EXPECTED = {
     'g': "win.tool-switch('Gradient')",
     'x': "win.tool-switch('Eraser')",
     'm': "win.tool-switch('Mesh')",
-    'i': "win.tool-switch('Calligraphic')",
+    'i': "win.tool-switch('ArtisticMedia')",
     's': "win.tool-switch('Select')",
     'primary+space': "win.tool-switch('Select')",
     'F1': 'win.help-url-manual',

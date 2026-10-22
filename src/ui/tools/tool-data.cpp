@@ -37,7 +37,8 @@ std::map<Glib::ustring, ToolData> const &get_tool_data()
         {"LPETool",      {TOOLS_LPETOOL,         PREFS_PAGE_TOOLS, /* No Page */  "/tools/lpetool",         }},
         {"Pages",        {TOOLS_PAGES,           PREFS_PAGE_TOOLS,                "/tools/pages",           }},
         {"Picker",       {TOOLS_PICKER,          PREFS_PAGE_TOOLS, /* No Page */  "/tools/picker",          }},
-        {"Dimension",    {TOOLS_DIMENSION,       PREFS_PAGE_TOOLS_MEASURE,        "/tools/dimension",       }}
+        {"Dimension",    {TOOLS_DIMENSION,       PREFS_PAGE_TOOLS_MEASURE,        "/tools/dimension",       }},
+        {"ArtisticMedia",{TOOLS_ARTISTIC_MEDIA,  PREFS_PAGE_TOOLS_CALLIGRAPHY,    "/tools/artistic",        }}
         // clang-format on
     };
     return tool_data;
@@ -79,7 +80,8 @@ std::map<Glib::ustring, Glib::ustring> const &get_tool_msg()
         {"LPETool",      _("Choose a subtool from the toolbar")                                                                                                                                                                   },
         {"Pages",        _("Create and manage pages.")},
         {"Picker",       _("Pick objects.")},
-        {"Dimension",    _("<b>Drag</b> between two points or objects to add a live dimension; <b>move</b> to set the offset, <b>click</b> to place. Pick the dimension type on the tool controls bar.")}
+        {"Dimension",    _("<b>Drag</b> between two points or objects to add a live dimension; <b>move</b> to set the offset, <b>click</b> to place. Pick the dimension type on the tool controls bar.")},
+        {"ArtisticMedia", _("<b>Drag</b> to draw an artistic media stroke along a live, editable path. Pick Preset, Brush or Calligraphic and the stroke shape on the tool controls bar; with paths selected, the bar's settings apply to them.")}
         // clang-format on
     };
     return tool_msg;

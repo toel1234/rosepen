@@ -1,0 +1,384 @@
+{
+  "comment": "Rosepen 05-03 artistic media lock. Values are in fixture user units (1 uu = 1 mm). Each scenario drives app.artistic-* headless and checks the list stage (TSV), the plain-SVG export (effect attributes, embedded shape data, per-path structure and geometry bbox) and RGB pixel samples on the PNG (and PDF when built with capypdf). Every expectation is hand-derived from artistic-media-geometry.h / artistic-media-library.h.",
+  "scenarios": {
+    "preset-uniform": {
+      "actions": "select-by-id:s1;artistic-apply:mode=preset,shape=uniform,width=10",
+      "_comment": "Uniform maps u to arc length and v to +-(width/2): a 100 x 10 band from x 20..120, y 25..35. Area = 100 * 10 = 1000. The black stroke #000000 becomes the fill.",
+      "list": {
+        "count": 1,
+        "rows": [["s1", "preset", "uniform", 10.0, 30.0, 2, 100.0, "embedded"]]
+      },
+      "svg": {
+        "artistic_refs": 1,
+        "paths": [
+          {
+            "id": "s1",
+            "bbox": [20.0, 25.0, 120.0, 35.0],
+            "class_has": "rosepen-artistic",
+            "has_path_effect": true,
+            "has_original_d": true,
+            "style_has": ["fill:#000000", "stroke:none", "fill-rule:nonzero"]
+          }
+        ],
+        "effects": [
+          {
+            "id": "s1-artistic",
+            "attrs": {
+              "effect": "artistic_media",
+              "mode": "preset",
+              "shape": "uniform",
+              "width": "10",
+              "angle": "30",
+              "scale_with_object": "true"
+            },
+            "shape_d": "M 0,-0.5 L 1,-0.5 L 1,0.5 L 0,0.5 Z"
+          }
+        ]
+      },
+      "png": {
+        "samples": [[70.0, 30.0, "#000000"], [70.0, 34.0, "#000000"], [70.0, 36.5, "#ffffff"], [18.0, 30.0, "#ffffff"], [122.0, 30.0, "#ffffff"]]
+      }
+    },
+    "preset-taper-end": {
+      "actions": "select-by-id:s1;artistic-apply:mode=preset,shape=taper-end,width=10",
+      "_comment": "Taper End: v in [-0.5, 0.5 * (1 - u)], so the half width is 5 * (1 - (x - 20) / 100): 4.75 at x 25, 2.5 at x 70, 0.5 at x 110. bbox still 25..35 because u = 0 is full width.",
+      "list": {
+        "count": 1,
+        "rows": [["s1", "preset", "taper-end", 10.0, 30.0, 2, 100.0, "embedded"]]
+      },
+      "svg": {
+        "artistic_refs": 1,
+        "paths": [
+          {
+            "id": "s1",
+            "bbox": [20.0, 25.0, 120.0, 35.0],
+            "class_has": "rosepen-artistic",
+            "has_path_effect": true,
+            "style_has": ["fill:#000000", "stroke:none"]
+          }
+        ],
+        "effects": [
+          {
+            "id": "s1-artistic",
+            "attrs": {"mode": "preset", "shape": "taper-end", "width": "10"},
+            "shape_d": "M 0,-0.5 L 1,0 L 0,0.5 Z"
+          }
+        ]
+      },
+      "png": {
+        "samples": [[25.0, 34.0, "#000000"], [70.0, 31.5, "#000000"], [70.0, 33.5, "#ffffff"], [110.0, 30.0, "#000000"], [110.0, 31.5, "#ffffff"]]
+      }
+    },
+    "brush-split": {
+      "actions": "select-by-id:s1;artistic-apply:mode=brush,shape=split-stroke,width=10",
+      "_comment": "Split Stroke: two bands v [-0.5, -0.1] and [0.1, 0.5] -> y 25..29 and 31..35, gap at y = 30.",
+      "list": {
+        "count": 1,
+        "rows": [["s1", "brush", "split-stroke", 10.0, 30.0, 2, 100.0, "embedded"]]
+      },
+      "svg": {
+        "artistic_refs": 1,
+        "paths": [
+          {
+            "id": "s1",
+            "bbox": [20.0, 25.0, 120.0, 35.0],
+            "class_has": "rosepen-artistic",
+            "style_has": ["fill:#000000"]
+          }
+        ],
+        "effects": [
+          {
+            "id": "s1-artistic",
+            "attrs": {"mode": "brush", "shape": "split-stroke"},
+            "shape_d": "M 0,-0.5 L 1,-0.5 L 1,-0.1 L 0,-0.1 Z M 0,0.1 L 1,0.1 L 1,0.5 L 0,0.5 Z"
+          }
+        ]
+      },
+      "png": {
+        "samples": [[70.0, 30.0, "#ffffff"], [70.0, 27.0, "#000000"], [70.0, 33.0, "#000000"]]
+      }
+    },
+    "brush-bristle": {
+      "actions": "select-by-id:s1;artistic-apply:mode=brush,shape=bristle,width=10",
+      "_comment": "Bristle: full 10 x 100 body (y 25..35) with a hole u 0.1..0.9 (x 30..110) x v +-0.1 (y 29..31), wound negative so the nonzero rule cuts it out.",
+      "list": {
+        "count": 1,
+        "rows": [["s1", "brush", "bristle", 10.0, 30.0, 2, 100.0, "embedded"]]
+      },
+      "svg": {
+        "artistic_refs": 1,
+        "paths": [
+          {
+            "id": "s1",
+            "bbox": [20.0, 25.0, 120.0, 35.0],
+            "class_has": "rosepen-artistic"
+          }
+        ],
+        "effects": [
+          {
+            "id": "s1-artistic",
+            "attrs": {"mode": "brush", "shape": "bristle"},
+            "shape_d": "M 0,-0.5 L 1,-0.5 L 1,0.5 L 0,0.5 Z M 0.1,-0.1 L 0.1,0.1 L 0.9,0.1 L 0.9,-0.1 Z"
+          }
+        ]
+      },
+      "png": {
+        "samples": [[70.0, 30.0, "#ffffff"], [70.0, 27.0, "#000000"], [25.0, 30.0, "#000000"], [115.0, 30.0, "#000000"]]
+      }
+    },
+    "calligraphic-45": {
+      "actions": "select-by-id:s1;artistic-apply:mode=calligraphic,width=10,angle=45",
+      "_comment": "Nib direction d = (cos 45, -sin 45), half length 5: the sweep of the 100 mm line is the parallelogram with y in [30 - 5/sqrt2, 30 + 5/sqrt2] = [26.4645, 33.5355] and x + y in [50, 150]. Area = 100 * 10 * sin 45 = 707.1.",
+      "list": {
+        "count": 1,
+        "rows": [["s1", "calligraphic", "-", 10.0, 45.0, 2, 100.0, "-"]]
+      },
+      "svg": {
+        "artistic_refs": 1,
+        "paths": [
+          {
+            "id": "s1",
+            "bbox": [16.4645, 26.4645, 123.5355, 33.5355],
+            "class_has": "rosepen-artistic",
+            "style_has": ["fill:#000000"]
+          }
+        ],
+        "effects": [
+          {
+            "id": "s1-artistic",
+            "attrs": {"mode": "calligraphic", "angle": "45"},
+            "absent": ["shape_d"]
+          }
+        ]
+      },
+      "png": {
+        "samples": [[70.0, 30.0, "#000000"], [70.0, 32.5, "#000000"], [70.0, 34.5, "#ffffff"], [22.0, 30.0, "#000000"], [18.5, 30.0, "#ffffff"], [118.5, 30.0, "#000000"], [121.5, 30.0, "#ffffff"]]
+      }
+    },
+    "calligraphic-square": {
+      "actions": "select-by-id:s3;artistic-apply:mode=calligraphic,width=10,angle=45",
+      "_comment": "Closed square, nib 45: edges 1-2 have cross < 0 and edges 3-4 > 0, so exactly two runs; bbox = the square grown by 5/sqrt2 = 3.5355 outside every edge. The blue stroke #0000ff becomes the fill.",
+      "list": {
+        "count": 1,
+        "rows": [["s3", "calligraphic", "-", 10.0, 45.0, 4, 140.0, "-"]]
+      },
+      "svg": {
+        "artistic_refs": 1,
+        "paths": [
+          {
+            "id": "s3",
+            "bbox": [36.4645, 56.4645, 83.5355, 93.5355],
+            "class_has": "rosepen-artistic",
+            "style_has": ["fill:#0000ff", "stroke:none"]
+          }
+        ],
+        "effects": [
+          {
+            "id": "s3-artistic",
+            "attrs": {"mode": "calligraphic", "width": "10", "angle": "45"},
+            "absent": ["shape_d"]
+          }
+        ]
+      },
+      "png": {
+        "samples": [[60.0, 75.0, "#ffffff"], [60.0, 61.5, "#0000ff"], [60.0, 65.5, "#ffffff"], [40.0, 75.0, "#0000ff"], [45.5, 75.0, "#ffffff"], [60.0, 90.0, "#0000ff"]]
+      }
+    },
+    "add-calligraphic": {
+      "actions": "artistic-add:20 50 70 50 120 50,mode=calligraphic,width=6,angle=90,smoothing=0,id=new1",
+      "_comment": "Three points, smoothing 0 -> the exact polyline (3 nodes, length 100). Nib at 90 is vertical: half width 3 above and below y = 50. Default parent is the last top-level layer, L1.",
+      "list": {
+        "count": 1,
+        "rows": [["new1", "calligraphic", "-", 6.0, 90.0, 3, 100.0, "-"]]
+      },
+      "svg": {
+        "artistic_refs": 1,
+        "paths": [
+          {
+            "id": "new1",
+            "bbox": [20.0, 47.0, 120.0, 53.0],
+            "class_has": "rosepen-artistic",
+            "label": "Artistic Media",
+            "has_path_effect": true,
+            "has_original_d": true,
+            "style_has": ["fill:#000000", "stroke:none"]
+          }
+        ],
+        "effects": [
+          {
+            "id": "new1-lpe",
+            "attrs": {"mode": "calligraphic", "width": "6", "angle": "90"}
+          }
+        ]
+      },
+      "png": {
+        "samples": [[70.0, 50.0, "#000000"], [70.0, 52.0, "#000000"], [70.0, 54.0, "#ffffff"], [18.0, 50.0, "#ffffff"], [122.0, 50.0, "#ffffff"]]
+      }
+    },
+    "live-edit": {
+      "actions": "select-by-id:s1;artistic-apply:mode=preset,shape=uniform,width=10;artistic-set:s1,skeleton=M 20,30 L 180,30",
+      "_comment": "R3: a bare object-set-attribute write of inkscape:original-d does not re-render headless, so the live edit goes through app.artistic-set's skeleton option (which pairs the write with an update). The skeleton grows to 160 mm and the 10 mm band follows: bbox 20..180.",
+      "list": {
+        "count": 1,
+        "rows": [["s1", "preset", "uniform", 10.0, 30.0, 2, 160.0, "embedded"]]
+      },
+      "svg": {
+        "artistic_refs": 1,
+        "paths": [
+          {
+            "id": "s1",
+            "bbox": [20.0, 25.0, 180.0, 35.0],
+            "class_has": "rosepen-artistic"
+          }
+        ],
+        "effects": [
+          {
+            "id": "s1-artistic",
+            "attrs": {"shape": "uniform"},
+            "shape_d": "M 0,-0.5 L 1,-0.5 L 1,0.5 L 0,0.5 Z"
+          }
+        ]
+      },
+      "png": {
+        "samples": [[150.0, 30.0, "#000000"], [175.0, 34.0, "#000000"], [182.0, 30.0, "#ffffff"]]
+      }
+    },
+    "width-set": {
+      "actions": "select-by-id:s1;artistic-apply:mode=preset,shape=uniform,width=10;artistic-set:s1,width=4",
+      "_comment": "Width 4 keeps the skeleton and re-evaluates: the band is y 28..32 and the stored parameter is 4 (path-local uu, 1 uu = 1 mm here).",
+      "list": {
+        "count": 1,
+        "rows": [["s1", "preset", "uniform", 4.0, 30.0, 2, 100.0, "embedded"]]
+      },
+      "svg": {
+        "artistic_refs": 1,
+        "paths": [
+          {
+            "id": "s1",
+            "bbox": [20.0, 28.0, 120.0, 32.0]
+          }
+        ],
+        "effects": [
+          {
+            "id": "s1-artistic",
+            "attrs": {"mode": "preset", "shape": "uniform", "width": "4"}
+          }
+        ]
+      },
+      "png": {
+        "samples": [[70.0, 31.0, "#000000"], [70.0, 33.0, "#ffffff"], [70.0, 27.0, "#ffffff"]]
+      }
+    },
+    "set-mode": {
+      "actions": "select-by-id:s1;artistic-apply:mode=preset,shape=uniform,width=10;artistic-set:s1,mode=calligraphic,angle=-45",
+      "_comment": "A mode change resets the shape to the calligraphic default (none) and drops shape_d. The nib angle is stored normalised: -45 -> 135, i.e. d = (-sin45, -sin45) and x - y in [-10, 90]. Same bbox as 45.",
+      "list": {
+        "count": 1,
+        "rows": [["s1", "calligraphic", "-", 10.0, 135.0, 2, 100.0, "-"]]
+      },
+      "svg": {
+        "artistic_refs": 1,
+        "paths": [
+          {
+            "id": "s1",
+            "bbox": [16.4645, 26.4645, 123.5355, 33.5355]
+          }
+        ],
+        "effects": [
+          {
+            "id": "s1-artistic",
+            "attrs": {"mode": "calligraphic", "angle": "135"},
+            "absent": ["shape_d"]
+          }
+        ]
+      },
+      "png": {
+        "samples": [[70.0, 30.0, "#000000"], [20.0, 27.0, "#000000"], [20.0, 33.0, "#ffffff"], [120.0, 33.0, "#000000"], [120.0, 27.0, "#ffffff"]]
+      }
+    },
+    "break-apart": {
+      "actions": "select-by-id:s1;artistic-apply:mode=preset,shape=taper-end,width=10;artistic-break",
+      "_comment": "Break Apart freezes the outline (same d, no inkscape:path-effect / inkscape:original-d / class) and adds a skeleton path directly after it with d = the old original-d and no stroke, so no element references an artistic_media effect any more. The rendered pixels are the taper-end ones.",
+      "list": {
+        "count": 0,
+        "rows": []
+      },
+      "svg": {
+        "artistic_refs": 0,
+        "paths": [
+          {
+            "id": "s1",
+            "bbox": [20.0, 25.0, 120.0, 35.0],
+            "has_path_effect": false,
+            "has_original_d": false,
+            "class_absent": "rosepen-artistic"
+          },
+          {
+            "id": "s1-skeleton",
+            "after": "s1",
+            "bbox": [20.0, 30.0, 120.0, 30.0],
+            "style_has": ["fill:none", "stroke:none"]
+          }
+        ]
+      },
+      "png": {
+        "samples": [[25.0, 34.0, "#000000"], [70.0, 31.5, "#000000"], [70.0, 33.5, "#ffffff"], [110.0, 30.0, "#000000"], [110.0, 31.5, "#ffffff"]]
+      }
+    },
+    "repair-fallback": {
+      "fixture": "artistic-legacy.svg",
+      "actions": "artistic-list",
+      "_comment": "a1 has shape taper-end but no shape_d: the effect regenerates it from the library on evaluation (source embedded, undo untouched). a2 has an unknown shape and no shape_d: it draws Uniform, writes nothing and reports fallback. a2 with Uniform keeps the full 6 mm width, so (110,72) is covered.",
+      "allow_warnings": ["drawing Uniform"],
+      "list": {
+        "count": 2,
+        "rows": [
+          ["a1", "preset", "taper-end", 10.0, 30.0, 2, 100.0, "embedded"],
+          ["a2", "preset", "no-such-shape", 6.0, 30.0, 2, 100.0, "fallback"]
+        ]
+      },
+      "svg": {
+        "artistic_refs": 2,
+        "paths": [
+          {"id": "a1", "bbox": [20.0, 25.0, 120.0, 35.0]},
+          {"id": "a2", "bbox": [20.0, 67.0, 120.0, 73.0]}
+        ],
+        "effects": [
+          {
+            "id": "a1-artistic",
+            "attrs": {"mode": "preset", "shape": "taper-end", "width": "10"},
+            "shape_d": "M 0,-0.5 L 1,0 L 0,0.5 Z"
+          },
+          {
+            "id": "a2-artistic",
+            "attrs": {"mode": "preset", "shape": "no-such-shape", "width": "6"},
+            "absent": ["shape_d"]
+          }
+        ]
+      },
+      "png": {
+        "samples": [[25.0, 34.0, "#000000"], [70.0, 31.5, "#000000"], [110.0, 30.0, "#000000"], [70.0, 70.0, "#000000"], [110.0, 72.0, "#000000"], [70.0, 74.5, "#ffffff"]]
+      }
+    },
+    "bad-input": {
+      "actions": "select-by-id:r1;artistic-apply:mode=preset,shape=uniform,width=10;select-by-id:s1;artistic-apply:mode=preset,shape=nope;artistic-apply:mode=brush,width=0;artistic-set:nosuch,width=3;artistic-add:20 50,mode=preset",
+      "_comment": "Every call is refused before it touches the document: a rect is not a path, the shape name, the width range, the missing object and the single-point stroke. Nothing becomes artistic and s1 keeps its 1 mm black stroke.",
+      "allow_warnings": ["is not a path", "unknown preset 'nope'", "width must be > 0 and <= 1000 mm", "no artistic media object 'nosuch'", "needs at least two distinct points"],
+      "stderr_contains": ["artistic-apply: r1 is not a path", "artistic-apply: unknown preset 'nope'", "artistic-apply: width must be > 0 and <= 1000 mm", "artistic-set: no artistic media object 'nosuch'", "artistic-add: needs at least two distinct points"],
+      "list": {
+        "count": 0,
+        "rows": []
+      },
+      "svg": {
+        "artistic_refs": 0,
+        "paths": [
+          {"id": "s1", "has_path_effect": false, "has_original_d": false},
+          {"id": "r1", "has_path_effect": false}
+        ]
+      },
+      "png": {
+        "samples": [[70.0, 30.0, "#000000"], [70.0, 32.0, "#ffffff"]]
+      }
+    }
+  }
+}

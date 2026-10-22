@@ -35,6 +35,7 @@
 #include "live_effects/lpe-curvestitch.h"
 #include "live_effects/lpe-dashed-stroke.h"
 #include "live_effects/lpe-dimension.h"
+#include "live_effects/lpe-artistic-media.h"
 #include "live_effects/lpe-dynastroke.h"
 #include "live_effects/lpe-ellipse_5pts.h"
 #include "live_effects/lpe-embrodery-stitch.h"
@@ -834,6 +835,20 @@ const EnumEffectData<EffectType> LPETypeData[] = {
         false ,//on_text
         true ,//experimental
     },
+    {
+        ARTISTIC_MEDIA,
+        NC_("path effect", "Artistic Media") ,//label
+        "artistic_media" ,//key
+        "taper-stroke" ,//icon
+        N_("Live brush stroke drawn along the path: preset shapes, brush strokes or a calligraphic nib") ,//description
+        LPECategory::Convert ,//category
+        true  ,//on_path
+        false ,//on_shape
+        false ,//on_group
+        false ,//on_image
+        false ,//on_text
+        true ,//experimental
+    },
 #ifdef LPE_ENABLE_TEST_EFFECTS
     {
         DOEFFECTSTACK_TEST,
@@ -1046,6 +1061,9 @@ Effect::New(EffectType lpenr, LivePathEffectObject *lpeobj)
             break;
         case DIMENSION:
             neweffect = static_cast<Effect*> ( new LPEDimension(lpeobj) );
+            break;
+        case ARTISTIC_MEDIA:
+            neweffect = static_cast<Effect*> ( new LPEArtisticMedia(lpeobj) );
             break;
         case DOEFFECTSTACK_TEST:
             neweffect = static_cast<Effect*> ( new LPEdoEffectStackTest(lpeobj) );
