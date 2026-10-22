@@ -21,6 +21,7 @@
 #include "ui/tools/gradient-tool.h"
 #include "ui/tools/lpe-tool.h"
 #include "ui/tools/measure-tool.h"
+#include "ui/tools/dimension-tool.h"
 #include "ui/tools/mesh-tool.h"
 #include "ui/tools/node-tool.h"
 #include "ui/tools/object-picker-tool.h"
@@ -65,6 +66,8 @@ ToolBase *ToolFactory::createObject(SPDesktop *desktop, std::string const &id)
         tool = new MarkerTool(desktop);
     else if (id == "/tools/measure")
         tool = new MeasureTool(desktop);
+    else if (id == "/tools/dimension")
+        tool = new DimensionTool(desktop);
     else if (id == "/tools/mesh")
         tool = new MeshTool(desktop);
     else if (id == "/tools/nodes")

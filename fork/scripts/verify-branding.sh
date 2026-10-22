@@ -186,6 +186,18 @@ ALLOW=(
     # Always-visible document tabs with a New Document button
     "src/ui/widget/desktop-tab-controls.h"
     "src/ui/widget/desktop-tab-controls.cpp"
+    # 05-01 PowerClip
+    "src/object/powerclip.h"
+    "src/object/powerclip.cpp"
+    "src/actions/actions-powerclip.h"
+    "src/actions/actions-powerclip.cpp"
+    # 05-02 dimension tools
+    "share/ui/toolbar-tool.ui"
+    "src/live_effects/effect-enum.h"
+    "src/live_effects/effect.cpp"
+    "src/ui/tool-factory.cpp"
+    "src/ui/tools/tool-data.cpp"
+    "src/ui/tools/tool-data.h"
 )
 
 # ---------------------------------------------------------------------------

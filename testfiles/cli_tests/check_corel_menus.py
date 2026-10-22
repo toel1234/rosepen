@@ -31,6 +31,13 @@ NEW_ITEMS = {
     ('app.page-orientation', 'portrait'),
     ('app.page-orientation', 'landscape'),
     ('app.preferences', ''),
+    # 05-01 PowerClip: Corel-only command, no classic counterpart
+    ('app.object-powerclip-place', ''),
+    ('app.object-powerclip-edit', ''),
+    ('app.object-powerclip-finish', ''),
+    ('app.object-powerclip-extract', ''),
+    # 05-02 Dimension tool: Corel-only tool, no classic menubar counterpart
+    ('win.tool-switch', 'Dimension'),
 }
 
 # Classic pairs intentionally unreachable from the Corel menubar, with reasons.

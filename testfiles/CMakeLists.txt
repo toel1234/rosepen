@@ -95,6 +95,9 @@ set(TEST_SOURCES
     object-style-test
     page-management
     page-manager-ops-test
+    # 05-02 dimension tools
+    dimension-geometry-test
+    dimension-lpe-test
     # 03-02 master layer
     master-layer-test
     master-layer-display-test
@@ -103,6 +106,9 @@ set(TEST_SOURCES
     # 04-03 Corel dockers
     object-manager-filter-test
     properties-panel-kind-test
+    workspace-defaults-test
+    # 05-01 PowerClip
+    powerclip-test
     path-reverse-lpe-test
     preferences-test
     rebase-hrefs-test

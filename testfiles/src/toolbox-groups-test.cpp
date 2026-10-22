@@ -113,7 +113,7 @@ TEST_F(ToolboxGroupsTest, shippedIniParses)
     }
 
     EXPECT_EQ(ids, expected_ids);
-    EXPECT_EQ(tools, 24u);
+    EXPECT_EQ(tools, 25u);
     EXPECT_EQ(groups.front().id, "pick");
     EXPECT_EQ(groups.front().tools, (std::vector<Glib::ustring>{"Select"}));
 }

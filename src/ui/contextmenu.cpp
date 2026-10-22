@@ -40,6 +40,7 @@
 #include "object/sp-shape.h"
 #include "object/sp-text.h"
 #include "object/sp-use.h"
+#include "object/powerclip.h"
 #include "preferences.h"
 #include "selection.h"
 #include "ui/desktop/menu-set-tooltips-shift-icons.h"
@@ -319,6 +320,17 @@ ContextMenu::ContextMenu(SPDesktop *desktop, SPObject *object, std::vector<SPIte
                     }
                     if (item->getMaskObject()) {
                         AppendItemFromAction( gmenu_section, "app.object-release-mask",             _("Release Mask"),          ""                                );
+                    }
+                    // Rosepen 05-01: PowerClip
+                    if (selection.size() > 1) {
+                        AppendItemFromAction( gmenu_section, "app.object-powerclip-place",          _("Place Inside _Frame"),   ""                                );
+                    }
+                    if (Inkscape::PowerClip::frame_of(item)) {
+                        AppendItemFromAction( gmenu_section, "app.object-powerclip-edit",           _("_Edit PowerClip Contents"), ""                             );
+                        AppendItemFromAction( gmenu_section, "app.object-powerclip-extract",        _("E_xtract Contents"),     ""                                );
+                    }
+                    if (Inkscape::PowerClip::finish_target(desktop->layerManager().currentLayer())) {
+                        AppendItemFromAction( gmenu_section, "app.object-powerclip-finish",         _("Fi_nish Editing PowerClip"), ""                            );
                     }
                     gmenu->append_section(gmenu_section);
 

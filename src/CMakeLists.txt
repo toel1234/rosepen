@@ -225,6 +225,27 @@ target_sources(inkscape_base PRIVATE
   ui/workspace-defaults.h
 )
 
+# Rosepen 05-01: PowerClip (kept out of src/object + src/actions CMakeLists, see .paul 05-01)
+target_sources(inkscape_base PRIVATE
+  object/powerclip.cpp
+  object/powerclip.h
+  actions/actions-powerclip.cpp
+  actions/actions-powerclip.h
+)
+
+# Rosepen 05-02: dimension tools
+target_sources(inkscape_base PRIVATE
+  live_effects/dimension-geometry.cpp
+  live_effects/dimension-geometry.h
+  live_effects/lpe-dimension.cpp
+  live_effects/lpe-dimension.h
+  actions/actions-dimension.cpp
+  actions/actions-dimension.h
+  ui/tools/dimension-tool.cpp
+  ui/tools/dimension-tool.h
+  ui/toolbar/dimension-toolbar.cpp
+  ui/toolbar/dimension-toolbar.h
+)
 
 # -----------------------------------------------------------------------------
 # Load in subdirectories

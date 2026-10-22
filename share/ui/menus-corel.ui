@@ -698,6 +698,30 @@
           </section>
         </submenu>
       </section>
+      <!-- Rosepen 05-01: PowerClip -->
+      <section>
+        <submenu id="object-powerclip">
+          <attribute name="label" translatable="yes">Power_Clip</attribute>
+          <section>
+            <item>
+              <attribute name="label" translatable="yes">Place Inside _Frame</attribute>
+              <attribute name="action">app.object-powerclip-place</attribute>
+            </item>
+            <item>
+              <attribute name="label" translatable="yes">_Edit PowerClip Contents</attribute>
+              <attribute name="action">app.object-powerclip-edit</attribute>
+            </item>
+            <item>
+              <attribute name="label" translatable="yes">Fi_nish Editing PowerClip</attribute>
+              <attribute name="action">app.object-powerclip-finish</attribute>
+            </item>
+            <item>
+              <attribute name="label" translatable="yes">E_xtract Contents</attribute>
+              <attribute name="action">app.object-powerclip-extract</attribute>
+            </item>
+          </section>
+        </submenu>
+      </section>
       <submenu id="object-mask">
         <attribute name="label" translatable="yes">Mas_k</attribute>
         <section>
@@ -1240,6 +1264,14 @@
         <item>
           <attribute name="label" translatable="yes">_Command Palette</attribute>
           <attribute name="action">win.canvas-command-palette</attribute>
+        </item>
+      </section>
+      <section>
+        <item>
+          <attribute name="label" translatable="yes">_Dimension Tool</attribute>
+          <attribute name="action">win.tool-switch</attribute>
+          <attribute name="target">Dimension</attribute>
+          <attribute name="icon">measure-segments</attribute>
         </item>
       </section>
     </submenu>

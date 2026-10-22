@@ -1402,6 +1402,44 @@ add_test(NAME cli_corel-keys
                  ${CMAKE_SOURCE_DIR}/src/actions)
 set_tests_properties(cli_corel-keys PROPERTIES LABELS workspace)
 
+#############################################################################################
+### PowerClip lock (05-01)                                                                 ###
+#############################################################################################
+
+# Headless PowerClip lock: every scenario in powerclip.expect.json places,
+# moves, duplicates, extracts or refuses through app.object-powerclip-*, exports
+# the result as SVG, then proves the model (object-powerclip-list), the frame
+# structure (live <use> clip on the contents, identity contents transform), and
+# pixels on every page of the per-page PNG export.  Samples are page-relative
+# fixture pixels; expectations are spec-derived, see the plan and the fixture's
+# invariant comment.
+function(add_powerclip_test scenario)
+    set(SOURCE_SVG "${CMAKE_CURRENT_SOURCE_DIR}/testcases/powerclip/powerclip.svg")
+    set(EXPECT_JSON "${CMAKE_CURRENT_SOURCE_DIR}/testcases/powerclip/powerclip.expect.json")
+    # Watching fixture + expectations means changes re-run cmake on change
+    watch("${SOURCE_SVG}" "${EXPECT_JSON}")
+    add_test(NAME cli_powerclip-${scenario}
+        COMMAND python3 -I ${CMAKE_CURRENT_SOURCE_DIR}/check_powerclip.py
+                $<TARGET_FILE:inkscape>
+                ${SOURCE_SVG}
+                ${EXPECT_JSON}
+                ${CMAKE_CURRENT_BINARY_DIR}/powerclip/${scenario}
+                ${scenario})
+    set_tests_properties(cli_powerclip-${scenario} PROPERTIES
+        ENVIRONMENT "${INKSCAPE_TEST_PROFILE_DIR_ENV}/cli_powerclip-${scenario};${CMAKE_CTEST_ENV}"
+        LABELS powerclip
+        RUN_SERIAL TRUE)
+endfunction()
+
+add_powerclip_test(place)
+add_powerclip_test(transform-follow)
+add_powerclip_test(container-move)
+add_powerclip_test(extract)
+add_powerclip_test(add-to-frame)
+add_powerclip_test(duplicate-move)
+add_powerclip_test(master)
+add_powerclip_test(refuse-single)
+
 ###########################
 ### file format support ###
 ###########################
@@ -1480,3 +1518,41 @@ add_cli_test(systemLanguage_xy     ENVIRONMENT LANGUAGE=xy          INPUT_FILENA
 add_cli_test(systemLanguage_fr_RDF ENVIRONMENT LANGUAGE=xy          INPUT_FILENAME     systemLanguage_RDF.svg
                                                                     OUTPUT_FILENAME    systemLanguage_fr_RDF.png
                                                                     REFERENCE_FILENAME systemLanguage_fr.png)
+
+#############################################################################################
+### dimension lock (05-02 task 2)                                                          ###
+#############################################################################################
+# Headless live-dimension lock: every scenario in dimension.expect.json creates and edits
+# Rosepen dimension objects through app.dimension-add / app.dimension-set, then proves the
+# model (dimension-list TSV), the plain-SVG export (group structure, label text/x, geometry
+# bbox), and pixels on the PNG export.  With --pdf (capypdf builds) the PDF export is
+# additionally re-imported through Rosepen's own PDF importer and the same pixels are
+# checked on the rasterized result.  CLI tests run SERIALLY (D-Bus app-id race).
+function(add_dimension_test scenario)
+    set(SOURCE_SVG "${CMAKE_CURRENT_SOURCE_DIR}/testcases/dimension/dimension.svg")
+    set(EXPECT_JSON "${CMAKE_CURRENT_SOURCE_DIR}/testcases/dimension/dimension.expect.json")
+    # Watching fixture + expectations means changes re-run cmake on change
+    watch("${SOURCE_SVG}" "${EXPECT_JSON}")
+    add_test(NAME cli_dimension-${scenario}
+        COMMAND python3 -I ${CMAKE_CURRENT_SOURCE_DIR}/check_dimension.py
+                $<TARGET_FILE:inkscape>
+                ${SOURCE_SVG}
+                ${EXPECT_JSON}
+                ${CMAKE_CURRENT_BINARY_DIR}/dimension/${scenario}
+                ${scenario}
+                $<$<BOOL:${WITH_CAPYPDF}>:--pdf>)
+    set_tests_properties(cli_dimension-${scenario} PROPERTIES
+        ENVIRONMENT "${INKSCAPE_TEST_PROFILE_DIR_ENV}/cli_dimension-${scenario};${CMAKE_CTEST_ENV}"
+        LABELS dimension
+        RUN_SERIAL TRUE)
+endfunction()
+
+add_dimension_test(horizontal)
+add_dimension_test(vertical)
+add_dimension_test(aligned)
+add_dimension_test(segment)
+add_dimension_test(angular)
+add_dimension_test(live-move)
+add_dimension_test(precision-unit)
+add_dimension_test(freeze-on-delete)
+add_dimension_test(bad-input)

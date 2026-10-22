@@ -92,4 +92,8 @@
 <bind gaction="win.snap-global-toggle"                  keys="&lt;alt&gt;q" />
 <bind gaction="win.snap-alignment"                      keys="&lt;alt&gt;&lt;shift&gt;a" />
 
+<!-- PowerClip (05-01) -->
+
+<bind gaction="app.object-powerclip-place"              keys="&lt;primary&gt;&lt;alt&gt;p, &lt;primary&gt;&lt;alt&gt;P" />
+
 </keys>

@@ -140,6 +140,7 @@ static char const preferences_skeleton[] =
     <group
        id="geometric"
        mode="drag" />
+    <group id="dimension" mode="auto" precision="2" unit="mm" offset="5" text="above" horizontal="0" units="1" />
   </group>
 
   <group id="palette">

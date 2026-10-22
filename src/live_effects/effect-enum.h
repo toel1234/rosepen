@@ -71,6 +71,7 @@ enum EffectType {
     TANGENT_TO_CURVE,
     FILL_BETWEEN_STROKES,
     // Hidden Experimental LPE's
+    DIMENSION,
     DOEFFECTSTACK_TEST,
     DYNASTROKE,
     LATTICE,

@@ -73,7 +73,7 @@ None yet.
 | Linux only | User does not need Windows/macOS | 2026-10-20 | Active |
 | Working name Rosepen, rename later | Penrose trademark crowded; Rosepen no hits found, not legally cleared | 2026-10-20 | Active |
 | Product name "Rosepen" (binary `rosepen`; app-id `io.github.toel1234.Rosepen`, viewer `io.github.toel1234.RosepenView`) — RENAMED from "Penrose" 2026-10-21: name collision, user decision | User's choice; tiling motif fits vector/geometry; trademark/domain checks still pending before public release | 2026-10-21 | Active |
-| Hosting: GitHub `toel1234/penrose` (public) + GitHub Actions CI; app-id namespace `io.github.toel1234` | User provided hosting and gh credentials 2026-10-21 | 2026-10-21 | Active |
+| Hosting: GitHub `toel1234/rosepen` (PRIVATE — flip to public alongside the trademark check before release) + GitHub Actions CI; app-id namespace `io.github.toel1234`. Old `toel1234/penrose` (public) ARCHIVED 2026-10-21 as superseded; it holds Phase-1-only history + 2 CI runs and no longer receives pushes | 2026-10-21 | Active |
 
 ## Success Metrics
 

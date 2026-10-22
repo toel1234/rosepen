@@ -36,7 +36,8 @@ std::map<Glib::ustring, ToolData> const &get_tool_data()
         {"Eraser",       {TOOLS_ERASER,          PREFS_PAGE_TOOLS_ERASER,         "/tools/eraser",          }},
         {"LPETool",      {TOOLS_LPETOOL,         PREFS_PAGE_TOOLS, /* No Page */  "/tools/lpetool",         }},
         {"Pages",        {TOOLS_PAGES,           PREFS_PAGE_TOOLS,                "/tools/pages",           }},
-        {"Picker",       {TOOLS_PICKER,          PREFS_PAGE_TOOLS, /* No Page */  "/tools/picker",          }}
+        {"Picker",       {TOOLS_PICKER,          PREFS_PAGE_TOOLS, /* No Page */  "/tools/picker",          }},
+        {"Dimension",    {TOOLS_DIMENSION,       PREFS_PAGE_TOOLS_MEASURE,        "/tools/dimension",       }}
         // clang-format on
     };
     return tool_data;
@@ -77,7 +78,8 @@ std::map<Glib::ustring, Glib::ustring> const &get_tool_msg()
         {"Eraser",       _("<b>Drag</b> to erase.")                                                                                                                                                                               },
         {"LPETool",      _("Choose a subtool from the toolbar")                                                                                                                                                                   },
         {"Pages",        _("Create and manage pages.")},
-        {"Picker",       _("Pick objects.")}
+        {"Picker",       _("Pick objects.")},
+        {"Dimension",    _("<b>Drag</b> between two points or objects to add a live dimension; <b>move</b> to set the offset, <b>click</b> to place. Pick the dimension type on the tool controls bar.")}
         // clang-format on
     };
     return tool_msg;
