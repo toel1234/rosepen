@@ -193,11 +193,22 @@ ALLOW=(
     "src/actions/actions-powerclip.cpp"
     # 05-02 dimension tools
     "share/ui/toolbar-tool.ui"
+    "share/ui/toolbar-dimension.ui"
     "src/live_effects/effect-enum.h"
     "src/live_effects/effect.cpp"
+    "src/live_effects/dimension-geometry.h"
+    "src/live_effects/dimension-geometry.cpp"
+    "src/live_effects/lpe-dimension.h"
+    "src/live_effects/lpe-dimension.cpp"
+    "src/actions/actions-dimension.h"
+    "src/actions/actions-dimension.cpp"
     "src/ui/tool-factory.cpp"
+    "src/ui/tools/dimension-tool.h"
+    "src/ui/tools/dimension-tool.cpp"
     "src/ui/tools/tool-data.cpp"
     "src/ui/tools/tool-data.h"
+    "src/ui/toolbar/dimension-toolbar.h"
+    "src/ui/toolbar/dimension-toolbar.cpp"
 )
 
 # ---------------------------------------------------------------------------
