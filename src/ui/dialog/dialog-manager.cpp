@@ -139,6 +139,12 @@ const char dialogs_state[] = "dialogs-state-ex.ini";
 const char save_dialog_position[] = "/options/savedialogposition/value";
 const char transient_group[] = "transient";
 
+// Rosepen: profiles created before the Corel workspace carry a saved dock layout
+// that wins over the shipped Corel defaults, so the Corel docker set never
+// appears for them. Migrate once: move the legacy layout aside and use the
+// shipped defaults. The marker keeps this from happening again.
+const char corel_defaults_marker[] = "/options/workspace/corel-defaults-applied";
+
 // list of dialogs sharing the same state
 std::vector<Glib::ustring> DialogManager::count_dialogs(const Glib::KeyFile *state) const
 {
@@ -232,6 +238,21 @@ void DialogManager::restore_dialogs_state(DialogContainer *docking_container, bo
         std::string filename = Glib::build_filename(Inkscape::IO::Resource::profile_path(), dialogs_state);
 
         bool exists = file_exists(filename);
+
+        if (!prefs->getBool(corel_defaults_marker, false)) {
+            if (exists) {
+                std::string const backup = filename + ".pre-corel";
+                std::error_code error;
+                filesystem::rename(filename, backup, error);
+                if (error) {
+                    g_warning("Rosepen: could not move the legacy dialog layout aside: %s",
+                              error.message().c_str());
+                }
+                // Use the Corel defaults this run even if the backup move failed.
+                exists = false;
+            }
+            prefs->setBool(corel_defaults_marker, true);
+        }
 
         if (exists && keyfile->load_from_file(filename)) {
             // restore visible dialogs first; that state is up-to-date
