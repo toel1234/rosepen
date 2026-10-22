@@ -73,6 +73,14 @@
             <property name="halign">start</property>
           </object>
         </child>
+        <child>
+          <object class="GtkCheckButton" id="setting-page">
+            <property name="label" translatable="yes">Current page only</property>
+            <property name="focusable">True</property>
+            <property name="halign">start</property>
+            <property name="tooltip-text" translatable="yes">List only the objects on the selected page; master layers and pasteboard objects stay listed</property>
+          </object>
+        </child>
       </object>
     </property>
   </object>

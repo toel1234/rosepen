@@ -85,6 +85,7 @@
 #include "page-manager.h"
 #include "ui/builder-utils.h"
 #include "ui/controller.h"
+#include "ui/dialog/properties-panel-kind.h"
 #include "ui/gridview-utils.h"
 #include "ui/icon-names.h"
 #include "ui/syntax.h"
@@ -1791,6 +1792,29 @@ private:
     }
 };
 
+// The fallback panel for every single selected item type that has no specific
+// panel above (spirals, flowed text, 3D boxes, lines, offsets, switches, ...).
+// No LPE section: Path Effects stays available via its own docker.
+class GenericPanel : public details::AttributesPanel {
+public:
+    GenericPanel(Glib::RefPtr<Gtk::Builder> builder) {
+        add_object_label();
+        add_size_properties();
+        _grid.add_gap();
+        add_fill_and_stroke();
+        _grid.add_section_divider();
+        add_filters(false);
+        add_name_properties();
+        add_interactivity_properties();
+    }
+
+private:
+    void update(SPObject* object) override {
+        auto item = cast<SPItem>(object);
+        _title = item ? item->displayName() : "";
+    }
+};
+
 ///////////////////////////////////////////////////////////////////////////////
 
 class PointsPanel : public details::AttributesPanel {
@@ -2505,14 +2529,14 @@ if constexpr (INCLUDE_EXPERIMENTAL_PANELS) {
 
 details::AttributesPanel* ObjectAttributes::get_panel(Selection* selection) {
     if (auto item = selection->singleItem()) {
-        int tag = item->tag();
-        auto it = _panels.find(tag);
+        int const key = static_cast<int>(properties_panel_for(item));
+        auto it = _panels.find(key);
         auto panel = it == _panels.end() ? nullptr : it->second.get();
         if (!panel) {
             // create a panel
-            auto obj_panel = create_panel(tag);
+            auto obj_panel = create_panel(key);
             panel = obj_panel.get();
-            _panels[tag] = std::move(obj_panel);
+            _panels[key] = std::move(obj_panel);
             if (panel) {
                 panel->set_document(getDocument());
                 for_each_descendant(panel->widget(), [this](auto& widget) {
@@ -2544,18 +2568,20 @@ details::AttributesPanel* ObjectAttributes::get_panel(Selection* selection) {
 }
 
 std::unique_ptr<details::AttributesPanel> ObjectAttributes::create_panel(int key) {
-    switch (key) {
-        case tag_of<SPImage>:    return std::make_unique<ImagePanel>();
-        case tag_of<SPRect>:     return std::make_unique<RectPanel>(_builder);
-        case tag_of<SPGenericEllipse>: return std::make_unique<EllipsePanel>(_builder);
-        case tag_of<SPStar>:     return std::make_unique<StarPanel>(_builder);
-        case tag_of<SPAnchor>:   return std::make_unique<AnchorPanel>();
-        case tag_of<SPPath>:     return std::make_unique<PathPanel>(_builder);
-        case tag_of<SPPolyLine>: return std::make_unique<PolylinePanel>(_builder);
-        case tag_of<SPPolygon>:  return std::make_unique<PolygonPanel>(_builder);
-        case tag_of<SPGroup>:    return std::make_unique<GroupPanel>(_builder);
-        case tag_of<SPText>:     return std::make_unique<TextPanel>(_builder);
-        case tag_of<SPUse>:      return std::make_unique<ClonePanel>(_builder);
+    switch (static_cast<PropertiesPanelKind>(key)) {
+        case PropertiesPanelKind::Image:         return std::make_unique<ImagePanel>();
+        case PropertiesPanelKind::Rect:          return std::make_unique<RectPanel>(_builder);
+        case PropertiesPanelKind::Ellipse:       return std::make_unique<EllipsePanel>(_builder);
+        case PropertiesPanelKind::Star:          return std::make_unique<StarPanel>(_builder);
+        case PropertiesPanelKind::Anchor:        return std::make_unique<AnchorPanel>();
+        case PropertiesPanelKind::Path:          return std::make_unique<PathPanel>(_builder);
+        case PropertiesPanelKind::Polyline:      return std::make_unique<PolylinePanel>(_builder);
+        case PropertiesPanelKind::Polygon:       return std::make_unique<PolygonPanel>(_builder);
+        case PropertiesPanelKind::Group:         return std::make_unique<GroupPanel>(_builder);
+        case PropertiesPanelKind::Text:          return std::make_unique<TextPanel>(_builder);
+        case PropertiesPanelKind::Clone:         return std::make_unique<ClonePanel>(_builder);
+        case PropertiesPanelKind::Generic:       return std::make_unique<GenericPanel>(_builder);
+        default: break;
     }
 
     return {};

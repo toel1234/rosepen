@@ -51,6 +51,7 @@ class TreeStore;
 
 class SPItem;
 class SPObject;
+class SPPage;
 
 namespace Inkscape::UI {
 
@@ -88,6 +89,7 @@ private:
     void documentReplaced() override;
     void layerChanged(SPObject *obj);
     void selectionChanged(Selection *selected) override;
+    void selectionModified(Selection *selection, guint flags) override;
     ObjectWatcher *unpackToObject(SPObject *item);
 
     // Accessed by ObjectWatcher directly (friend class)
@@ -111,6 +113,7 @@ private:
 
     Glib::RefPtr<Gtk::Builder> _builder;
     Inkscape::PrefObserver _watch_object_mode;
+    Inkscape::PrefObserver _watch_page_filter;
     std::unique_ptr<ObjectWatcher> root_watcher;
     SPItem *current_item = nullptr;
     Gtk::TreeModel::Path _initial_path;
@@ -118,6 +121,11 @@ private:
     std::vector<SPWeakPtr<SPObject>> _prev_range;
 
     sigc::scoped_connection layer_changed;
+    sigc::scoped_connection _page_selected_conn;
+    sigc::scoped_connection _pages_changed_conn;
+    sigc::scoped_connection _page_filter_idle;
+    SPPage *_filter_page = nullptr;
+    bool _page_filter_on = false;
     SPObject *_layer;
     Gtk::TreeModel::RowReference _hovered_row_ref;
     Gdk::RGBA _hovered_row_color;
@@ -173,6 +181,8 @@ private:
 
     void _searchActivated();
 
+    void _schedulePageFilterRebuild();
+
     void _handleEdited(const Glib::ustring& path, const Glib::ustring& new_text);
     void _handleTransparentHover(bool enabled);
     void _generateTranslucentItems(SPItem *parent);
@@ -211,6 +221,7 @@ private:
 
     UI::Widget::PrefCheckButton& _setting_layers;
     UI::Widget::PrefCheckButton& _setting_track;
+    UI::Widget::PrefCheckButton& _setting_page;
     bool _drag_flip;
 
     bool _selectionChanged();

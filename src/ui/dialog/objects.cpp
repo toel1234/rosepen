@@ -24,6 +24,7 @@
 #include <gtkmm/searchentry2.h>
 #include <gtkmm/separator.h>
 #include <gtkmm/treestore.h>
+#include <pangomm/fontdescription.h>
 
 #include "desktop-style.h"
 #include "desktop.h"
@@ -33,13 +34,16 @@
 #include "filter-chemistry.h"
 #include "inkscape-window.h"
 #include "layer-manager.h"
+#include "object/master-layer.h"
 #include "object/object-set.h"
 #include "object/sp-root.h"
+#include "page-manager.h"
 #include "style.h"
 #include "svg/css-ostringstream.h"
 #include "ui/builder-utils.h"
 #include "ui/contextmenu.h"
 #include "ui/controller.h"
+#include "ui/dialog/object-manager-filter.h"
 #include "ui/icon-names.h"
 #include "ui/shortcuts.h"
 #include "ui/util.h"
@@ -239,6 +243,7 @@ public:
     {
         add(_colNode);
         add(_colLabel);
+        add(_colLabelStyle);
         add(_colType);
         add(_colIconColor);
         add(_colClipMask);
@@ -258,6 +263,7 @@ public:
 
     Gtk::TreeModelColumn<Node*> _colNode;
     Gtk::TreeModelColumn<Glib::ustring> _colLabel;
+    Gtk::TreeModelColumn<Pango::Style> _colLabelStyle;
     Gtk::TreeModelColumn<Glib::ustring> _colType;
     Gtk::TreeModelColumn<unsigned int> _colIconColor;
     Gtk::TreeModelColumn<unsigned int> _colClipMask;
@@ -345,6 +351,7 @@ void ObjectWatcher::updateRowInfo()
         // show ids without "#"
         char const *id = item->getId();
         row[_model->_colLabel] = id && !item->label() ? get_synthetic_object_name(item) : item->defaultLabel();
+        row[_model->_colLabelStyle] = MasterLayer::is_master(item) ? Pango::Style::ITALIC : Pango::Style::NORMAL;
 
         row[_model->_colType] = item->typeName();
         row[_model->_colClipMask] =
@@ -739,6 +746,7 @@ ObjectsPanel::ObjectsPanel()
     , _opacity_slider(get_widget<Gtk::Scale>(_builder, "opacity-slider"))
     , _setting_layers(get_derived_widget<PrefCheckButton, Glib::ustring, bool>(_builder, "setting-layers", "/dialogs/objects/layers_only", false))
     , _setting_track(get_derived_widget<PrefCheckButton, Glib::ustring, bool>(_builder, "setting-track", "/dialogs/objects/expand_to_layer", true))
+    , _setting_page(get_derived_widget<PrefCheckButton, Glib::ustring, bool>(_builder, "setting-page", ObjectManager::current_page_only_pref_path, false))
     , _tree{*Gtk::make_managed<TreeViewWithCssChanged>()}
 {
     _store = Gtk::TreeStore::create(*_model);
@@ -801,6 +809,8 @@ ObjectsPanel::ObjectsPanel()
     _name_column->pack_start(*icon_renderer, false);
     _name_column->pack_start(*_text_renderer, true);
     _name_column->add_attribute(_text_renderer->property_text(), _model->_colLabel);
+    _name_column->add_attribute(_text_renderer->property_style(), _model->_colLabelStyle);
+    _text_renderer->property_style_set() = true;
     _name_column->add_attribute(_text_renderer->property_cell_background_rgba(), _model->_colBgColor);
     _name_column->add_attribute(icon_renderer->property_shape_type(), _model->_colType);
     _name_column->add_attribute(icon_renderer->property_color(), _model->_colIconColor);
@@ -1110,6 +1120,7 @@ ObjectsPanel::ObjectsPanel()
     // Clear and update entire tree (do not use this in changed/modified signals)
     auto prefs = Inkscape::Preferences::get();
     _watch_object_mode = prefs->createObserver("/dialogs/objects/layers_only", [this]() { setRootWatcher(); });
+    _watch_page_filter = prefs->createObserver(ObjectManager::current_page_only_pref_path, [this]() { _schedulePageFilterRebuild(); });
 
     update();
 }
@@ -1128,7 +1139,36 @@ void ObjectsPanel::desktopReplaced()
 
 void ObjectsPanel::documentReplaced()
 {
+    _page_selected_conn.disconnect();
+    _pages_changed_conn.disconnect();
+
+    if (auto const document = getDocument()) {
+        auto const schedule_if_on = [this]() {
+            if (Inkscape::Preferences::get()->getBool(ObjectManager::current_page_only_pref_path, false)) {
+                _schedulePageFilterRebuild();
+            }
+        };
+        auto &pages = document->getPageManager();
+        _page_selected_conn = pages.connectPageSelected([schedule_if_on](SPPage *) { schedule_if_on(); });
+        _pages_changed_conn = pages.connectPagesChanged([this, schedule_if_on](SPPage *) {
+            _filter_page = nullptr; // the page may be destroyed before the idle rebuild
+            schedule_if_on();
+        });
+    }
+
     setRootWatcher();
+}
+
+void ObjectsPanel::_schedulePageFilterRebuild()
+{
+    // Never rebuild re-entrantly: page signals fire inside PageManager
+    // emissions, so coalesce them into one idle rebuild instead.
+    if (!_page_filter_idle.connected()) {
+        _page_filter_idle = Glib::signal_idle().connect([this]() {
+            setRootWatcher();
+            return false; // disconnect
+        });
+    }
 }
 
 void ObjectsPanel::setRootWatcher()
@@ -1140,7 +1180,10 @@ void ObjectsPanel::setRootWatcher()
     if (!document) return;
 
     auto const prefs = Inkscape::Preferences::get();
-    bool const filtered = prefs->getBool("/dialogs/objects/layers_only", false) || _searchBox.get_text().length();
+    _page_filter_on = ObjectManager::page_filter_active(document, prefs->getBool(ObjectManager::current_page_only_pref_path, false));
+    _filter_page = _page_filter_on ? ObjectManager::filter_page(document) : nullptr;
+
+    bool const filtered = prefs->getBool("/dialogs/objects/layers_only", false) || _searchBox.get_text().length() || _page_filter_on;
 
     // A filtered object watcher behaves differently to an unfiltered one.
     // Filtering disables creating dummy children and instead processes entire trees.
@@ -1154,6 +1197,13 @@ void ObjectsPanel::setRootWatcher()
  * Apply any ongoing filters to the items.
  */
 bool ObjectsPanel::showChildInTree(SPItem *item) {
+    // "Current page only": the whole top-level item (and with it every
+    // descendant) is decided by the page-view model; master layer content,
+    // straddlers and pasteboard objects stay visible.
+    if (!ObjectManager::page_filter_shows(item, _filter_page, _page_filter_on)) {
+        return false;
+    }
+
     Inkscape::Preferences *prefs = Inkscape::Preferences::get();
 
     bool show_child = true;
@@ -1270,6 +1320,53 @@ bool ObjectsPanel::_selectionChanged()
 
     // Returning 'false' disconnects idle signal handler
     return false;
+}
+
+std::optional<Gtk::TreeRow> ObjectsPanel::getRow(SPItem *item) const
+{
+    if (!root_watcher || !item) {
+        return std::nullopt;
+    }
+
+    // Walk up from the item to the root watcher, the same way unpackToObject
+    // does; any missing link means the item is not in the tree at all.
+    ObjectWatcher *watcher = nullptr;
+    for (auto &ancestor : item->ancestorList(true)) {
+        if (!watcher) {
+            if (ancestor->getRepr() == root_watcher->getRepr()) {
+                watcher = root_watcher.get();
+            }
+        } else if (!(watcher = watcher->findChild(ancestor->getRepr()))) {
+            return std::nullopt;
+        }
+    }
+
+    if (!watcher) {
+        return std::nullopt;
+    }
+    if (watcher->getRepr() != item->getRepr()) {
+        watcher = watcher->findChild(item->getRepr());
+    }
+    return watcher ? watcher->getRow() : std::nullopt;
+}
+
+void ObjectsPanel::selectionModified(Selection *selection, guint flags)
+{
+    if (!_page_filter_on || !root_watcher || !(flags & (SP_OBJECT_MODIFIED_FLAG | SP_OBJECT_CHILD_MODIFIED_FLAG))) {
+        return;
+    }
+
+    // Objects dragged onto or off the current page change the page view
+    // without any structural change the watchers would notice; rebuild once
+    // when the tree disagrees with the filters. Compare against the full
+    // filter (page gate + layers-only + search), not the page gate alone,
+    // or every item hidden by another filter would rebuild on each change.
+    for (auto item : selection->items()) {
+        if (showChildInTree(item) != getRow(item).has_value()) {
+            _schedulePageFilterRebuild();
+            return;
+        }
+    }
 }
 
 /**

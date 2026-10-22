@@ -36,6 +36,7 @@
 #include "object/sp-anchor.h"
 #include "object/sp-image.h"
 #include "object/sp-page.h"
+#include "object/sp-root.h"
 #include "object/sp-shape.h"
 #include "object/sp-text.h"
 #include "object/sp-use.h"
@@ -374,6 +375,11 @@ ContextMenu::ContextMenu(SPDesktop *desktop, SPObject *object, std::vector<SPIte
             AppendItemFromAction(gmenu_section,     "win.layer-lock-toggle-others", _("_Lock/Unlock Other Layers"),  "");
             AppendItemFromAction(gmenu_section,     "win.layer-lock-all",           _("_Lock All Layers"),           "");
             AppendItemFromAction(gmenu_section,     "win.layer-unlock-all",         _("_Unlock All Layers"),         "");
+            // Only top-level layers can be master layers; the action toggles the
+            // current layer, which the right-click already made current.
+            if (layer->parent == static_cast<SPObject *>(layer->document->getRoot())) {
+                AppendItemFromAction(gmenu_section, "app.layer-master-toggle",      _("_Master Layer (All Pages)"),  "");
+            }
             gmenu->append_section(gmenu_section);
         }
     }
