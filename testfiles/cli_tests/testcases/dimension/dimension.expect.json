@@ -1,0 +1,274 @@
+{
+  "comment": "Rosepen 05-02 dimension lock. Values are in fixture user units (1 uu = 1 mm). Each scenario drives app.dimension-* headless and checks the list stage (TSV), the plain-SVG export (structure, label text, geometry bbox) and pixel samples on the PNG (and PDF when built with capypdf).",
+  "scenarios": {
+    "horizontal": {
+      "actions": "dimension-add:horizontal,r1@bbox:r,r2@bbox:l,id=dim1",
+      "list": [
+        {
+          "id": "dim1",
+          "kind": "horizontal",
+          "value": 50.0,
+          "label": "50.00 mm"
+        }
+      ],
+      "svg": {
+        "dimensions": 1,
+        "label": "50.00 mm",
+        "label_x": 75.0,
+        "bbox": [
+          50.0,
+          43.0,
+          100.0,
+          49.0
+        ]
+      },
+      "png": {
+        "samples": [
+          {
+            "x": 75.0,
+            "y": 45.0,
+            "dark": true
+          },
+          {
+            "x": 50.0,
+            "y": 45.0,
+            "dark": true
+          },
+          {
+            "x": 75.0,
+            "y": 48.0,
+            "dark": false
+          }
+        ]
+      }
+    },
+    "vertical": {
+      "actions": "dimension-add:vertical,r2@bbox:t,r2@bbox:b,id=dim1",
+      "list": [
+        {
+          "id": "dim1",
+          "kind": "vertical",
+          "value": 40.0,
+          "label": "40.00 mm"
+        }
+      ],
+      "svg": {
+        "dimensions": 1,
+        "label": "40.00 mm",
+        "label_x": 131.2347,
+        "bbox": [
+          126.0,
+          30.0,
+          132.0,
+          70.0
+        ]
+      },
+      "png": {
+        "samples": [
+          {
+            "x": 130.0,
+            "y": 50.0,
+            "dark": true
+          },
+          {
+            "x": 130.0,
+            "y": 30.0,
+            "dark": true
+          },
+          {
+            "x": 120.0,
+            "y": 85.0,
+            "dark": false
+          }
+        ]
+      }
+    },
+    "aligned": {
+      "actions": "dimension-add:aligned,p2@node:0,p2@node:2,id=dim1",
+      "list": [
+        {
+          "id": "dim1",
+          "kind": "aligned",
+          "value": 42.426407,
+          "label": "42.43 mm"
+        }
+      ],
+      "svg": {
+        "dimensions": 1,
+        "label": "42.43 mm"
+      },
+      "png": {
+        "samples": [
+          {
+            "x": 168.54,
+            "y": 31.46,
+            "dark": true
+          },
+          {
+            "x": 165.0,
+            "y": 35.0,
+            "dark": false
+          }
+        ]
+      }
+    },
+    "segment": {
+      "actions": "dimension-add:segment,p1,0,id=dim1",
+      "list": [
+        {
+          "id": "dim1",
+          "kind": "segment",
+          "value": 40.0,
+          "label": "40.00 mm"
+        }
+      ],
+      "svg": {
+        "dimensions": 1,
+        "label": "40.00 mm",
+        "label_x": 40.0
+      },
+      "png": {
+        "samples": [
+          {
+            "x": 40.0,
+            "y": 85.0,
+            "dark": true
+          }
+        ]
+      }
+    },
+    "angular": {
+      "actions": "dimension-add:angular,p2@node:0,p2@node:1,p2@node:2,id=dim1",
+      "list": [
+        {
+          "id": "dim1",
+          "kind": "angular",
+          "value": 90.0,
+          "label": "90.00\u00b0"
+        }
+      ],
+      "svg": {
+        "dimensions": 1,
+        "label": "90.00\u00b0"
+      },
+      "png": {
+        "samples": [
+          {
+            "x": 176.46,
+            "y": 23.54,
+            "dark": true
+          },
+          {
+            "x": 170.0,
+            "y": 32.0,
+            "dark": false
+          }
+        ]
+      }
+    },
+    "live-move": {
+      "actions": "dimension-add:horizontal,r1@bbox:r,r2@bbox:l,id=dim1;select-by-id:r2;object-set-attribute:x,120",
+      "comment": "r2.x is set to 120 user units (20 mm right), so the live dimension re-measures 70 mm. object-set-attribute is used because transform-translate parses numbers with the current locale and operates in px.",
+      "list": [
+        {
+          "id": "dim1",
+          "kind": "horizontal",
+          "value": 70.0,
+          "label": "70.00 mm"
+        }
+      ],
+      "svg": {
+        "dimensions": 1,
+        "label": "70.00 mm",
+        "label_x": 85.0,
+        "bbox": [
+          50.0,
+          43.0,
+          120.0,
+          49.0
+        ]
+      },
+      "png": {
+        "samples": [
+          {
+            "x": 85.0,
+            "y": 45.0,
+            "dark": true
+          },
+          {
+            "x": 85.0,
+            "y": 48.0,
+            "dark": false
+          }
+        ]
+      }
+    },
+    "precision-unit": {
+      "actions": "dimension-add:horizontal,r1@bbox:r,r2@bbox:l,id=dim1;dimension-set:dim1,precision=1,unit=cm",
+      "list": [
+        {
+          "id": "dim1",
+          "kind": "horizontal",
+          "value": 50.0,
+          "label": "5.0 cm"
+        }
+      ],
+      "svg": {
+        "dimensions": 1,
+        "label": "5.0 cm",
+        "label_x": 75.0
+      },
+      "png": {
+        "samples": [
+          {
+            "x": 75.0,
+            "y": 45.0,
+            "dark": true
+          }
+        ]
+      }
+    },
+    "freeze-on-delete": {
+      "actions": "dimension-add:horizontal,r1@bbox:r,r2@bbox:l,id=dim1;select-by-id:r2;object-set-attribute:x,120;select-by-id:r2;delete-selection",
+      "comment": "Deleting the measured object freezes the dimension at its last value (70 mm).",
+      "list": [
+        {
+          "id": "dim1",
+          "kind": "horizontal",
+          "value": 70.0,
+          "label": "70.00 mm"
+        }
+      ],
+      "svg": {
+        "dimensions": 1,
+        "label": "70.00 mm",
+        "bbox": [
+          50.0,
+          43.0,
+          120.0,
+          49.0
+        ]
+      },
+      "png": {
+        "samples": [
+          {
+            "x": 85.0,
+            "y": 45.0,
+            "dark": true
+          }
+        ]
+      }
+    },
+    "bad-input": {
+      "actions": "dimension-add:horizontal,nosuch@bbox:c,r2@bbox:l",
+      "stderr_contains": "dimension-add:",
+      "allow_warnings": [
+        "dimension-add:"
+      ],
+      "list": [],
+      "svg": {
+        "dimensions": 0
+      }
+    }
+  }
+}
