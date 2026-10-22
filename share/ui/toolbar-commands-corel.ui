@@ -1,0 +1,283 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- SPDX-License-Identifier: GPL-2.0-or-later -->
+<!-- Rosepen standard bar (Corel order): file, clipboard, history, import/export,
+     full screen, view toggles, options. Upstream bar: toolbar-commands.ui. -->
+<interface>
+  <requires lib="gtk" version="4.0"/>
+  <object class="GtkBox" id="commands-toolbar">
+    <property name="halign">start</property>
+    <property name="valign">start</property>
+    <property name="orientation">vertical</property>
+    <child>
+      <object class="GtkButton">
+        <property name="valign">center</property>
+        <property name="focusable">True</property>
+        <property name="focus-on-click">False</property>
+        <property name="tooltip-text" translatable="yes">New</property>
+        <property name="action-name">win.document-new</property>
+        <property name="has-frame">False</property>
+        <property name="icon-name">document-new</property>
+        <style>
+            <class name="priority1"/>
+        </style>
+      </object>
+    </child>
+    <child>
+      <object class="GtkButton">
+        <property name="valign">center</property>
+        <property name="focusable">True</property>
+        <property name="focus-on-click">False</property>
+        <property name="tooltip-text" translatable="yes">Open...</property>
+        <property name="action-name">win.document-open</property>
+        <property name="has-frame">False</property>
+        <property name="icon-name">document-open</property>
+        <style>
+            <class name="priority1"/>
+        </style>
+      </object>
+    </child>
+    <child>
+      <object class="GtkButton">
+        <property name="valign">center</property>
+        <property name="focusable">True</property>
+        <property name="focus-on-click">False</property>
+        <property name="tooltip-text" translatable="yes">Save</property>
+        <property name="action-name">win.document-save</property>
+        <property name="has-frame">False</property>
+        <property name="icon-name">document-save</property>
+        <style>
+            <class name="priority1"/>
+        </style>
+      </object>
+    </child>
+    <child>
+      <object class="GtkButton">
+        <property name="valign">center</property>
+        <property name="focusable">True</property>
+        <property name="focus-on-click">False</property>
+        <property name="tooltip-text" translatable="yes">Print...</property>
+        <property name="action-name">win.document-print</property>
+        <property name="has-frame">False</property>
+        <property name="icon-name">document-print</property>
+        <style>
+            <class name="priority1"/>
+        </style>
+      </object>
+    </child>
+    <child>
+      <object class="GtkSeparator">
+        <style>
+            <class name="priority1"/>
+        </style>
+      </object>
+    </child>
+    <child>
+      <object class="GtkButton">
+        <property name="valign">center</property>
+        <property name="focusable">True</property>
+        <property name="focus-on-click">False</property>
+        <property name="tooltip-text" translatable="yes">Cut</property>
+        <property name="action-name">app.cut</property>
+        <property name="has-frame">False</property>
+        <property name="icon-name">edit-cut</property>
+        <style>
+            <class name="priority1"/>
+        </style>
+      </object>
+    </child>
+    <child>
+      <object class="GtkButton">
+        <property name="valign">center</property>
+        <property name="focusable">True</property>
+        <property name="focus-on-click">False</property>
+        <property name="tooltip-text" translatable="yes">Copy</property>
+        <property name="action-name">app.copy</property>
+        <property name="has-frame">False</property>
+        <property name="icon-name">edit-copy</property>
+        <style>
+            <class name="priority1"/>
+        </style>
+      </object>
+    </child>
+    <child>
+      <object class="GtkButton">
+        <property name="valign">center</property>
+        <property name="focusable">True</property>
+        <property name="focus-on-click">False</property>
+        <property name="tooltip-text" translatable="yes">Paste</property>
+        <property name="action-name">win.paste</property>
+        <property name="has-frame">False</property>
+        <property name="icon-name">edit-paste</property>
+        <style>
+            <class name="priority1"/>
+        </style>
+      </object>
+    </child>
+    <child>
+      <object class="GtkSeparator">
+        <style>
+            <class name="priority1"/>
+        </style>
+      </object>
+    </child>
+    <child>
+      <object class="GtkButton">
+        <property name="valign">center</property>
+        <property name="focusable">True</property>
+        <property name="focus-on-click">False</property>
+        <property name="tooltip-text" translatable="yes">Undo</property>
+        <property name="action-name">doc.undo</property>
+        <property name="has-frame">False</property>
+        <property name="icon-name">edit-undo</property>
+        <style>
+            <class name="priority1"/>
+        </style>
+      </object>
+    </child>
+    <child>
+      <object class="GtkButton">
+        <property name="valign">center</property>
+        <property name="focusable">True</property>
+        <property name="focus-on-click">False</property>
+        <property name="tooltip-text" translatable="yes">Redo</property>
+        <property name="action-name">doc.redo</property>
+        <property name="has-frame">False</property>
+        <property name="icon-name">edit-redo</property>
+        <style>
+            <class name="priority1"/>
+        </style>
+      </object>
+    </child>
+    <child>
+      <object class="GtkSeparator">
+        <style>
+            <class name="priority1"/>
+        </style>
+      </object>
+    </child>
+    <child>
+      <object class="GtkButton">
+        <property name="valign">center</property>
+        <property name="focusable">True</property>
+        <property name="focus-on-click">False</property>
+        <property name="tooltip-text" translatable="yes">Import...</property>
+        <property name="action-name">win.document-import</property>
+        <property name="has-frame">False</property>
+        <property name="icon-name">document-import</property>
+        <style>
+            <class name="priority1"/>
+        </style>
+      </object>
+    </child>
+    <child>
+      <object class="GtkButton">
+        <property name="valign">center</property>
+        <property name="focusable">True</property>
+        <property name="focus-on-click">False</property>
+        <property name="tooltip-text" translatable="yes">Export...</property>
+        <property name="action-name">win.dialog-open</property>
+        <property name="action-target">'Export'</property>
+        <property name="has-frame">False</property>
+        <property name="icon-name">document-export</property>
+        <style>
+            <class name="priority1"/>
+        </style>
+      </object>
+    </child>
+    <child>
+      <object class="GtkSeparator">
+        <style>
+            <class name="priority1"/>
+        </style>
+      </object>
+    </child>
+    <child>
+      <object class="GtkButton">
+        <property name="valign">center</property>
+        <property name="focusable">True</property>
+        <property name="focus-on-click">False</property>
+        <property name="tooltip-text" translatable="yes">Fullscreen</property>
+        <property name="action-name">win.view-fullscreen</property>
+        <property name="has-frame">False</property>
+        <property name="icon-name">rosepen-fullscreen</property>
+        <style>
+            <class name="priority1"/>
+        </style>
+      </object>
+    </child>
+    <child>
+      <object class="GtkSeparator">
+        <style>
+            <class name="priority1"/>
+        </style>
+      </object>
+    </child>
+    <child>
+      <object class="GtkToggleButton">
+        <property name="valign">center</property>
+        <property name="focusable">True</property>
+        <property name="focus-on-click">False</property>
+        <property name="tooltip-text" translatable="yes">Rulers</property>
+        <property name="action-name">win.canvas-rulers</property>
+        <property name="has-frame">False</property>
+        <property name="icon-name">rosepen-show-rulers</property>
+        <style>
+            <class name="priority1"/>
+        </style>
+      </object>
+    </child>
+    <child>
+      <object class="GtkToggleButton">
+        <property name="valign">center</property>
+        <property name="focusable">True</property>
+        <property name="focus-on-click">False</property>
+        <property name="tooltip-text" translatable="yes">Grid</property>
+        <property name="action-name">doc.show-grids</property>
+        <property name="has-frame">False</property>
+        <property name="icon-name">rosepen-show-grid</property>
+        <style>
+            <class name="priority1"/>
+        </style>
+      </object>
+    </child>
+    <child>
+      <object class="GtkToggleButton">
+        <property name="valign">center</property>
+        <property name="focusable">True</property>
+        <property name="focus-on-click">False</property>
+        <property name="tooltip-text" translatable="yes">Show All Guides</property>
+        <property name="action-name">doc.show-all-guides</property>
+        <property name="has-frame">False</property>
+        <property name="icon-name">rosepen-show-guides</property>
+        <style>
+            <class name="priority1"/>
+        </style>
+      </object>
+    </child>
+    <child>
+      <object class="GtkSeparator">
+        <style>
+            <class name="priority1"/>
+        </style>
+      </object>
+    </child>
+    <child>
+      <object class="GtkButton">
+        <property name="valign">center</property>
+        <property name="focusable">True</property>
+        <property name="focus-on-click">False</property>
+        <property name="tooltip-text" translatable="yes">Preferences...</property>
+        <property name="action-name">win.dialog-open</property>
+        <property name="action-target">'Preferences'</property>
+        <property name="has-frame">False</property>
+        <property name="icon-name">preferences-system</property>
+        <style>
+            <class name="priority1"/>
+        </style>
+      </object>
+    </child>
+    <style>
+      <class name="inkscape-toolbar"/>
+    </style>
+  </object>
+</interface>

@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
+<path d="M1.500,1.500 L6.500,1.500 L9.500,4.500 L9.500,11.000 L1.500,11.000 Z" fill="none" stroke="#2a2a2a" stroke-width="1.250" stroke-linejoin="round" stroke-linecap="round"/>
+<path d="M6.500,1.500 L6.500,4.500 L9.500,4.500" fill="none" stroke="#2a2a2a" stroke-width="0.900" stroke-linejoin="round" stroke-linecap="round"/>
+<line x1="3.500" y1="4.500" x2="7.500" y2="4.500" stroke="#2a2a2a" stroke-width="0.900" stroke-linecap="round"/>
+<line x1="3.500" y1="6.700" x2="7.500" y2="6.700" stroke="#2a2a2a" stroke-width="0.900" stroke-linecap="round"/>
+<line x1="3.500" y1="8.900" x2="7.500" y2="8.900" stroke="#2a2a2a" stroke-width="0.900" stroke-linecap="round"/>
+<rect x="6.000" y="5.500" width="8.500" height="9.500" rx="0.000" fill="#ffffff"/>
+<path d="M6.000,5.500 L11.500,5.500 L14.500,8.500 L14.500,15.000 L6.000,15.000 Z" fill="none" stroke="#2a2a2a" stroke-width="1.250" stroke-linejoin="round" stroke-linecap="round"/>
+<path d="M11.500,5.500 L11.500,8.500 L14.500,8.500" fill="none" stroke="#2a2a2a" stroke-width="0.900" stroke-linejoin="round" stroke-linecap="round"/>
+<line x1="8.000" y1="9.000" x2="12.500" y2="9.000" stroke="#2a2a2a" stroke-width="0.900" stroke-linecap="round"/>
+<line x1="8.000" y1="11.200" x2="12.500" y2="11.200" stroke="#2a2a2a" stroke-width="0.900" stroke-linecap="round"/>
+<line x1="8.000" y1="13.400" x2="12.500" y2="13.400" stroke="#2a2a2a" stroke-width="0.900" stroke-linecap="round"/>
+</svg>

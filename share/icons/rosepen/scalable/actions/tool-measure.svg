@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
+<line x1="2.500" y1="11.000" x2="13.500" y2="11.000" stroke="#2a2a2a" stroke-width="1.250" stroke-linecap="round"/>
+<circle cx="2.500" cy="11.000" r="1.200" fill="#2a2a2a"/>
+<circle cx="8.000" cy="11.000" r="1.200" fill="#2a2a2a"/>
+<circle cx="13.500" cy="11.000" r="1.200" fill="#2a2a2a"/>
+<line x1="2.500" y1="8.500" x2="2.500" y2="4.500" stroke="#2a2a2a" stroke-width="0.900" stroke-linecap="round"/>
+<line x1="8.000" y1="8.500" x2="8.000" y2="4.500" stroke="#2a2a2a" stroke-width="0.900" stroke-linecap="round"/>
+<line x1="2.500" y1="5.500" x2="8.000" y2="5.500" stroke="#2a2a2a" stroke-width="0.900" stroke-linecap="round"/>
+<path d="M2.500,5.500 L5.100,4.070 L5.100,6.930 Z" fill="#2a2a2a"/>
+<path d="M8.000,5.500 L5.400,6.930 L5.400,4.070 Z" fill="#2a2a2a"/>
+</svg>

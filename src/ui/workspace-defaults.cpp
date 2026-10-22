@@ -29,8 +29,10 @@ constexpr PrefValue rosepen_values[] = {
     {"/theme/preferDarkTheme", "false"},
     {"/theme/darkTheme", "false"},
     {"/theme/symbolicIcons", "false"},
+    {"/theme/iconTheme", "rosepen"},
     {"/options/notebooklabels/value", "1"},
     {"/toolbox/tools/iconsize", "24"},
+    {"/toolbox/controlbars/iconsize", "20"},
 };
 
 constexpr PrefValue inkscape_values[] = {
@@ -43,8 +45,10 @@ constexpr PrefValue inkscape_values[] = {
     {"/theme/preferDarkTheme", "true"},
     {"/theme/darkTheme", "true"},
     {"/theme/symbolicIcons", "true"},
+    {"/theme/iconTheme", "multicolor"},
     {"/options/notebooklabels/value", "0"},
     {"/toolbox/tools/iconsize", "16"},
+    {"/toolbox/controlbars/iconsize", "16"},
 };
 
 bool is_bool_literal(char const *value)
@@ -53,6 +57,11 @@ bool is_bool_literal(char const *value)
 }
 
 } // namespace
+
+std::string commandbar_ui_file(std::string_view toolbox_layout)
+{
+    return toolbox_layout == "classic" ? "toolbar-commands.ui" : "toolbar-commands-corel.ui";
+}
 
 std::string menubar_ui_file(std::string_view layout_value)
 {

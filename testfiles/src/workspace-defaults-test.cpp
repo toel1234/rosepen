@@ -24,6 +24,7 @@ using Inkscape::UI::Workspace::PalettePlacement;
 using Inkscape::UI::Workspace::PrefValue;
 using Inkscape::UI::Workspace::apply_workspace;
 using Inkscape::UI::Workspace::apply_workspace_revision;
+using Inkscape::UI::Workspace::commandbar_ui_file;
 using Inkscape::UI::Workspace::workspace_revision;
 using Inkscape::UI::Workspace::workspace_revision_pref;
 using Inkscape::UI::Workspace::default_palette_lines;
@@ -65,6 +66,13 @@ TEST(WorkspaceDefaults, menubarUiFile)
     EXPECT_EQ(menubar_ui_file("corel"), "menus-corel.ui");
     EXPECT_EQ(menubar_ui_file("bogus"), "menus-corel.ui");
     EXPECT_EQ(menubar_ui_file("classic"), "menus.ui");
+}
+
+TEST(WorkspaceDefaults, commandbarUiFile)
+{
+    EXPECT_EQ(commandbar_ui_file("corel"), "toolbar-commands-corel.ui");
+    EXPECT_EQ(commandbar_ui_file(""), "toolbar-commands-corel.ui");
+    EXPECT_EQ(commandbar_ui_file("classic"), "toolbar-commands.ui");
 }
 
 TEST(WorkspaceDefaults, palettePlacement)
@@ -170,6 +178,7 @@ TEST_F(WorkspaceDefaultsTest, applyInkscapePreset)
     EXPECT_TRUE(prefs->getBool("/theme/symbolicIcons", false));
     EXPECT_EQ(prefs->getInt("/options/notebooklabels/value", -1), 0);
     EXPECT_EQ(prefs->getInt("/toolbox/tools/iconsize", -1), 16);
+    EXPECT_EQ(prefs->getString("/theme/iconTheme"), "multicolor");
 
     // On a non-widescreen display the upstream default is "off".
     apply_workspace(inkscape_workspace(), false);
@@ -194,6 +203,8 @@ TEST_F(WorkspaceDefaultsTest, applyRosepenPreset)
     EXPECT_FALSE(prefs->getBool("/theme/symbolicIcons", true));
     EXPECT_EQ(prefs->getInt("/options/notebooklabels/value", -1), 1);
     EXPECT_EQ(prefs->getInt("/toolbox/tools/iconsize", -1), 24);
+    EXPECT_EQ(prefs->getString("/theme/iconTheme"), "rosepen");
+    EXPECT_EQ(prefs->getInt("/toolbox/controlbars/iconsize", -1), 20);
 }
 
 TEST_F(WorkspaceDefaultsTest, applyWorkspaceRemovesNullValue)

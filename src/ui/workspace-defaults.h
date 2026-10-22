@@ -31,6 +31,10 @@ inline constexpr char const *palette_placement_pref = "/embedded/swatches/placem
 /// The Rosepen key profile; a default, so no keys warning is shown for it.
 inline constexpr char const *rosepen_keys_file = "rosepen.xml";
 
+/// The commands bar for a /toolbox/layout value: the Corel standard bar
+/// unless the classic (upstream) toolbox layout is chosen.
+std::string commandbar_ui_file(std::string_view toolbox_layout);
+
 /**
  * The GtkBuilder file for a menubar layout value.
  *
@@ -123,7 +127,7 @@ void apply_workspace(std::span<PrefValue const> values, bool computed_default = 
 inline constexpr char const *workspace_revision_pref = "/options/workspace/rosepen-revision";
 
 /// Bump when the Rosepen preset gains values that existing profiles must get.
-inline constexpr int workspace_revision = 1;
+inline constexpr int workspace_revision = 2;
 
 /**
  * Apply the Rosepen workspace once per revision, so that existing profiles

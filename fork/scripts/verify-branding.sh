@@ -111,6 +111,7 @@ ALLOW=(
     "fork/branding/*"
     "fork/packaging/*"
     "fork/po/*"
+    "fork/tools/*"
     ".github/*"
     ".paul/*"
     # 04-01 Corel toolbox
@@ -177,6 +178,11 @@ ALLOW=(
     "src/ui/widget/desktop-widget.h"
     "src/actions/actions-view-mode.cpp"
     "src/ui/dialog/dialog-manager.cpp"
+    # Rosepen icon theme (TraceDraw icons) and Corel standard bar
+    "share/icons/CMakeLists.txt"
+    "share/icons/rosepen/*"
+    "share/ui/toolbar-commands-corel.ui"
+    "src/ui/toolbar/command-toolbar.cpp"
 )
 
 # ---------------------------------------------------------------------------

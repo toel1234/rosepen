@@ -455,7 +455,7 @@ static char const preferences_skeleton[] =
     </group>
     <group
        id="controlbars"
-       iconsize="16" />
+       iconsize="20" />
   </group>
 
   <group
@@ -536,7 +536,7 @@ static char const preferences_skeleton[] =
   <group
      id="theme"
      defaultPreferDarkTheme="0"
-     defaultIconTheme="multicolor"
+     defaultIconTheme="rosepen"
      defaultGtkTheme="Adwaita"
      narrowSpinButton="1"
      preferDarkTheme="0"

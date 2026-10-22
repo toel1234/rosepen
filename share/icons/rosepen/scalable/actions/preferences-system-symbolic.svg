@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
+<line x1="12.000" y1="8.000" x2="15.000" y2="8.000" stroke="#2a2a2a" stroke-width="2.600" stroke-linecap="round"/>
+<line x1="10.828" y1="10.828" x2="12.950" y2="12.950" stroke="#2a2a2a" stroke-width="2.600" stroke-linecap="round"/>
+<line x1="8.000" y1="12.000" x2="8.000" y2="15.000" stroke="#2a2a2a" stroke-width="2.600" stroke-linecap="round"/>
+<line x1="5.172" y1="10.828" x2="3.050" y2="12.950" stroke="#2a2a2a" stroke-width="2.600" stroke-linecap="round"/>
+<line x1="4.000" y1="8.000" x2="1.000" y2="8.000" stroke="#2a2a2a" stroke-width="2.600" stroke-linecap="round"/>
+<line x1="5.172" y1="5.172" x2="3.050" y2="3.050" stroke="#2a2a2a" stroke-width="2.600" stroke-linecap="round"/>
+<line x1="8.000" y1="4.000" x2="8.000" y2="1.000" stroke="#2a2a2a" stroke-width="2.600" stroke-linecap="round"/>
+<line x1="10.828" y1="5.172" x2="12.950" y2="3.050" stroke="#2a2a2a" stroke-width="2.600" stroke-linecap="round"/>
+<circle cx="8.000" cy="8.000" r="5.000" fill="#2a2a2a"/>
+<circle cx="8.000" cy="8.000" r="2.000" fill="#f4f4f4"/>
+</svg>

@@ -1,0 +1,13 @@
+[Icon Theme]
+Name=rosepen
+Comment=Rosepen workspace icons (toolbox and standard bar drawn after TraceDraw, MIT)
+Hidden=true
+Inherits=multicolor,hicolor
+Directories=scalable/actions
+
+[scalable/actions]
+MinSize=8
+Size=16
+MaxSize=512
+Context=Actions
+Type=Scalable

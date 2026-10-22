@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
+<rect x="2.500" y="2.500" width="11.000" height="11.000" rx="0.000" fill="none" stroke="#2a2a2a" stroke-width="1.250"/>
+<path d="M2.500,8.000 L3.600,8.556 L4.700,9.058 L5.800,9.456 L6.900,9.712 L8.000,9.800 L9.100,9.712 L10.200,9.456 L11.300,9.058 L12.400,8.556 L13.500,8.000" fill="none" stroke="#2a2a2a" stroke-width="0.900" stroke-linejoin="round" stroke-linecap="round"/>
+<path d="M8.000,2.500 L7.444,3.600 L6.942,4.700 L6.544,5.800 L6.288,6.900 L6.200,8.000 L6.288,9.100 L6.544,10.200 L6.942,11.300 L7.444,12.400 L8.000,13.500" fill="none" stroke="#2a2a2a" stroke-width="0.900" stroke-linejoin="round" stroke-linecap="round"/>
+<rect x="6.800" y="6.800" width="2.400" height="2.400" rx="0.000" fill="#2a2a2a"/>
+<rect x="1.300" y="6.800" width="2.400" height="2.400" rx="0.000" fill="none" stroke="#2a2a2a" stroke-width="0.900"/>
+<rect x="12.300" y="6.800" width="2.400" height="2.400" rx="0.000" fill="none" stroke="#2a2a2a" stroke-width="0.900"/>
+<rect x="6.800" y="1.300" width="2.400" height="2.400" rx="0.000" fill="none" stroke="#2a2a2a" stroke-width="0.900"/>
+<rect x="6.800" y="12.300" width="2.400" height="2.400" rx="0.000" fill="none" stroke="#2a2a2a" stroke-width="0.900"/>
+</svg>
