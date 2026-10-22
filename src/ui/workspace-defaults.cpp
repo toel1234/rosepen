@@ -26,6 +26,11 @@ constexpr PrefValue rosepen_values[] = {
     {palette_placement_pref, "bottom"},
     {"/options/kbshortcuts/shortcutfile", rosepen_keys_file},
     {"/window/interface_mode", "false"},
+    {"/theme/preferDarkTheme", "false"},
+    {"/theme/darkTheme", "false"},
+    {"/theme/symbolicIcons", "false"},
+    {"/options/notebooklabels/value", "1"},
+    {"/toolbox/tools/iconsize", "24"},
 };
 
 constexpr PrefValue inkscape_values[] = {
@@ -35,6 +40,11 @@ constexpr PrefValue inkscape_values[] = {
     {palette_placement_pref, "bottom"},
     {"/options/kbshortcuts/shortcutfile", "inkscape.xml"},
     {"/window/interface_mode", nullptr},
+    {"/theme/preferDarkTheme", "true"},
+    {"/theme/darkTheme", "true"},
+    {"/theme/symbolicIcons", "true"},
+    {"/options/notebooklabels/value", "0"},
+    {"/toolbox/tools/iconsize", "16"},
 };
 
 bool is_bool_literal(char const *value)
@@ -61,9 +71,10 @@ char const *palette_lines_key(PalettePlacement placement)
     return placement == PalettePlacement::Right ? "columns" : "rows";
 }
 
-int default_palette_lines(PalettePlacement placement)
+int default_palette_lines(PalettePlacement)
 {
-    return placement == PalettePlacement::Right ? 1 : 2;
+    // One row (bottom) or one column (right): a slim single-line palette.
+    return 1;
 }
 
 bool is_default_keys_file(std::string_view file)

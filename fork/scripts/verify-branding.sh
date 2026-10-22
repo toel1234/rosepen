@@ -110,6 +110,7 @@ ALLOW=(
     "fork/man/*"
     "fork/branding/*"
     "fork/packaging/*"
+    "fork/po/*"
     ".github/*"
     ".paul/*"
     # 04-01 Corel toolbox

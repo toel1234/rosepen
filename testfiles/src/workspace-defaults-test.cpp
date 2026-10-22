@@ -76,7 +76,7 @@ TEST(WorkspaceDefaults, paletteLinesKeyAndDefault)
 {
     EXPECT_STREQ(palette_lines_key(PalettePlacement::Bottom), "rows");
     EXPECT_STREQ(palette_lines_key(PalettePlacement::Right), "columns");
-    EXPECT_EQ(default_palette_lines(PalettePlacement::Bottom), 2);
+    EXPECT_EQ(default_palette_lines(PalettePlacement::Bottom), 1);
     EXPECT_EQ(default_palette_lines(PalettePlacement::Right), 1);
 }
 
@@ -163,6 +163,11 @@ TEST_F(WorkspaceDefaultsTest, applyInkscapePreset)
     ASSERT_TRUE(prefs->getEntry("/window/interface_mode").isSet());
     EXPECT_TRUE(prefs->getBool("/window/interface_mode", false));
 
+    EXPECT_TRUE(prefs->getBool("/theme/darkTheme", false));
+    EXPECT_TRUE(prefs->getBool("/theme/symbolicIcons", false));
+    EXPECT_EQ(prefs->getInt("/options/notebooklabels/value", -1), 0);
+    EXPECT_EQ(prefs->getInt("/toolbox/tools/iconsize", -1), 16);
+
     // On a non-widescreen display the upstream default is "off".
     apply_workspace(inkscape_workspace(), false);
     EXPECT_FALSE(prefs->getBool("/window/interface_mode", true));
@@ -179,6 +184,13 @@ TEST_F(WorkspaceDefaultsTest, applyRosepenPreset)
     EXPECT_EQ(prefs->getString("/options/kbshortcuts/shortcutfile"), rosepen_keys_file);
     ASSERT_TRUE(prefs->getEntry("/window/interface_mode").isSet());
     EXPECT_FALSE(prefs->getBool("/window/interface_mode", true));
+    // The look: light theme, full-color icons, larger toolbox icons and
+    // labels on the active docker tab only.
+    EXPECT_FALSE(prefs->getBool("/theme/preferDarkTheme", true));
+    EXPECT_FALSE(prefs->getBool("/theme/darkTheme", true));
+    EXPECT_FALSE(prefs->getBool("/theme/symbolicIcons", true));
+    EXPECT_EQ(prefs->getInt("/options/notebooklabels/value", -1), 1);
+    EXPECT_EQ(prefs->getInt("/toolbox/tools/iconsize", -1), 24);
 }
 
 TEST_F(WorkspaceDefaultsTest, applyWorkspaceRemovesNullValue)

@@ -2073,7 +2073,7 @@ void InkscapePreferences::initPageUI()
         workspace_buttons->append(*rosepen_button);
         workspace_buttons->append(*inkscape_button);
         _page_toolbars.add_line(false, _("Workspace:"), *workspace_buttons, "",
-                                _("Reset the toolbox, property bar, menu bar, color palette, keyboard shortcuts and command bar layout all at once."));
+                                _("Reset the toolbox, property bar, menu bar, color palette, keyboard shortcuts, command bar layout, light/dark theme and docker tab labels all at once."));
         auto const workspace_note = Gtk::make_managed<Gtk::Label>(_("Restart or open a new window to apply all changes"));
         workspace_note->set_halign(Gtk::Align::START);
         _page_toolbars.add_line(false, "", *workspace_note, "", "");

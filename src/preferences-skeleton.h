@@ -263,6 +263,7 @@ static char const preferences_skeleton[] =
   <group id="options"
      rotationlock="1">
     <group id="kbshortcuts" shortcutfile="rosepen.xml"/>
+    <group id="notebooklabels" value="1"/>
     <group id="renderingcache" size="512" />
     <group id="useoldpdfexporter" value="0" />
     <group id="highlightoriginal" value="1" />
@@ -447,7 +448,7 @@ static char const preferences_skeleton[] =
        id="tools"
        icononly="1"
        small="0"
-       iconsize="16">
+       iconsize="24">
       <group
          id="buttons" 
          showLPETool="0"/>
@@ -534,13 +535,13 @@ static char const preferences_skeleton[] =
      flattening="0" />
   <group
      id="theme"
-     defaultPreferDarkTheme="1"
+     defaultPreferDarkTheme="0"
      defaultIconTheme="multicolor"
      defaultGtkTheme="Adwaita"
      narrowSpinButton="1"
-     preferDarkTheme="1"
-     darkTheme="1"
-     symbolicIcons="1"
+     preferDarkTheme="0"
+     darkTheme="0"
+     symbolicIcons="0"
      symbolicDefaultBaseColors="1"/>
 </inkscape>
 )=====";

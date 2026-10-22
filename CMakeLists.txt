@@ -145,6 +145,7 @@ add_subdirectory(src)
 
 if(ENABLE_NLS)
     add_subdirectory(po)
+    add_subdirectory(fork/po)
 endif()
 
 if(NOT WIN32)

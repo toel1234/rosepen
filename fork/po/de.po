@@ -1,0 +1,187 @@
+# German strings for Rosepen-only UI (menus, dockers, workspace).
+# Merged over the upstream po/de.po at build time; entries here win.
+# SPDX-License-Identifier: GPL-2.0-or-later
+msgid ""
+msgstr ""
+"Project-Id-Version: rosepen\n"
+"PO-Revision-Date: 2026-10-22 00:00+0200\n"
+"Last-Translator: Rosepen\n"
+"Language-Team: German\n"
+"Language: de\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgid "_About Rosepen"
+msgstr "_Über Rosepen"
+
+msgid "_Bitmaps"
+msgstr "_Bitmaps"
+
+msgid "_Dimension Tool"
+msgstr "_Bemaßungswerkzeug"
+
+msgid "_Dockers"
+msgstr "_Andockfenster"
+
+msgid "_Document Options..."
+msgstr "_Dokumentoptionen …"
+
+msgid "_Document Resources..."
+msgstr "_Dokumentressourcen …"
+
+msgid "_Edit PowerClip Contents"
+msgstr "PowerClip-Inhalt _bearbeiten"
+
+msgid "_Icon Preview"
+msgstr "_Symbolvorschau"
+
+msgid "_Insert Page After"
+msgstr "Seite _danach einfügen"
+
+msgid "_Landscape"
+msgstr "_Querformat"
+
+msgid "_Layers"
+msgstr "_Ebenen"
+
+msgid "_Layout"
+msgstr "_Layout"
+
+msgid "_Master Layer (All Pages)"
+msgstr "_Masterebene (alle Seiten)"
+
+msgid "_New Window"
+msgstr "_Neues Fenster"
+
+msgid "_Next Page"
+msgstr "_Nächste Seite"
+
+msgid "_Options..."
+msgstr "_Optionen …"
+
+msgid "_Path Effects..."
+msgstr "_Pfadeffekte …"
+
+msgid "_Portrait"
+msgstr "_Hochformat"
+
+msgid "_Previous Page"
+msgstr "_Vorherige Seite"
+
+msgid "_Property Bar"
+msgstr "_Eigenschaftsleiste"
+
+msgid "_Quit Rosepen"
+msgstr "Rosepen _beenden"
+
+msgid "_Shaping"
+msgstr "_Formen"
+
+msgid "_Symbols..."
+msgstr "_Symbole …"
+
+msgid "_Text Font Family"
+msgstr "_Schriftfamilie"
+
+msgid "_Toolbars"
+msgstr "_Symbolleisten"
+
+msgid "_Tools"
+msgstr "E_xtras"
+
+msgid "_Transformations..."
+msgstr "_Transformationen …"
+
+msgid "_Undo History..."
+msgstr "_Rückgängig-Verlauf …"
+
+msgid "_Unflow and Keep Shape"
+msgstr "Fluss _aufheben, Form behalten"
+
+msgid "_Window"
+msgstr "_Fenster"
+
+msgid "Color _Palette"
+msgstr "_Farbpalette"
+
+msgid "Color _Palettes..."
+msgstr "_Farbpaletten …"
+
+msgid "D_uplicate Page"
+msgstr "Seite d_uplizieren"
+
+msgid "E_xtract Contents"
+msgstr "Inhalt e_xtrahieren"
+
+msgid "Effe_cts"
+msgstr "Effe_kte"
+
+msgid "Fi_nish Editing PowerClip"
+msgstr "PowerClip-Bearbeitung _beenden"
+
+msgid "Insert Page _Before"
+msgstr "Seite _davor einfügen"
+
+msgid "Object _Manager"
+msgstr "Objekt-_Manager"
+
+msgid "Object _Manager..."
+msgstr "Objekt-_Manager …"
+
+msgid "Page _Manager..."
+msgstr "Seiten-_Manager …"
+
+msgid "Place Inside _Frame"
+msgstr "In _Rahmen platzieren"
+
+msgid "Power_Clip"
+msgstr "Power_Clip"
+
+msgid "Property Bar"
+msgstr "Eigenschaftsleiste"
+
+msgid "Rosepen Manual"
+msgstr "Rosepen-Handbuch"
+
+msgid "Rosepen: _Advanced"
+msgstr "Rosepen: _Fortgeschritten"
+
+msgid "Rosepen: _Basic"
+msgstr "Rosepen: _Grundlagen"
+
+msgid "Rosepen: _Calligraphy"
+msgstr "Rosepen: _Kalligrafie"
+
+msgid "Rosepen: _Interpolate"
+msgstr "Rosepen: _Interpolieren"
+
+msgid "Rosepen: _Shapes"
+msgstr "Rosepen: _Formen"
+
+msgid "Rosepen: T_racing"
+msgstr "Rosepen: _Nachzeichnen"
+
+msgid "Rosepen: Tracing Pixel Art"
+msgstr "Rosepen: Pixelkunst nachzeichnen"
+
+msgid "Show or hide the Property Bar"
+msgstr "Eigenschaftsleiste ein- oder ausblenden"
+
+msgid "Show/Hide D_ockers"
+msgstr "_Andockfenster ein-/ausblenden"
+
+msgid "Take Canvas Snapshot"
+msgstr "Schnappschuss der Zeichenfläche"
+
+msgid "Te_xt"
+msgstr "Te_xt"
+
+#, c-format
+msgid ""
+"No objects selected. Click, %s+Click, %s+Scroll mouse on top of objects, or "
+"drag around objects to select."
+msgstr ""
+"Keine Objekte ausgewählt. Klick, %s+Klick, %s+Mausrad über Objekten oder "
+"Rahmen um Objekte ziehen zum Auswählen."
