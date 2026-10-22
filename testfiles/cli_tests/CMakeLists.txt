@@ -1321,6 +1321,51 @@ add_master_layer_test(move-first)
 add_master_layer_test(duplicate-page)
 add_master_layer_test(no-master)
 
+#############################################################################################
+### PDF/X structural lock (03-03 task 1)                                                    ###
+#############################################################################################
+
+# Headless PDF/X lock: every scenario in pdfx.expect.json exports a fixture
+# with a pinned SOURCE_DATE_EPOCH and is checked by the stdlib-only checker
+# check_pdfx.py: OutputIntent identity and profile bytes, PDF/X version keys,
+# pinned dates and XMP, Trim/Bleed/Media boxes, crop marks and the registration
+# separation, optional-content/annotation transparency structure, and the
+# refusal path.  X-4 object streams are inflated before parsing.  Expectations
+# are spec-derived, see the plan and the fixture's invariant comments.
+function(add_pdfx_test scenario)
+    set(FIXTURES_DIR "${CMAKE_CURRENT_SOURCE_DIR}/testcases/pdfx")
+    set(EXPECT_JSON "${FIXTURES_DIR}/pdfx.expect.json")
+    # Watching fixture + expectations means changes re-run cmake on change
+    watch("${FIXTURES_DIR}/pdfx-basic.svg" "${FIXTURES_DIR}/pdfx-noprofile.svg"
+          "${FIXTURES_DIR}/pdfx-transparency.svg" "${FIXTURES_DIR}/pdfx-master.svg"
+          "${EXPECT_JSON}")
+    add_test(NAME cli_pdfx-${scenario}
+        COMMAND python3 -I ${CMAKE_CURRENT_SOURCE_DIR}/check_pdfx.py
+                $<TARGET_FILE:inkscape>
+                ${FIXTURES_DIR}
+                ${EXPECT_JSON}
+                ${CMAKE_CURRENT_BINARY_DIR}/pdfx/${scenario}
+                ${scenario})
+    set_tests_properties(cli_pdfx-${scenario} PROPERTIES
+        ENVIRONMENT "${INKSCAPE_TEST_PROFILE_DIR_ENV}/cli_pdfx-${scenario};${CMAKE_CTEST_ENV}"
+        LABELS pdfx
+        RUN_SERIAL TRUE)
+endfunction()
+
+if(WITH_CAPYPDF)
+    add_pdfx_test(x4-basic)
+    add_pdfx_test(x1a-basic)
+    add_pdfx_test(x4-marks)
+    add_pdfx_test(x1a-marks)
+    add_pdfx_test(noprofile-refused)
+    add_pdfx_test(default-unchanged)
+    add_pdfx_test(x1a-transparency-refused)
+    add_pdfx_test(x4-transparency)
+    add_pdfx_test(x4-master)
+    add_pdfx_test(x4-page2-only)
+    add_pdfx_test(x1a-master)
+endif()
+
 # 04-01 Corel toolbox: validate the shipped group data against the upstream toolbar (orchestrator integration point)
 add_test(NAME cli_toolbox-groups
          COMMAND python3 -I ${CMAKE_CURRENT_SOURCE_DIR}/check_toolbox_groups.py
@@ -1328,6 +1373,14 @@ add_test(NAME cli_toolbox-groups
                  ${CMAKE_SOURCE_DIR}/share/ui/toolbar-tool.ui
                  ${CMAKE_SOURCE_DIR}/src/ui/tools/tool-data.cpp)
 set_tests_properties(cli_toolbox-groups PROPERTIES LABELS toolbox)
+
+# Rosepen 04-03: validate the shipped default docker set against the real dialog registry
+add_test(NAME cli_docker-defaults
+         COMMAND python3 -I ${CMAKE_CURRENT_SOURCE_DIR}/check_docker_defaults.py
+                 ${CMAKE_SOURCE_DIR}/share/ui/default-dialog-state.ini
+                 ${CMAKE_SOURCE_DIR}/src/ui/dialog/dialog-data.cpp
+                 ${CMAKE_SOURCE_DIR}/src/ui/dialog/dialog-container.cpp)
+set_tests_properties(cli_docker-defaults PROPERTIES LABELS docker)
 
 ###########################
 ### file format support ###

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- invariant: one 100x80 mm page with 3 mm bleed and NO color-profile / output-profile; PDF/X must refuse this document with a document-level preflight error -->
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd" width="100mm" height="80mm" viewBox="0 0 100 80" version="1.1" id="svg1">
+  <sodipodi:namedview id="namedview1" pagecolor="#ffffff" bordercolor="#666666" inkscape:document-units="mm" />
+  <defs id="defs1">
+    <view id="p1" viewBox="0 0 100 80" inkscape:label="Page 1" inkscape:bleed="3" />
+  </defs>
+  <g inkscape:groupmode="layer" inkscape:label="art" id="art">
+    <rect id="cmyk-dev" x="5" y="5" width="20" height="15" style="fill:device-cmyk(0.1 0.2 0.3 0.4)" />
+    <rect id="bg" x="-3" y="-3" width="106" height="86" fill="#fffff0" />
+  </g>
+</svg>

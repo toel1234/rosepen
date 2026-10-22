@@ -9,6 +9,7 @@
 
 #include <gtest/gtest.h>
 
+#include <algorithm>
 #include <cmath>
 #include <span>
 #include <string>
@@ -32,6 +33,7 @@
 #include <src/object/sp-page.h>
 #include <src/object/sp-rect.h>
 #include <src/object/sp-root.h>
+#include <src/object/weakptr.h>
 #include <src/page-manager.h>
 #include <src/xml/repr.h>
 
@@ -428,6 +430,113 @@ TEST_F(MasterLayerTest, undoRestoresMasterFlag)
     ASSERT_TRUE(Inkscape::DocumentUndo::undo(doc.get()));
     doc->ensureUpToDate();
     EXPECT_FALSE(MasterLayer::is_master(bg));
+}
+
+TEST_F(MasterLayerTest, pageExportItemsIncludesMasters)
+{
+    flag_masters();
+
+    // Page 2 overlaps none of the master content, so both master layers are
+    // appended (in document order) behind the page's own items.
+    auto p2_items = MasterLayer::page_export_items(doc.get(), page(1));
+    ASSERT_EQ(p2_items.size(), 3u);
+    EXPECT_EQ(p2_items[0], item("c2"));
+    EXPECT_EQ(p2_items[1], layer("master-bg"));
+    EXPECT_EQ(p2_items[2], layer("master-top"));
+    EXPECT_EQ(std::find(p2_items.begin(), p2_items.end(), item("c1")), p2_items.end());
+
+    // Page 1 overlaps master content: the layers themselves are not listed
+    // again (their overlapping items already are), so no duplicates appear.
+    auto p1_items = MasterLayer::page_export_items(doc.get(), page(0));
+    ASSERT_EQ(p1_items.size(), 4u);
+    EXPECT_NE(std::find(p1_items.begin(), p1_items.end(), item("c1")), p1_items.end());
+    for (auto *layer_id : {"master-bg", "master-top"}) {
+        EXPECT_EQ(std::find(p1_items.begin(), p1_items.end(), layer(layer_id)), p1_items.end())
+            << layer_id;
+    }
+
+    EXPECT_TRUE(MasterLayer::page_export_items(nullptr, page(0)).empty());
+    EXPECT_TRUE(MasterLayer::page_export_items(doc.get(), nullptr).empty());
+}
+
+TEST_F(MasterLayerTest, pageExportCropKeepsMastersOnRemainingPage)
+{
+    // Headless simulation of Export::exportVector for page 2: collect the
+    // per-page items, delete the other pages, crop to the collected set.
+    flag_masters();
+    auto &pm = doc->getPageManager();
+
+    auto *p2 = page(1);
+    auto const objects = MasterLayer::page_export_items(doc.get(), p2);
+    ASSERT_EQ(objects.size(), 3u);
+
+    auto const bg_before = bounds(layer("master-bg"));
+    auto const top_before = bounds(layer("master-top"));
+    auto const c2_before = bounds(rect("c2"));
+    auto const p1_rect = page(0)->getDesktopRect();
+    auto const p2_rect = p2->getDesktopRect();
+
+    // Make weak pointers to pages, since deletePage() can delete more than
+    // just the requested page.
+    std::vector<SPWeakPtr<SPPage>> copy_pages;
+    copy_pages.reserve(pm.getPageCount());
+    for (auto *delete_page : pm.getPages()) {
+        copy_pages.emplace_back(delete_page);
+    }
+    for (auto &delete_page : copy_pages) {
+        if (delete_page && delete_page->getId() != p2->getId()) {
+            pm.deletePage(delete_page.get(), false);
+        }
+    }
+    doc->ensureUpToDate();
+    ASSERT_EQ(pm.getPageCount(), 1);
+
+    std::vector<SPObject *> objects_to_export;
+    for (auto *obj : objects) {
+        objects_to_export.push_back(doc->getObjectById(obj->getId()));
+    }
+    doc->getRoot()->cropToObjects(objects_to_export);
+    doc->ensureUpToDate();
+
+    // Page-1 content is cropped away, both master layers survive with all
+    // their children.
+    EXPECT_EQ(doc->getObjectById("c1"), nullptr);
+    EXPECT_NE(doc->getObjectById("c2"), nullptr);
+    EXPECT_NE(doc->getObjectById("bg"), nullptr);
+    EXPECT_NE(doc->getObjectById("hdr"), nullptr);
+    EXPECT_NE(doc->getObjectById("badge"), nullptr);
+    EXPECT_EQ(layer("master-bg")->getItemCount(), 1);
+    EXPECT_EQ(layer("master-top")->getItemCount(), 2);
+    EXPECT_EQ(MasterLayer::master_layers(doc.get()).size(), 2u);
+
+    // The re-anchored master bboxes sit at the same position relative to the
+    // remaining page as they did relative to page 1 (03-02 re-anchor).
+    auto *new_first = pm.getFirstPage();
+    ASSERT_NE(new_first, nullptr);
+    EXPECT_EQ(new_first, p2);
+
+    double const tolerance = 0.01 * doc->getDocumentScale().vector()[0];
+    auto const bg_after = bounds(layer("master-bg"));
+    auto const bg_rel_before = bg_before.min() - p1_rect.min();
+    auto const bg_rel_after = bg_after.min() - new_first->getDesktopRect().min();
+    EXPECT_NEAR(bg_rel_after.x(), bg_rel_before.x(), tolerance);
+    EXPECT_NEAR(bg_rel_after.y(), bg_rel_before.y(), tolerance);
+
+    auto const top_after = bounds(layer("master-top"));
+    auto const top_rel_before = top_before.min() - p1_rect.min();
+    auto const top_rel_after = top_after.min() - new_first->getDesktopRect().min();
+    EXPECT_NEAR(top_rel_after.x(), top_rel_before.x(), tolerance);
+    EXPECT_NEAR(top_rel_after.y(), top_rel_before.y(), tolerance);
+
+    // The surviving page keeps its own content at its page-relative position
+    // (deletePage refits the document to the one remaining page, so absolute
+    // document coordinates move with it).
+    auto *c2 = rect("c2");
+    ASSERT_NE(c2, nullptr);
+    auto const c2_rel_before = c2_before.min() - p2_rect.min();
+    auto const c2_rel_after = bounds(c2).min() - new_first->getDesktopRect().min();
+    EXPECT_NEAR(c2_rel_after.x(), c2_rel_before.x(), tolerance);
+    EXPECT_NEAR(c2_rel_after.y(), c2_rel_before.y(), tolerance);
 }
 
 /*

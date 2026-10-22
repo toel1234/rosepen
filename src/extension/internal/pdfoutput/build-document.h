@@ -14,11 +14,13 @@
 #define EXTENSION_INTERNAL_PDFOUTPUT_BUILDER_H
 
 #include <2geom/2geom.h>
+#include <array>
 #include <memory>
 #include <optional>
 
 #include "attributes.h"
 #include "capypdf.hpp"
+#include "pdfx.h"
 #include "remember-styles.h"
 #include "style-enums.h"
 
@@ -109,6 +111,11 @@ public:
     void set_text_enabled(bool enabled) { _text_enabled = enabled; }
     bool get_text_enabled() const { return _text_enabled; }
 
+    void set_pdfx_mode(PdfX::Mode mode, std::shared_ptr<Colors::Space::CMS> output_space);
+    bool is_pdfx() const { return _pdfx != PdfX::Mode::None; }
+    bool is_pdfx_1a() const { return _pdfx == PdfX::Mode::X1a; }
+    std::shared_ptr<Colors::Space::CMS> const &output_space() const { return _output_space; }
+
     std::optional<CapyPDF_TransparencyGroupId> add_group(ItemContext &context);
     std::optional<CapyPDF_TransparencyGroupId>
     item_to_transparency_group(SPItem const *item, SPStyle const *context_style = nullptr, bool is_soft_mask = false);
@@ -134,6 +141,13 @@ public:
 
     std::optional<CapyPDF_ImageId> get_image(std::string const &filename, capypdf::ImagePdfProperties &props);
 private:
+    /**
+     * Values of a paint in the PDF/X output intent, for DeviceCMYK emission.
+     * DeviceCMYK passes through, a CMS colour in the output profile passes its
+     * values through exactly, and anything else is converted through lcms.
+     */
+    std::optional<std::array<double, 4>> to_output_cmyk(Colors::Color const &color) const;
+
     std::optional<CapyPDF_PatternId> get_linear_pattern(SPLinearGradient const *linear, std::optional<double> opacity);
     std::optional<CapyPDF_PatternId> get_radial_pattern(SPRadialGradient const *radial, std::optional<double> opacity);
     std::optional<CapyPDF_PatternId> get_mesh_pattern(SPMeshGradient const *mesh, std::optional<double> opacity);
@@ -182,6 +196,9 @@ private:
 
     unsigned _filter_resolution = 0; // Do not rasterise
     bool _text_enabled = true;
+
+    PdfX::Mode _pdfx = PdfX::Mode::None;
+    std::shared_ptr<Colors::Space::CMS> _output_space;
 };
 
 } // namespace Inkscape::Extension::Internal::PdfBuilder

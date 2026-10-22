@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- invariant: three 100x80 mm pages 110 mm apart with 3 mm bleed; the master-bg layer is repeated on every page and its light rect extends 3 mm beyond page 1 on every side, so the bleed-zone master content is every page's bleed -->
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd" xmlns:xlink="http://www.w3.org/1999/xlink" width="100mm" height="80mm" viewBox="0 0 100 80" version="1.1" id="svg1">
+  <sodipodi:namedview id="namedview1" pagecolor="#ffffff" bordercolor="#666666" inkscape:document-units="mm" inkscape:output-profile="cmyk-out" />
+  <defs id="defs1">
+    <color-profile id="profile1" name="cmyk-out" xlink:href="../../../data/colors/default_cmyk.icc" />
+    <view id="p1" viewBox="0 0 100 80" inkscape:label="Page 1" inkscape:bleed="3" />
+    <view id="p2" viewBox="110 0 100 80" inkscape:label="Page 2" inkscape:bleed="3" />
+    <view id="p3" viewBox="220 0 100 80" inkscape:label="Page 3" inkscape:bleed="3" />
+  </defs>
+  <g inkscape:groupmode="layer" inkscape:label="Master BG" inkscape:master-layer="true" id="master-bg">
+    <rect id="bg" x="-3" y="-3" width="106" height="86" fill="#c8dcc8" />
+  </g>
+  <g inkscape:groupmode="layer" inkscape:label="Content" id="content">
+    <rect id="c1" x="30" y="30" width="20" height="20" fill="#cc3333" />
+    <rect id="c2" x="140" y="30" width="20" height="20" fill="#3333cc" />
+    <rect id="c3" x="250" y="30" width="20" height="20" fill="#33cc33" />
+  </g>
+</svg>

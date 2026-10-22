@@ -12,6 +12,8 @@
 
 #include "build-page.h"
 
+#include "colors/color.h"
+#include "colors/spaces/enum.h"
 #include "object/sp-item-group.h"
 #include "object/sp-item.h"
 #include "object/sp-object.h"
@@ -21,6 +23,31 @@
 
 namespace Inkscape::Extension::Internal::PdfBuilder {
 
+namespace {
+
+/**
+ * capypdf::Color has no public separation setter, but the C API does.
+ * Adopt a C-level handle into the wrapper for the registration mark colour.
+ */
+class SeparationColor final : public capypdf::Color
+{
+public:
+    SeparationColor(CapyPDF_SeparationId id, double tint)
+    {
+        CapyPDF_Color *color = nullptr;
+        if (auto const rc = capy_color_new(&color)) {
+            throw capypdf::PdfException(capy_error_message(rc));
+        }
+        if (auto const rc = capy_color_set_separation(color, id, tint)) {
+            capy_color_destroy(color);
+            throw capypdf::PdfException(capy_error_message(rc));
+        }
+        _d.reset(color);
+    }
+};
+
+} // namespace
+
 /**
  * Get the transformation for the given page.
  * 96 to 72 dpi plus flip y axis (for PDF) plus this page's translation in the SVG document.
@@ -28,7 +55,11 @@ namespace Inkscape::Extension::Internal::PdfBuilder {
 Geom::Affine PageContext::page_transform(SPPage const *page)
 {
     // The position of the page in the svg document
-    auto media_box = page->getDocumentBleed();
+    return page_transform(page->getDocumentBleed());
+}
+
+Geom::Affine PageContext::page_transform(Geom::Rect const &media_box)
+{
     return Geom::Translate(-media_box.left(), -media_box.top())
            // Flip the Y-Axis because PDF is bottom-left
            * Geom::Affine(1.0, 0.0, 0.0, -1.0, 0.0, media_box.height())
@@ -37,10 +68,15 @@ Geom::Affine PageContext::page_transform(SPPage const *page)
 }
 
 PageContext::PageContext(Document &doc, SPPage const *page)
-    : DrawContext(doc, doc.generator().new_page_context(), false)
-    , page_tr(page_transform(page))
+    : PageContext(doc, page, page->getDocumentBleed())
 {
-    set_pagebox(CAPY_BOX_MEDIA, page->getDocumentBleed());
+}
+
+PageContext::PageContext(Document &doc, SPPage const *page, Geom::Rect const &media_box)
+    : DrawContext(doc, doc.generator().new_page_context(), false)
+    , page_tr(page_transform(media_box))
+{
+    set_pagebox(CAPY_BOX_MEDIA, media_box);
 }
 
 void PageContext::set_pagebox(CapyPDF_Page_Box type, Geom::Rect const &size)
@@ -56,6 +92,54 @@ void PageContext::set_pagebox(CapyPDF_Page_Box type, Geom::Rect const &size)
 
     page_props.set_pagebox(type, box.left(), box.top(), box.right(), box.bottom());
 };
+
+/**
+ * Clip the page content to the content box (the BleedBox on PDF/X pages).
+ * The rectangle is in document px and is mapped into page points here.
+ */
+void PageContext::begin_content_clip(Geom::Rect const &content)
+{
+    auto const box = content * page_tr;
+    _ctx.cmd_q();
+    _ctx.cmd_re(box.left(), box.top(), box.width(), box.height());
+    _ctx.cmd_W();
+    _ctx.cmd_n();
+}
+
+void PageContext::end_content_clip()
+{
+    _ctx.cmd_Q();
+}
+
+/**
+ * Draw the crop marks in page points, outside the content clip and therefore
+ * with literal coordinates. The registration colour is a Separation "All"
+ * with a DeviceCMYK (1,1,1,1) alternate.
+ */
+void PageContext::draw_crop_marks(std::vector<std::pair<Geom::Point, Geom::Point>> const &segments)
+{
+    _ctx.cmd_q();
+
+    auto const registration = Colors::Color(Colors::Space::Type::CMYK, {1.0, 1.0, 1.0, 1.0});
+    if (auto const separation = _doc.get_separation("All", registration)) {
+        SeparationColor color(*separation, 1.0);
+        _ctx.set_stroke(color);
+    } else {
+        capypdf::Color color;
+        color.set_cmyk(1.0, 1.0, 1.0, 1.0);
+        _ctx.set_stroke(color);
+    }
+
+    _ctx.cmd_w(0.25);
+    _ctx.cmd_J(CAPY_LC_BUTT);
+    for (auto const &[from, to] : segments) {
+        _ctx.cmd_m(from.x(), from.y());
+        _ctx.cmd_l(to.x(), to.y());
+        _ctx.cmd_S();
+    }
+
+    _ctx.cmd_Q();
+}
 
 /**
  * Paint the entire canvas as a transparency group.

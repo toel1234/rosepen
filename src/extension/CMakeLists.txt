@@ -176,6 +176,7 @@ if(WITH_CAPYPDF)
 	    internal/pdfoutput/build-styles.cpp
         internal/pdfoutput/build-text.cpp
 	    internal/pdfoutput/pdf-output.cpp
+	    internal/pdfoutput/pdfx.cpp
 	    internal/pdfoutput/remember-styles.cpp
 
         # Header
@@ -185,6 +186,7 @@ if(WITH_CAPYPDF)
 	    internal/pdfoutput/build-patterns.h
 	    internal/pdfoutput/build-text.h
 	    internal/pdfoutput/pdf-output.h
+	    internal/pdfoutput/pdfx.h
 	    internal/pdfoutput/remember-styles.h
     )
 endif()

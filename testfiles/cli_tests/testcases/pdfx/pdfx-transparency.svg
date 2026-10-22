@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- invariant: one 100x80 mm page with a CMYK output profile and one item per X-1a transparency rule (opacity, fill-opacity, mask, blend, gradient stop-opacity, image alpha, rasterized filter) plus an opaque control -->
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd" xmlns:xlink="http://www.w3.org/1999/xlink" width="100mm" height="80mm" viewBox="0 0 100 80" version="1.1" id="svg1">
+  <sodipodi:namedview id="namedview1" pagecolor="#ffffff" bordercolor="#666666" inkscape:document-units="mm" inkscape:output-profile="cmyk-out" />
+  <defs id="defs1">
+    <color-profile id="profile1" name="cmyk-out" xlink:href="../../../data/colors/default_cmyk.icc" />
+    <linearGradient id="grad-alpha-paint" x1="0" y1="0" x2="1" y2="0">
+      <stop id="ga-stop1" offset="0" style="stop-color:#ff0000;stop-opacity:1" />
+      <stop id="ga-stop2" offset="1" style="stop-color:#0000ff;stop-opacity:0.5" />
+    </linearGradient>
+    <mask id="mask1" maskUnits="userSpaceOnUse" x="0" y="0" width="100" height="80">
+      <rect id="mask-rect" x="5" y="25" width="20" height="15" fill="#ffffff" />
+    </mask>
+    <filter id="blur1" inkscape:label="Blur" x="-0.2" y="-0.2" width="1.4" height="1.4">
+      <feGaussianBlur id="blur-prim" stdDeviation="2" />
+    </filter>
+    <view id="p1" viewBox="0 0 100 80" inkscape:label="Page 1" inkscape:bleed="3" />
+  </defs>
+  <g inkscape:groupmode="layer" inkscape:label="art" id="art">
+    <rect id="op-half" x="5" y="5" width="20" height="15" fill="#ff0000" style="opacity:0.5" />
+    <rect id="fill-op" x="30" y="5" width="20" height="15" fill="#00ff00" style="fill-opacity:0.5" />
+    <rect id="masked" x="55" y="5" width="20" height="15" fill="#0000ff" mask="url(#mask1)" />
+    <rect id="blend" x="5" y="25" width="20" height="15" fill="#ff00ff" style="mix-blend-mode:multiply" />
+    <rect id="grad-alpha" x="30" y="25" width="20" height="15" style="fill:url(#grad-alpha-paint)" />
+    <image id="img-alpha" x="55" y="25" width="20" height="15" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAYAAABytg0kAAAAEUlEQVR4nGNoUFBoAGEGGAMALRIFAcWRA1AAAAAASUVORK5CYII=" />
+    <rect id="blurred" x="5" y="45" width="20" height="15" fill="#ffff00" filter="url(#blur1)" />
+    <rect id="opaque" x="30" y="45" width="20" height="15" fill="#00ffff" />
+  </g>
+</svg>

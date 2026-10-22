@@ -115,6 +115,24 @@ std::vector<SPItem *> without_master(std::vector<SPItem *> items)
     return items;
 }
 
+std::vector<SPItem *> page_export_items(SPDocument *doc, SPPage const *page)
+{
+    if (!doc || !page) {
+        return {};
+    }
+    auto items = page->getOverlappingItems(true, true);
+    for (auto *layer : master_layers(doc)) {
+        bool const contained = std::any_of(items.begin(), items.end(),
+                                           [layer](SPItem const *item) {
+                                               return layer->isAncestorOf(item);
+                                           });
+        if (!contained) {
+            items.push_back(layer);
+        }
+    }
+    return items;
+}
+
 std::vector<std::pair<SPPage *, Geom::Point>> page_offsets(SPDocument *doc)
 {
     std::vector<std::pair<SPPage *, Geom::Point>> offsets;

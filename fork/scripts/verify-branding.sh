@@ -144,6 +144,24 @@ ALLOW=(
     "src/extension/internal/pdfoutput/pdf-output.cpp"
     "src/extension/internal/pdfoutput/build-page.h"
     "src/extension/internal/pdfoutput/build-page.cpp"
+    # 03-03 PDF/X
+    "src/ui/dialog/export.cpp"
+    "src/extension/CMakeLists.txt"
+    "src/extension/internal/pdfoutput/pdfx.h"
+    "src/extension/internal/pdfoutput/pdfx.cpp"
+    "src/extension/internal/pdfoutput/build-document.cpp"
+    "src/extension/internal/pdfoutput/build-images.cpp"
+    "src/extension/internal/pdfoutput/build-drawing.cpp"
+    # 04-03 Corel dockers
+    "src/ui/dialog/object-manager-filter.h"
+    "src/ui/dialog/object-manager-filter.cpp"
+    "src/ui/dialog/properties-panel-kind.h"
+    "src/ui/dialog/properties-panel-kind.cpp"
+    "src/ui/dialog/objects.h"
+    "src/ui/dialog/objects.cpp"
+    "src/ui/contextmenu.cpp"
+    "share/ui/dialog-objects.glade"
+    "share/ui/default-dialog-state.ini"
 )
 
 # ---------------------------------------------------------------------------

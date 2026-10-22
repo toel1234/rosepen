@@ -14,6 +14,8 @@
 #define EXTENSION_INTERNAL_PDFOUTPUT_BUILD_PAGE_H
 
 #include <functional>
+#include <utility>
+#include <vector>
 
 #include "build-drawing.h"
 
@@ -25,12 +27,20 @@ class PageContext : public DrawContext
 {
 public:
     static Geom::Affine page_transform(SPPage const *page);
+    static Geom::Affine page_transform(Geom::Rect const &media_box);
 
     PageContext(Document &doc, SPPage const *page);
+    PageContext(Document &doc, SPPage const *page, Geom::Rect const &media_box);
 
     void set_pagebox(CapyPDF_Page_Box type, Geom::Rect const &size);
     void paint_drawing(CapyPDF_TransparencyGroupId drawing_id, Geom::Affine const &affine);
     void paint_root_children(SPRoot const *root, std::function<Geom::Affine(SPItem const *)> const &extra);
+
+    // PDF/X only: clip the page content to the bleed box, then draw crop marks
+    // (in page points, outside the clip) with the registration colour.
+    void begin_content_clip(Geom::Rect const &content);
+    void end_content_clip();
+    void draw_crop_marks(std::vector<std::pair<Geom::Point, Geom::Point>> const &segments);
 
     void add_anchors_for_page(SPPage const *page);
     void annotate(CapyPDF_AnnotationId aid);

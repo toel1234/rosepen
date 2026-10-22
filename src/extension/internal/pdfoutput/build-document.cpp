@@ -67,6 +67,12 @@ void Document::set_label(uint32_t page, std::string const &label)
     _gen.add_page_labeling(page, {}, label, {});
 }
 
+void Document::set_pdfx_mode(PdfX::Mode mode, std::shared_ptr<Colors::Space::CMS> output_space)
+{
+    _pdfx = mode;
+    _output_space = std::move(output_space);
+}
+
 void Document::add_page(PageContext &page)
 {
     page.finalize();

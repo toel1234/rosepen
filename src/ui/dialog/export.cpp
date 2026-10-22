@@ -29,6 +29,7 @@
 #include "inkscape.h"
 #include "io/resource.h"
 #include "io/sys.h"            // for sanitizeString, file_test
+#include "object/master-layer.h" // for page_export_items
 #include "object/object-set.h" // for ObjectSet
 #include "object/sp-page.h"    // for SPPage
 #include "object/sp-root.h"    // for SPRoot
@@ -368,7 +369,7 @@ bool Export::exportVector(
             page_ids.insert(std::string(_id));
         }
         // If page then our item set is limited to the overlapping items
-        auto page_items = page->getOverlappingItems(true, true);
+        auto page_items = MasterLayer::page_export_items(copy_doc, page);
 
         if (items.empty()) {
             // Items is page_items, remove all items not in this page.

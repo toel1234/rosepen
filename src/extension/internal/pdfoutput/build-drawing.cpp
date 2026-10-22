@@ -95,8 +95,10 @@ GroupContext::GroupContext(Document &doc, Geom::OptRect const &clip, bool soft_m
     capypdf::TransparencyGroupProperties props;
     if (soft_mask) {
         props.set_CS(CAPY_DEVICE_CS_GRAY);
-    } else {
-        // Do groups have a color space?
+    } else if (doc.is_pdfx_1a()) {
+        // PDF/X-1a has no transparency: emit plain form XObjects instead of
+        // transparency groups. Soft masks above still keep their gray group.
+        return;
     }
     props.set_I(true);  // Isolate from the document
     props.set_K(false); // Do not knock out
@@ -165,9 +167,11 @@ void DrawContext::paint_item(SPItem const *item, Geom::Affine const &tr, SPStyle
         paint_raster(image);
     } else if (auto group = cast<SPGroup>(item)) { // SPSymbol, SPRoot, SPMarker
 
-        // Optional Content Group tracks layers
+        // Optional Content Group tracks layers. PDF/X drops optional content
+        // entirely (X-1a is outside PDF 1.5 and X-4 requires a /Name in every
+        // OC configuration), so layers are painted as plain groups.
         bool has_ocg = false;
-        if (group->isLayer()) {
+        if (group->isLayer() && !_doc.is_pdfx()) {
             if (auto label = group->label()) {
                 auto ocg = capypdf::OptionalContentGroup(label);
                 start_ocg(_doc._gen.add_optional_content_group(ocg));

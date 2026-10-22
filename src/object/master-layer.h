@@ -32,6 +32,14 @@ std::vector<SPItem *> without_master(std::vector<SPItem *> items);
 std::vector<std::pair<SPPage *, Geom::Point>> page_offsets(SPDocument *doc);
 void reanchor_before_delete(SPDocument *doc, SPPage *deleted);
 
+/**
+ * The items to export for one page: the items overlapping it, plus every
+ * master layer that has no item among them yet (document order). This is the
+ * export dialog's per-page item set, so master layers survive the crop on
+ * pages other than the first.
+ */
+std::vector<SPItem *> page_export_items(SPDocument *doc, SPPage const *page);
+
 } // namespace Inkscape::MasterLayer
 
 #endif // INK_OBJECT_MASTER_LAYER_H

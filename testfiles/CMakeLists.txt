@@ -100,6 +100,9 @@ set(TEST_SOURCES
     master-layer-display-test
     toolbox-groups-test
     property-bar-context-test
+    # 04-03 Corel dockers
+    object-manager-filter-test
+    properties-panel-kind-test
     path-reverse-lpe-test
     preferences-test
     rebase-hrefs-test
@@ -145,6 +148,7 @@ endif()
 if(WITH_CAPYPDF)
     list(APPEND TEST_SOURCES
         extensions-pdfoutput-test
+        pdfx-export-test
     )
 endif()
 

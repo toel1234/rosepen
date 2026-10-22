@@ -306,7 +306,13 @@ std::optional<CapyPDF_PatternId> Document::get_mesh_pattern(SPMeshGradient const
         color_space = get_colorspace(space);
     }
 
-    auto patch_color = [&space](Colors::Color const &color) {
+    auto patch_color = [this, &space](Colors::Color const &color) {
+        // PDF/X: get_device_color() converts each colour straight to the
+        // output intent; a detour through the first node's space would lose
+        // DeviceCMYK / output-profile passthrough values.
+        if (is_pdfx()) {
+            return color;
+        }
         auto converted = color.converted(space);
         return converted ? *converted : color;
     };
@@ -398,7 +404,11 @@ std::optional<CapyPDF_FunctionId> Document::get_gradient_function(SPGradientVect
 
     // An unresolvable icc profile can't act as the common space; keep the stop
     // color as-is (get_device_color falls back to its sRGB alternate).
-    auto stop_color = [&color_space](Colors::Color const &color) {
+    auto stop_color = [this, &color_space](Colors::Color const &color) {
+        // PDF/X: see get_mesh_pattern(), each stop converts on its own.
+        if (is_pdfx()) {
+            return color;
+        }
         auto converted = color.converted(color_space);
         return converted ? *converted : color;
     };

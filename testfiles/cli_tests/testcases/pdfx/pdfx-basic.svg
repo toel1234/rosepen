@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- invariant: two 100x80 mm pages with 3 mm bleed and a CMYK output profile; the labelled art layer would be an OCG on the default path and must be dropped on PDF/X; the bg rect fills page 1's bleed -->
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd" xmlns:xlink="http://www.w3.org/1999/xlink" width="100mm" height="80mm" viewBox="0 0 100 80" version="1.1" id="svg1">
+  <sodipodi:namedview id="namedview1" pagecolor="#ffffff" bordercolor="#666666" inkscape:document-units="mm" inkscape:output-profile="cmyk-out" />
+  <defs id="defs1">
+    <color-profile id="profile1" name="cmyk-out" xlink:href="../../../data/colors/default_cmyk.icc" />
+    <linearGradient id="grad" x1="0" y1="0" x2="1" y2="0">
+      <stop id="grad-stop1" offset="0" style="stop-color:#ff0000" />
+      <stop id="grad-stop2" offset="1" style="stop-color:#0000ff" />
+    </linearGradient>
+    <linearGradient id="spot-PANTONE_185_C" inkscape:swatch="solid" inkscape:spot-name="PANTONE 185 C" x1="0" y1="0" x2="1" y2="0">
+      <stop id="spot-stop1" offset="0" style="stop-color:device-cmyk(0 0.92 0.76 0)" />
+    </linearGradient>
+    <view id="p1" viewBox="0 0 100 80" inkscape:label="Page 1" inkscape:bleed="3" />
+    <view id="p2" viewBox="110 0 100 80" inkscape:label="Page 2" inkscape:bleed="3" />
+  </defs>
+  <g inkscape:groupmode="layer" inkscape:label="art" id="art">
+    <rect id="bg" x="-3" y="-3" width="106" height="86" fill="#fffff0" />
+    <rect id="cmyk-dev" x="5" y="5" width="20" height="15" style="fill:device-cmyk(0.1 0.2 0.3 0.4)" />
+    <rect id="cmyk-icc" x="30" y="5" width="20" height="15" style="fill:#907f6f icc-color(cmyk-out, 0.1, 0.2, 0.3, 0.4)" />
+    <rect id="rgb-red" x="55" y="5" width="20" height="15" fill="#ff0000" />
+    <rect id="spot" x="5" y="25" width="20" height="15" style="fill:url(#spot-PANTONE_185_C)" />
+    <rect id="grad" x="30" y="25" width="20" height="15" style="fill:url(#grad)" />
+    <image id="img" x="55" y="25" width="20" height="15" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAIAAAD91JpzAAAAEElEQVR4nGNwaDgARAwQCgAoDgYBQzpj2gAAAABJRU5ErkJggg==" />
+    <rect id="p2-content" x="115" y="5" width="20" height="15" fill="#00ff00" />
+    <a id="link" xlink:href="https://example.com/">
+      <rect id="link-rect" x="140" y="25" width="20" height="15" fill="#0000ff" />
+    </a>
+  </g>
+</svg>

@@ -355,6 +355,15 @@ std::optional<std::pair<std::string, CapyPDF_FontId>> Document::get_font(std::sh
 std::optional<capypdf::Color> Document::get_paint(SPIPaint const &paint, SPStyle const *context_style,
                                                   std::optional<double> opacity)
 {
+    // PDF/X must never emit a DeviceRGB paint, including the error fallbacks.
+    auto const set_black = [this](capypdf::Color &color) {
+        if (is_pdfx()) {
+            color.set_cmyk(0.0, 0.0, 0.0, 1.0);
+        } else {
+            color.set_rgb(0.0, 0.0, 0.0);
+        }
+    };
+
     if (context_style) {
         if (paint.paintOrigin == SP_CSS_PAINT_ORIGIN_CONTEXT_FILL) {
             return get_paint(context_style->fill, nullptr, opacity);
@@ -396,12 +405,45 @@ std::optional<capypdf::Color> Document::get_paint(SPIPaint const &paint, SPStyle
     } else if (!context_style && (paint.paintOrigin == SP_CSS_PAINT_ORIGIN_CONTEXT_FILL ||
                                   paint.paintOrigin == SP_CSS_PAINT_ORIGIN_CONTEXT_STROKE)) {
         g_warning("Context style requested but no context style available.");
-        out.set_rgb(0, 0, 0);
+        set_black(out);
     } else {
         g_warning("Fill style not supported: '%s'", paint.get_value().c_str());
-        out.set_rgb(0, 0, 0); // Black default on error
+        set_black(out); // Black default on error
     }
     return out;
+}
+
+/**
+ * Values of a paint in the PDF/X output intent, for DeviceCMYK emission.
+ *
+ * DeviceCMYK passes through untouched, a CMS colour in the output profile
+ * passes its values through exactly, and any other colour (RGB, another ICC
+ * space) goes through the document CMS conversion.
+ */
+std::optional<std::array<double, 4>> Document::to_output_cmyk(Colors::Color const &color) const
+{
+    if (!_output_space) {
+        return std::nullopt;
+    }
+
+    auto const space = color.getSpace();
+    if (!space) {
+        return std::nullopt;
+    }
+    if (std::dynamic_pointer_cast<Colors::Space::DeviceCMYK>(space)) {
+        return std::array{color.get(0), color.get(1), color.get(2), color.get(3)};
+    }
+    // Exact passthrough for the output profile itself: an lcms round trip of a
+    // colour that is already in the output space could still shift its values.
+    if (space->getType() == Colors::Space::Type::CMS && space->hasValidCmsProfile() &&
+        space->getName() == _output_space->getName() && color.size() >= 4) {
+        return std::array{color.get(0), color.get(1), color.get(2), color.get(3)};
+    }
+
+    if (auto const converted = color.converted(_output_space); converted && converted->size() >= 4) {
+        return std::array{converted->get(0), converted->get(1), converted->get(2), converted->get(3)};
+    }
+    return std::nullopt;
 }
 
 capypdf::Color Document::get_color(Colors::Color const &color, std::optional<double> opacity)
@@ -413,6 +455,16 @@ capypdf::Color Document::get_color(Colors::Color const &color, std::optional<dou
         out.set_gray(*opacity * color.getOpacity());
     } else if (auto cmyk = std::dynamic_pointer_cast<Colors::Space::DeviceCMYK>(space)) {
         out.set_cmyk(color[0], color[1], color[2], color[3]);
+    } else if (is_pdfx()) {
+        // PDF/X: every process colour is DeviceCMYK in the output intent. No
+        // ICCBased colour space is emitted; the profile is only the intent.
+        if (auto const cmyk = to_output_cmyk(color)) {
+            out.set_cmyk((*cmyk)[0], (*cmyk)[1], (*cmyk)[2], (*cmyk)[3]);
+        } else {
+            g_warning("Couldn't convert color '%s' to the PDF/X output profile; using black.",
+                      color.toString().c_str());
+            out.set_cmyk(0.0, 0.0, 0.0, 1.0);
+        }
     } else if (auto cms = std::dynamic_pointer_cast<Colors::Space::CMS>(space)) {
         if (auto icc_id = get_icc_profile(cms)) {
             auto vals = color.getValues();
@@ -450,6 +502,19 @@ capypdf::Color Document::get_device_color(Colors::Color const &color, CapyPDF_De
     if (opacity) {
         // Soft masks are gray and ignore the color space entirely.
         return get_color(color, opacity);
+    }
+
+    if (is_pdfx()) {
+        // PDF/X shading is DeviceCMYK in the output intent, whatever the
+        // shading's source space was.
+        capypdf::Color out;
+        if (auto const cmyk = to_output_cmyk(color)) {
+            out.set_cmyk((*cmyk)[0], (*cmyk)[1], (*cmyk)[2], (*cmyk)[3]);
+        } else {
+            g_warning("Couldn't convert color '%s' for the PDF/X output profile.", color.toString().c_str());
+            out.set_cmyk(0.0, 0.0, 0.0, 1.0);
+        }
+        return out;
     }
 
     auto const type = device == CAPY_DEVICE_CS_CMYK ? Colors::Space::Type::CMYK : Colors::Space::Type::RGB;
@@ -494,7 +559,20 @@ std::optional<CapyPDF_SeparationId> Document::get_separation(std::string const &
         return {};
     }
 
-    auto const alt = Colors::Spot::alternate_for(alternate);
+    Colors::Spot::Alternate alt;
+    if (is_pdfx()) {
+        // PDF/X separations need a DeviceCMYK alternate in the output intent.
+        // An RGB-model alternate is converted here, never emitted as DeviceRGB.
+        if (auto const cmyk = to_output_cmyk(alternate)) {
+            alt = {Colors::Spot::Model::CMYK, {(*cmyk)[0], (*cmyk)[1], (*cmyk)[2], (*cmyk)[3]}};
+        } else {
+            g_warning("Couldn't convert spot alternate '%s' for the PDF/X output profile.",
+                      alternate.toString().c_str());
+            alt = {Colors::Spot::Model::CMYK, {0.0, 0.0, 0.0, 1.0}};
+        }
+    } else {
+        alt = Colors::Spot::alternate_for(alternate);
+    }
     auto const cmyk = alt.model == Colors::Spot::Model::CMYK;
     std::size_t const channels = cmyk ? 4 : 3;
 
@@ -561,12 +639,20 @@ std::optional<CapyPDF_IccColorSpaceId> Document::get_icc_profile(std::shared_ptr
 
 CapyPDF_Device_Colorspace Document::get_default_colorspace() const
 {
+    if (is_pdfx()) {
+        // PDF/X shadings are always DeviceCMYK in the output intent.
+        return CAPY_DEVICE_CS_CMYK;
+    }
     // TODO: Make this return the correct color space (icc, etc) for the document
     return CAPY_DEVICE_CS_RGB;
 }
 
 CapyPDF_Device_Colorspace Document::get_colorspace(std::shared_ptr<Colors::Space::AnySpace> const &space) const
 {
+    if (is_pdfx()) {
+        // get_device_color() converts every stop/patch to the output CMYK.
+        return CAPY_DEVICE_CS_CMYK;
+    }
     if (*space == Colors::Space::Type::CMYK) {
         return CAPY_DEVICE_CS_CMYK;
     }

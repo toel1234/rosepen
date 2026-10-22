@@ -1,0 +1,239 @@
+{
+  "_comment": "03-03 PDF/X corpus (task 1 structure + task 2 colour/X-1a transparency/master pixels). Expectations are spec-derived from .paul/phases/03-multipage-pdfx/03-03-PLAN.md and the ISO 15930-4/-7 rule families named in each _note; observed output never weakens them. Both base pages are 100x80 mm; 1 mm = 2.834645669 pt. SOURCE_DATE_EPOCH=1700000000 is 2023-11-14T22:13:20Z. The output profile is testfiles/data/colors/default_cmyk.icc (description 'Artifex CMYK SWOP Profile').",
+  "colors": {
+    "white": [255, 255, 255],
+    "master-bg": [200, 220, 200],
+    "c1": [204, 51, 51],
+    "c2": [51, 51, 204],
+    "c3": [51, 204, 51]
+  },
+  "scenarios": {
+    "x4-basic": {
+      "_note": "PDF/X-4 skeleton on the basic fixture: PDF 1.6 with an xref stream and ObjStm, one GTS_PDFX OutputIntent carrying the document CMYK profile byte-for-byte, PDF/X Info keys with pinned dates, two pages whose TrimBox is the page and whose BleedBox is the page grown by the 3 mm inkscape:bleed (MediaBox == BleedBox without marks), no ArtBox, and neither optional content nor annotations (PDF/X-4 allows them only with a Name / outside the bleed, which we drop). Colour: the device-cmyk and output-profile icc-color fills both emit the exact values 0.1/0.2/0.3/0.4 as DeviceCMYK, the RGB fills and the sRGB gradient are converted to DeviceCMYK in the output intent, the spot ink stays /Separation with a DeviceCMYK alternate, the RGB image is a DeviceCMYK 8-bit image, and no DeviceRGB/ICCBased colour space appears (the profile is the intent only).",
+      "fixture": "pdfx-basic.svg",
+      "version": "X-4",
+      "crop_marks": false,
+      "stages": ["export", "header", "intent", "info", "boxes", "structure", "color"],
+      "exact_cmyk": true,
+      "spot_separation": true,
+      "shading_cmyk": true,
+      "cmyk_images": true,
+      "header": "%PDF-1.6",
+      "pdfx_version": "PDF/X-4",
+      "pages": [
+        {
+          "media": [0.0, 0.0, 300.472441, 243.779528],
+          "bleed": [0.0, 0.0, 300.472441, 243.779528],
+          "trim": [8.503937, 8.503937, 291.968504, 235.275591]
+        },
+        {
+          "media": [0.0, 0.0, 300.472441, 243.779528],
+          "bleed": [0.0, 0.0, 300.472441, 243.779528],
+          "trim": [8.503937, 8.503937, 291.968504, 235.275591]
+        }
+      ]
+    },
+    "x1a-basic": {
+      "_note": "PDF/X-1a:2003 skeleton: PDF 1.3 with a classic xref table and no object streams, the same OutputIntent identity/bytes, the PDF/X-1a Info value, the same page boxes, and no /S /Transparency groups (X-1a has no transparency). Colour: the same CMYK-only rules as x4-basic, plus the X-1a extra rules (no /SMask, no /CA or /ca below 1, no blend mode other than Normal).",
+      "fixture": "pdfx-basic.svg",
+      "version": "X-1a",
+      "crop_marks": false,
+      "stages": ["export", "header", "intent", "info", "boxes", "structure", "color"],
+      "exact_cmyk": true,
+      "spot_separation": true,
+      "shading_cmyk": true,
+      "cmyk_images": true,
+      "header": "%PDF-1.3",
+      "pdfx_version": "PDF/X-1a:2003",
+      "pages": [
+        {
+          "media": [0.0, 0.0, 300.472441, 243.779528],
+          "bleed": [0.0, 0.0, 300.472441, 243.779528],
+          "trim": [8.503937, 8.503937, 291.968504, 235.275591]
+        },
+        {
+          "media": [0.0, 0.0, 300.472441, 243.779528],
+          "bleed": [0.0, 0.0, 300.472441, 243.779528],
+          "trim": [8.503937, 8.503937, 291.968504, 235.275591]
+        }
+      ]
+    },
+    "x4-marks": {
+      "_note": "PDF/X-4 with crop marks. Marks extend the MediaBox to trim + 8 mm per side (max(3 mm bleed, 3 mm) + 5 mm), keep the TrimBox at the page and the BleedBox at 3 mm, and require eight 5 mm registration-colour lines outside the bleed, drawn in /Separation /All with a DeviceCMYK 1 1 1 1 alternate and tint 1. The page content is clipped to the BleedBox.",
+      "fixture": "pdfx-basic.svg",
+      "version": "X-4",
+      "crop_marks": true,
+      "stages": ["export", "header", "intent", "info", "boxes", "marks", "structure"],
+      "header": "%PDF-1.6",
+      "pdfx_version": "PDF/X-4",
+      "pages": [
+        {
+          "media": [0.0, 0.0, 328.818898, 272.125984],
+          "bleed": [14.173228, 14.173228, 314.645669, 257.952756],
+          "trim": [22.677165, 22.677165, 306.141732, 249.448819]
+        },
+        {
+          "media": [0.0, 0.0, 328.818898, 272.125984],
+          "bleed": [14.173228, 14.173228, 314.645669, 257.952756],
+          "trim": [22.677165, 22.677165, 306.141732, 249.448819]
+        }
+      ],
+      "mark_offset_pt": 8.503937,
+      "mark_length_pt": 14.173228
+    },
+    "x1a-marks": {
+      "_note": "PDF/X-1a with crop marks: the same mark geometry and registration colour as x4-marks, on the PDF 1.3 skeleton with no transparency groups.",
+      "fixture": "pdfx-basic.svg",
+      "version": "X-1a",
+      "crop_marks": true,
+      "stages": ["export", "header", "intent", "info", "boxes", "marks", "structure"],
+      "header": "%PDF-1.3",
+      "pdfx_version": "PDF/X-1a:2003",
+      "pages": [
+        {
+          "media": [0.0, 0.0, 328.818898, 272.125984],
+          "bleed": [14.173228, 14.173228, 314.645669, 257.952756],
+          "trim": [22.677165, 22.677165, 306.141732, 249.448819]
+        },
+        {
+          "media": [0.0, 0.0, 328.818898, 272.125984],
+          "bleed": [14.173228, 14.173228, 314.645669, 257.952756],
+          "trim": [22.677165, 22.677165, 306.141732, 249.448819]
+        }
+      ],
+      "mark_offset_pt": 8.503937,
+      "mark_length_pt": 14.173228
+    },
+    "noprofile-refused": {
+      "_note": "A PDF/X export needs an embedded CMYK output profile and a non-empty OutputConditionIdentifier. Without a color-profile the preflight reports a document-level error and the exporter throws before capypdf writes anything: the target must be absent and stderr must carry exactly the expected finding ids.",
+      "fixture": "pdfx-noprofile.svg",
+      "version": "X-4",
+      "refused": true,
+      "refused_ids": ["document"],
+      "stages": ["export"]
+    },
+    "x1a-transparency-refused": {
+      "_note": "PDF/X-1a has no transparency and no flattener exists, so each transparent construct is refused before capypdf writes anything. One error per item, in document order, with the item id: opacity, fill-opacity, mask, mix-blend-mode, gradient stop-opacity, image alpha and the rasterized blur filter. The opaque control item is not reported, and the target file must be absent.",
+      "fixture": "pdfx-transparency.svg",
+      "version": "X-1a",
+      "refused": true,
+      "refused_ids": ["op-half", "fill-op", "masked", "blend", "grad-alpha", "img-alpha", "blurred"],
+      "stages": ["export"]
+    },
+    "x4-transparency": {
+      "_note": "PDF/X-4 keeps transparency: the RGBA image and the rasterized blur keep an /SMask, the group opacity becomes a graphics state, and everything is still colour-converted to the output intent (no DeviceRGB, no ICCBased, images DeviceCMYK). Transparency groups may carry /CS /DeviceGray for a soft mask but never /CS /DeviceRGB.",
+      "fixture": "pdfx-transparency.svg",
+      "version": "X-4",
+      "crop_marks": false,
+      "stages": ["export", "header", "intent", "info", "boxes", "structure", "color"],
+      "preserved_transparency": true,
+      "cmyk_images": true,
+      "header": "%PDF-1.6",
+      "pdfx_version": "PDF/X-4",
+      "pages": [
+        {
+          "media": [0.0, 0.0, 300.472441, 243.779528],
+          "bleed": [0.0, 0.0, 300.472441, 243.779528],
+          "trim": [8.503937, 8.503937, 291.968504, 235.275591]
+        }
+      ]
+    },
+    "x4-master": {
+      "_note": "PDF/X-4 with master layers on three 100x80 mm pages (110 mm apart, 3 mm bleed): every page paints the same cached master and content forms (the 03-02 shared XObject objects), the page boxes are identical, colour stays CMYK-only, and a re-import of each page through Rosepen's own PDF importer shows the master background inside the trim. The importer crops to the TrimBox (probe: 378x302 px at 96 dpi, no bleed), so only trim samples are asserted. The master bg (#c8dcc8) is light and in gamut: +-24 per channel covers the CMYK round trip. Saturated content samples use +-48, justified in the colour data: a #3333cc fill round-trips to about (60,71,157) through the SWOP profile, so +-2 (the direct-render tolerance) is not achievable; the rule asserted is that the master and page content both render.",
+      "fixture": "pdfx-master.svg",
+      "version": "X-4",
+      "crop_marks": false,
+      "stages": ["export", "header", "intent", "info", "boxes", "structure", "color", "masters", "pixels"],
+      "cmyk_images": false,
+      "header": "%PDF-1.6",
+      "pdfx_version": "PDF/X-4",
+      "pages": [
+        {
+          "media": [0.0, 0.0, 300.472441, 243.779528],
+          "bleed": [0.0, 0.0, 300.472441, 243.779528],
+          "trim": [8.503937, 8.503937, 291.968504, 235.275591]
+        },
+        {
+          "media": [0.0, 0.0, 300.472441, 243.779528],
+          "bleed": [0.0, 0.0, 300.472441, 243.779528],
+          "trim": [8.503937, 8.503937, 291.968504, 235.275591]
+        },
+        {
+          "media": [0.0, 0.0, 300.472441, 243.779528],
+          "bleed": [0.0, 0.0, 300.472441, 243.779528],
+          "trim": [8.503937, 8.503937, 291.968504, 235.275591]
+        }
+      ],
+      "pixels": {
+        "trim_mm": [100.0, 80.0],
+        "tolerance": {"bg": 24, "content": 48, "default": 24},
+        "sample_points": {"bg": [20.0, 70.0], "content": [33.0, 33.0]},
+        "pages": [
+          {"page": 1, "samples": {"bg": "master-bg", "content": "c1"}},
+          {"page": 2, "samples": {"bg": "master-bg", "content": "c2"}},
+          {"page": 3, "samples": {"bg": "master-bg", "content": "c3"}}
+        ]
+      }
+    },
+    "x4-page2-only": {
+      "_note": "Single-page PDF/X-4 export of page 2 (--export-page=2): the prunePages path re-anchors the surviving page and its master content. The export has one page with page 2's trim/bleed boxes, colour is CMYK-only, and a re-import shows the master bg and page 2's own content inside the trim.",
+      "fixture": "pdfx-master.svg",
+      "version": "X-4",
+      "crop_marks": false,
+      "extra_args": ["--export-page=2"],
+      "stages": ["export", "header", "intent", "info", "boxes", "structure", "color", "pixels"],
+      "header": "%PDF-1.6",
+      "pdfx_version": "PDF/X-4",
+      "pages": [
+        {
+          "media": [0.0, 0.0, 300.472441, 243.779528],
+          "bleed": [0.0, 0.0, 300.472441, 243.779528],
+          "trim": [8.503937, 8.503937, 291.968504, 235.275591]
+        }
+      ],
+      "pixels": {
+        "trim_mm": [100.0, 80.0],
+        "tolerance": {"bg": 24, "content": 48, "default": 24},
+        "sample_points": {"bg": [20.0, 70.0], "content": [33.0, 33.0]},
+        "pages": [
+          {"page": 1, "samples": {"bg": "master-bg", "content": "c2"}}
+        ]
+      }
+    },
+    "x1a-master": {
+      "_note": "PDF/X-1a with master layers: the fixture has no transparency, so the export succeeds. Masters use the same cached groups, but on X-1a GroupContext writes plain form XObjects, so the file has no /S /Transparency group at all. Header/boxes/colour rules are the X-1a ones.",
+      "fixture": "pdfx-master.svg",
+      "version": "X-1a",
+      "crop_marks": false,
+      "stages": ["export", "header", "intent", "info", "boxes", "structure", "color", "masters"],
+      "header": "%PDF-1.3",
+      "pdfx_version": "PDF/X-1a:2003",
+      "pages": [
+        {
+          "media": [0.0, 0.0, 300.472441, 243.779528],
+          "bleed": [0.0, 0.0, 300.472441, 243.779528],
+          "trim": [8.503937, 8.503937, 291.968504, 235.275591]
+        },
+        {
+          "media": [0.0, 0.0, 300.472441, 243.779528],
+          "bleed": [0.0, 0.0, 300.472441, 243.779528],
+          "trim": [8.503937, 8.503937, 291.968504, 235.275591]
+        },
+        {
+          "media": [0.0, 0.0, 300.472441, 243.779528],
+          "bleed": [0.0, 0.0, 300.472441, 243.779528],
+          "trim": [8.503937, 8.503937, 291.968504, 235.275591]
+        }
+      ]
+    },
+    "default-unchanged": {
+      "_note": "The default PDF path must stay unchanged: PDF 2.0, no OutputIntents, no GTS_PDFXVersion and no XMP metadata (none of the PDF/X branches run), while the upstream non-bare-page rule still writes BleedBox, TrimBox and ArtBox. This locks the untouched branch.",
+      "fixture": "pdfx-basic.svg",
+      "version": null,
+      "crop_marks": false,
+      "default_unchanged": true,
+      "stages": ["export", "header", "structure"],
+      "header": "%PDF-2.0"
+    }
+  }
+}
