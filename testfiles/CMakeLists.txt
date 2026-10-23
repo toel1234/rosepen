@@ -112,6 +112,9 @@ set(TEST_SOURCES
     # 05-03 artistic media
     artistic-media-geometry-test
     artistic-media-lpe-test
+    # 05-04 smart fill
+    smart-fill-geometry-test
+    smart-fill-ops-test
     path-reverse-lpe-test
     preferences-test
     rebase-hrefs-test

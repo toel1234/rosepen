@@ -38,7 +38,8 @@ std::map<Glib::ustring, ToolData> const &get_tool_data()
         {"Pages",        {TOOLS_PAGES,           PREFS_PAGE_TOOLS,                "/tools/pages",           }},
         {"Picker",       {TOOLS_PICKER,          PREFS_PAGE_TOOLS, /* No Page */  "/tools/picker",          }},
         {"Dimension",    {TOOLS_DIMENSION,       PREFS_PAGE_TOOLS_MEASURE,        "/tools/dimension",       }},
-        {"ArtisticMedia",{TOOLS_ARTISTIC_MEDIA,  PREFS_PAGE_TOOLS_CALLIGRAPHY,    "/tools/artistic",        }}
+        {"ArtisticMedia",{TOOLS_ARTISTIC_MEDIA,  PREFS_PAGE_TOOLS_CALLIGRAPHY,    "/tools/artistic",        }},
+        {"SmartFill",    {TOOLS_SMART_FILL,      PREFS_PAGE_TOOLS_PAINTBUCKET,    "/tools/smartfill",       }}
         // clang-format on
     };
     return tool_data;
@@ -81,7 +82,8 @@ std::map<Glib::ustring, Glib::ustring> const &get_tool_msg()
         {"Pages",        _("Create and manage pages.")},
         {"Picker",       _("Pick objects.")},
         {"Dimension",    _("<b>Drag</b> between two points or objects to add a live dimension; <b>move</b> to set the offset, <b>click</b> to place. Pick the dimension type on the tool controls bar.")},
-        {"ArtisticMedia", _("<b>Drag</b> to draw an artistic media stroke along a live, editable path. Pick Preset, Brush or Calligraphic and the stroke shape on the tool controls bar; with paths selected, the bar's settings apply to them.")}
+        {"ArtisticMedia", _("<b>Drag</b> to draw an artistic media stroke along a live, editable path. Pick Preset, Brush or Calligraphic and the stroke shape on the tool controls bar; with paths selected, the bar's settings apply to them.")},
+        {"SmartFill",     _("<b>Click</b> inside an area enclosed by object outlines to create a new filled object covering exactly that area. Fill and outline come from the tool controls bar.")}
         // clang-format on
     };
     return tool_msg;

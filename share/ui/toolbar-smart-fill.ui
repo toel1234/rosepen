@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+  <requires lib="gtk" version="4.0"/>
+  <object class="GtkAdjustment" id="_stroke_width_adj">
+    <property name="lower">0.01</property>
+    <property name="upper">100</property>
+    <property name="value">0.25</property>
+    <property name="step-increment">0.05</property>
+    <property name="page-increment">1</property>
+  </object>
+  <object class="GtkStringList" id="fill_mode_model">
+    <items>
+      <item translatable="yes">From object</item>
+      <item translatable="yes">Tool color</item>
+      <item translatable="yes">No fill</item>
+    </items>
+  </object>
+  <object class="GtkStringList" id="stroke_mode_model">
+    <items>
+      <item translatable="yes">No outline</item>
+      <item translatable="yes">From object</item>
+      <item translatable="yes">Tool color</item>
+    </items>
+  </object>
+
+  <object class="GtkBox" id="smart-fill-toolbar">
+    <property name="halign">start</property>
+    <property name="valign">center</property>
+    <property name="hexpand">True</property>
+    <child>
+      <object class="GtkBox" id="fill_mode_box">
+        <property name="tooltip-text" translatable="yes">Where the fill of the new object comes from: the object under the cursor, the tool color, or no fill</property>
+        <child>
+          <object class="GtkLabel">
+            <property name="margin-start">5</property>
+            <property name="label" translatable="yes">Fill:</property>
+          </object>
+        </child>
+        <child>
+          <object class="GtkDropDown" id="fill_mode_combo">
+            <property name="model">fill_mode_model</property>
+            <property name="selected">0</property>
+          </object>
+        </child>
+      </object>
+    </child>
+    <child>
+      <object class="GtkSeparator"/>
+    </child>
+    <child>
+      <object class="GtkBox" id="stroke_mode_box">
+        <property name="tooltip-text" translatable="yes">Where the outline of the new object comes from: no outline, the object under the cursor, or the tool color</property>
+        <child>
+          <object class="GtkLabel">
+            <property name="margin-start">5</property>
+            <property name="label" translatable="yes">Outline:</property>
+          </object>
+        </child>
+        <child>
+          <object class="GtkDropDown" id="stroke_mode_combo">
+            <property name="model">stroke_mode_model</property>
+            <property name="selected">0</property>
+          </object>
+        </child>
+      </object>
+    </child>
+    <child>
+      <object class="GtkBox" id="stroke_width_box">
+        <property name="tooltip-text" translatable="yes">Outline width of the new object, in millimetres</property>
+        <child>
+          <object class="GtkLabel">
+            <property name="margin-start">5</property>
+            <property name="label" translatable="yes">Width (mm)</property>
+          </object>
+        </child>
+        <child>
+          <object class="gtkmm__CustomObject_InkSpinButton" id="stroke_width_item">
+            <property name="focusable">True</property>
+            <property name="adjustment">_stroke_width_adj</property>
+            <property name="climb-rate">0.05</property>
+            <property name="digits">2</property>
+          </object>
+        </child>
+      </object>
+    </child>
+    <style>
+      <class name="inkscape-toolbar"/>
+    </style>
+  </object>
+</interface>

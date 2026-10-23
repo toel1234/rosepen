@@ -86,6 +86,7 @@
 #include "actions/actions-master-layer.h"
 #include "actions/actions-powerclip.h" // Rosepen 05-01 PowerClip
 #include "actions/actions-artistic-media.h" // Rosepen 05-03 artistic media
+#include "actions/actions-smart-fill.h" // Rosepen 05-04 smart fill
 #include "actions/actions-object-align.h"
 #include "actions/actions-object.h"
 #include "actions/actions-output.h"
@@ -643,6 +644,7 @@ InkscapeApplication::InkscapeApplication()
     add_actions_powerclip(this);            // Rosepen 05-01 PowerClip
     add_actions_dimension(this);            // actions for live dimensions (Rosepen 05-02)
     add_actions_artistic_media(this);       // Rosepen 05-03 artistic media
+    add_actions_smart_fill(this);           // Rosepen 05-04 smart fill
     add_actions_selection(this);            // actions for object selection
     add_actions_path(this);                 // actions for Paths
     add_actions_selection_object(this);     // actions for selected objects

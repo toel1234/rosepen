@@ -263,6 +263,18 @@ target_sources(inkscape_base PRIVATE
   ui/toolbar/artistic-media-toolbar.h
 )
 
+# Rosepen 05-04: smart fill
+target_sources(inkscape_base PRIVATE
+  path/smart-fill-geometry.cpp
+  path/smart-fill-geometry.h
+  actions/actions-smart-fill.cpp
+  actions/actions-smart-fill.h
+  ui/tools/smart-fill-tool.cpp
+  ui/tools/smart-fill-tool.h
+  ui/toolbar/smart-fill-toolbar.cpp
+  ui/toolbar/smart-fill-toolbar.h
+)
+
 # -----------------------------------------------------------------------------
 # Load in subdirectories
 # -----------------------------------------------------------------------------

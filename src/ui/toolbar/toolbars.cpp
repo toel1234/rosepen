@@ -43,6 +43,7 @@
 #include "ui/toolbar/measure-toolbar.h"
 #include "ui/toolbar/dimension-toolbar.h"
 #include "ui/toolbar/artistic-media-toolbar.h"
+#include "ui/toolbar/smart-fill-toolbar.h"
 #include "ui/toolbar/mesh-toolbar.h"
 #include "ui/toolbar/node-toolbar.h"
 #include "ui/toolbar/objectpicker-toolbar.h"
@@ -93,6 +94,7 @@ auto const toolbar_data = std::unordered_map<std::string, ToolbarData>{
     {"/tools/measure",         {"Measure",      create<MeasureToolbar>}},
     {"/tools/dimension",       {"Dimension",    create<DimensionToolbar>}},
     {"/tools/artistic",        {"ArtisticMedia", create<ArtisticMediaToolbar>}},
+    {"/tools/smartfill",       {"SmartFill",    create<SmartFillToolbar>}},
     {"/tools/dropper",         {"Dropper",      create<DropperToolbar>}},
     {"/tools/tweak",           {"Tweak",        create<TweakToolbar>}},
     {"/tools/spray",           {"Spray",        create<SprayToolbar>}},

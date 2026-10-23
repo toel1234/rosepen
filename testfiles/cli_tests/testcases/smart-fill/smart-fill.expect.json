@@ -1,0 +1,249 @@
+{
+  "comment": "Rosepen 05-04 Smart Fill lock. Values are in fixture user units (1 uu = 1 mm) and are hand-derived from the fixture outlines (see the INVARIANT comment in smart-fill.svg), never from a render. Each scenario drives app.smart-fill headless and checks the plain-SVG export (new path count, parent, sibling position, exact style, page bbox and area) and RGB pixel samples on the PNG (and PDF when built with capypdf).",
+  "scenarios": {
+    "lens-source": {
+      "actions": "smart-fill:45 25",
+      "_comment": "Click in rect(10..50 x 10..40) and circle(centre 50,25 r 10) overlap: the face is the left half disc, area pi*100/2 = 157.080, bbox 40..50 x 15..35. The topmost covering object is c1, so the fill is its #00ff00.",
+      "new_paths": {
+        "count": 1,
+        "items": [
+          {
+            "parent": "L1",
+            "last_child": true,
+            "style": {"fill": "#00ff00", "fill-opacity": "1", "fill-rule": "evenodd", "stroke": "none"},
+            "bbox": [40.0, 15.0, 50.0, 35.0],
+            "area": 157.08,
+            "subpaths": 1
+          }
+        ]
+      },
+      "png": {"samples": [[45.0, 25.0, "#00ff00"], [55.0, 25.0, "#00ff00"]]}
+    },
+    "lens-explicit": {
+      "actions": "smart-fill:45 25,fill=#800080",
+      "_comment": "Same lens as lens-source with an explicit fill #800080. (55,25) stays green (right half of c1), (41,17) stays red (distance 12.04 from the centre, outside the disc), (48,17) is purple (distance 8.25, lens).",
+      "new_paths": {
+        "count": 1,
+        "items": [
+          {
+            "parent": "L1",
+            "last_child": true,
+            "style": {"fill": "#800080", "fill-opacity": "1", "fill-rule": "evenodd", "stroke": "none"},
+            "bbox": [40.0, 15.0, 50.0, 35.0],
+            "area": 157.08,
+            "subpaths": 1
+          }
+        ]
+      },
+      "unchanged_ids": ["r1", "c1", "d1"],
+      "png": {"samples": [[45.0, 25.0, "#800080"], [48.0, 17.0, "#800080"], [55.0, 25.0, "#00ff00"], [41.0, 17.0, "#ff0000"], [58.0, 25.0, "#00ff00"]]}
+    },
+    "split-by-line": {
+      "actions": "smart-fill:20 25,fill=#800080",
+      "_comment": "The open line l1 (x=30) splits r1; left piece is 10..30 x 10..40 = 600 uu^2. (32,25) is the other piece, still red.",
+      "new_paths": {
+        "count": 1,
+        "items": [
+          {
+            "parent": "L1",
+            "last_child": true,
+            "style": {"fill": "#800080", "fill-opacity": "1", "fill-rule": "evenodd", "stroke": "none"},
+            "bbox": [10.0, 10.0, 30.0, 40.0],
+            "area": 600.0,
+            "subpaths": 1
+          }
+        ]
+      },
+      "png": {"samples": [[20.0, 25.0, "#800080"], [12.0, 12.0, "#800080"], [28.5, 25.0, "#800080"], [32.0, 25.0, "#ff0000"]]}
+    },
+    "crescent": {
+      "actions": "smart-fill:35 12,fill=#800080",
+      "_comment": "Right piece of r1 after the line split and minus the disc: 600 - 157.080 = 442.920, bbox 30..50 x 10..40. (45,25) is still the green circle, (25,25) the untouched red left piece.",
+      "new_paths": {
+        "count": 1,
+        "items": [
+          {
+            "parent": "L1",
+            "last_child": true,
+            "style": {"fill": "#800080", "fill-opacity": "1", "fill-rule": "evenodd", "stroke": "none"},
+            "bbox": [30.0, 10.0, 50.0, 40.0],
+            "area": 442.92,
+            "subpaths": 1
+          }
+        ]
+      },
+      "png": {"samples": [[35.0, 12.0, "#800080"], [48.0, 38.0, "#800080"], [45.0, 25.0, "#00ff00"], [25.0, 25.0, "#ff0000"]]}
+    },
+    "donut-ring": {
+      "actions": "smart-fill:75 30,fill=#800080",
+      "_comment": "Donut ring: 110-70 width 40, 50-10 height 40 => 1600, minus the 20x20 hole 400 = 1200. Two subpaths (outer + hole); the hole stays white (d1 is evenodd).",
+      "new_paths": {
+        "count": 1,
+        "items": [
+          {
+            "parent": "L1",
+            "last_child": true,
+            "style": {"fill": "#800080", "fill-opacity": "1", "fill-rule": "evenodd", "stroke": "none"},
+            "bbox": [70.0, 10.0, 110.0, 50.0],
+            "area": 1200.0,
+            "subpaths": 2
+          }
+        ]
+      },
+      "png": {"samples": [[75.0, 30.0, "#800080"], [105.0, 45.0, "#800080"], [90.0, 30.0, "#ffffff"]]}
+    },
+    "donut-hole": {
+      "actions": "smart-fill:90 30",
+      "_comment": "Click in the hole: the face is the 20x20 inner square = 400. No source covers it under evenodd, so the action fallback #000000 is used. (75,30) still shows the blue ring.",
+      "new_paths": {
+        "count": 1,
+        "items": [
+          {
+            "parent": "L1",
+            "last_child": true,
+            "style": {"fill": "#000000", "fill-opacity": "1", "fill-rule": "evenodd", "stroke": "none"},
+            "bbox": [80.0, 20.0, 100.0, 40.0],
+            "area": 400.0,
+            "subpaths": 1
+          }
+        ]
+      },
+      "png": {"samples": [[90.0, 30.0, "#000000"], [75.0, 30.0, "#0000ff"]]}
+    },
+    "nested-outer": {
+      "actions": "smart-fill:135 15,fill=#800080",
+      "_comment": "g1r 30x30 = 900 minus g1s 10x10 = 100 => 800, two subpaths. (145,25) shows g1s through the hole.",
+      "new_paths": {
+        "count": 1,
+        "items": [
+          {
+            "parent": "L1",
+            "last_child": true,
+            "style": {"fill": "#800080", "fill-opacity": "1", "fill-rule": "evenodd", "stroke": "none"},
+            "bbox": [130.0, 10.0, 160.0, 40.0],
+            "area": 800.0,
+            "subpaths": 2
+          }
+        ]
+      },
+      "png": {"samples": [[135.0, 15.0, "#800080"], [158.0, 38.0, "#800080"], [145.0, 25.0, "#00ffff"]]}
+    },
+    "nested-inner": {
+      "actions": "smart-fill:145 25",
+      "_comment": "Click inside g1s: the face is the 10x10 inner square = 100. The default parent is the last layer L1 (not g1), written in L1 coordinates. Source g1s gives #00ffff.",
+      "new_paths": {
+        "count": 1,
+        "items": [
+          {
+            "parent": "L1",
+            "last_child": true,
+            "style": {"fill": "#00ffff", "fill-opacity": "1", "fill-rule": "evenodd", "stroke": "none"},
+            "bbox": [140.0, 20.0, 150.0, 30.0],
+            "area": 100.0,
+            "subpaths": 1
+          }
+        ]
+      }
+    },
+    "into-group": {
+      "actions": "smart-fill:145 25,fill=#800080,id=sf1,parent=g1",
+      "_comment": "Same face, explicit id and parent: the path is the last child of g1 and its d is in g1-local coordinates (10..20), so the page bbox is still 140..150 x 20..30.",
+      "new_paths": {
+        "count": 1,
+        "items": [
+          {
+            "id": "sf1",
+            "parent": "g1",
+            "last_child": true,
+            "style": {"fill": "#800080", "fill-opacity": "1", "fill-rule": "evenodd", "stroke": "none"},
+            "bbox": [140.0, 20.0, 150.0, 30.0],
+            "area": 100.0,
+            "subpaths": 1
+          }
+        ]
+      },
+      "png": {"samples": [[145.0, 25.0, "#800080"]]}
+    },
+    "use-clone": {
+      "actions": "smart-fill:100 70",
+      "_comment": "u1 clones the 20x20 defs tile at (90,60): face 400 uu^2, source fill #ff00ff.",
+      "new_paths": {
+        "count": 1,
+        "items": [
+          {
+            "parent": "L1",
+            "last_child": true,
+            "style": {"fill": "#ff00ff", "fill-opacity": "1", "fill-rule": "evenodd", "stroke": "none"},
+            "bbox": [90.0, 60.0, 110.0, 80.0],
+            "area": 400.0,
+            "subpaths": 1
+          }
+        ]
+      }
+    },
+    "lpe-source": {
+      "actions": "smart-fill:150 75,fill=#800080",
+      "_comment": "a1 is an artistic media path; the boundary is curve() (the precomputed outline 120..180 x 70..80, area 600), not the skeleton line y=75. (150,81.5) is below the outline and stays white.",
+      "new_paths": {
+        "count": 1,
+        "items": [
+          {
+            "parent": "L1",
+            "last_child": true,
+            "style": {"fill": "#800080", "fill-opacity": "1", "fill-rule": "evenodd", "stroke": "none"},
+            "bbox": [120.0, 70.0, 180.0, 80.0],
+            "area": 600.0,
+            "subpaths": 1
+          }
+        ]
+      },
+      "png": {"samples": [[150.0, 75.0, "#800080"], [150.0, 81.5, "#ffffff"]]}
+    },
+    "outline": {
+      "actions": "smart-fill:75 30,fill=none,stroke=#ff0000,stroke-width=2",
+      "_comment": "Ring geometry with no fill and a 2 mm red outline centred on both rings: outer left edge x=70 (band 69..71), outer top y=10 (9..11), inner left x=80 (79..81). Inside the ring the blue d1 shows, the hole stays white.",
+      "new_paths": {
+        "count": 1,
+        "items": [
+          {
+            "parent": "L1",
+            "last_child": true,
+            "style": {"fill": "none", "fill-opacity": "1", "fill-rule": "evenodd", "stroke": "#ff0000", "stroke-opacity": "1", "stroke-width": "2"},
+            "bbox": [70.0, 10.0, 110.0, 50.0],
+            "area": 1200.0,
+            "subpaths": 2
+          }
+        ]
+      },
+      "png": {"samples": [[70.0, 30.0, "#ff0000"], [90.0, 10.0, "#ff0000"], [75.0, 30.0, "#0000ff"], [90.0, 30.0, "#ffffff"], [80.0, 30.0, "#ff0000"]]}
+    },
+    "excluded": {
+      "actions": "smart-fill:25 75;smart-fill:65 75;smart-fill:190 95",
+      "_comment": "h1 is display:none, k1 is locked and (190,95) has nothing: no face is created anywhere.",
+      "new_paths": {"count": 0, "items": []},
+      "stderr_contains": [
+        "smart-fill: no enclosed area at (25.000, 75.000)",
+        "smart-fill: no enclosed area at (65.000, 75.000)",
+        "smart-fill: no enclosed area at (190.000, 95.000)"
+      ],
+      "allow_warnings": ["smart-fill:"]
+    },
+    "bad-input": {
+      "actions": "smart-fill:abc;smart-fill:45 25,fill=blue;smart-fill:45 25,shape=x;smart-fill:45 25,stroke=#ff0000,stroke-width=0;smart-fill:45 25,parent=r1;smart-fill:45 25,id=c1;smart-fill:10 25",
+      "_comment": "Every call fails before changing the document; (45,25) is still the green circle and (20,25) the red rectangle.",
+      "new_paths": {"count": 0, "items": []},
+      "stderr_contains": [
+        "smart-fill: bad point 'abc'",
+        "smart-fill: bad color 'blue'",
+        "smart-fill: unknown option 'shape'",
+        "smart-fill: stroke-width must be > 0 and <= 100 mm",
+        "smart-fill: parent 'r1' is not a group",
+        "smart-fill: id 'c1' already exists",
+        "smart-fill: point (10.000, 25.000) lies on an object boundary"
+      ],
+      "unchanged_ids": ["r1", "c1", "d1", "a1"],
+      "allow_warnings": ["smart-fill:"],
+      "png": {"samples": [[45.0, 25.0, "#00ff00"], [20.0, 25.0, "#ff0000"]]}
+    }
+  }
+}

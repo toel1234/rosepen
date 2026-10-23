@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg xmlns="http://www.w3.org/2000/svg"
+     xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+     xmlns:xlink="http://www.w3.org/1999/xlink"
+     xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+     width="200mm" height="100mm" viewBox="0 0 200 100">
+  <!-- INVARIANT GEOMETRY (1 user unit = 1 mm, document order = paint order):
+       r1  rect x 10..50, y 10..40, fill #ff0000 (1200 uu^2)
+       c1  circle centre (50,25) r 10, fill #00ff00 (314.159 uu^2)
+       l1  open line x = 30, y 5..45, stroke #000000 (splits r1)
+       d1  donut: outer rect 70..110 x 10..50, hole 80..100 x 20..40,
+           fill #0000ff, fill-rule evenodd (ring 1200, hole 400)
+       g1  group translate(130,10): g1r rect 130..160 x 10..40 (900) and
+           g1s rect 140..150 x 20..30 (100), fill #ffff00 / #00ffff
+       h1  rect 10..40 x 60..90, display:none (never a boundary)
+       k1  rect 50..80 x 60..90, sodipodi:insensitive (never a boundary)
+       u1  clone of defs tile (20 x 20) at (90,60..110,80), fill #ff00ff
+       a1  precomputed artistic media outline 120..180 x 70..80 (600), fill #000000
+       Hand-derived faces: (45,25) lens 157.080; (20,25) 600 left of x=30;
+       (35,12) 442.920; (75,30) ring 1200; (90,30) hole 400;
+       (135,15) 800; (145,25) 100; (100,70) 400; (150,75) 600. -->
+  <defs>
+    <rect id="tile" width="20" height="20"/>
+    <inkscape:path-effect id="a1-artistic" effect="artistic_media" mode="preset"
+        shape="uniform" shape_d="M 0,-0.5 L 1,-0.5 L 1,0.5 L 0,0.5 Z" width="10" angle="30"
+        scale_with_object="true" is_visible="true" lpeversion="1"/>
+  </defs>
+  <g id="L1" inkscape:groupmode="layer" inkscape:label="Layer 1">
+    <rect id="r1" x="10" y="10" width="40" height="30" style="fill:#ff0000;stroke:none"/>
+    <circle id="c1" cx="50" cy="25" r="10" style="fill:#00ff00;stroke:none"/>
+    <path id="l1" d="M 30,5 V 45" style="fill:none;stroke:#000000;stroke-width:0.5"/>
+    <path id="d1" d="M 70,10 H 110 V 50 H 70 Z M 80,20 V 40 H 100 V 20 Z"
+          style="fill:#0000ff;fill-rule:evenodd;stroke:none"/>
+    <g id="g1" transform="translate(130,10)">
+      <rect id="g1r" x="0" y="0" width="30" height="30" style="fill:#ffff00"/>
+      <rect id="g1s" x="10" y="10" width="10" height="10" style="fill:#00ffff"/>
+    </g>
+    <rect id="h1" x="10" y="60" width="30" height="30" style="display:none;fill:#808080"/>
+    <rect id="k1" x="50" y="60" width="30" height="30" sodipodi:insensitive="true"
+          style="fill:#808080"/>
+    <use id="u1" xlink:href="#tile" x="90" y="60" style="fill:#ff00ff"/>
+    <path id="a1" d="m 120,70 h 60 v 10 h -60 z" inkscape:original-d="M 120,75 L 180,75"
+          inkscape:path-effect="#a1-artistic" style="fill:#000000;stroke:none;fill-rule:nonzero"/>
+  </g>
+</svg>

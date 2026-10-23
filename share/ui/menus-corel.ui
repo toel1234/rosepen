@@ -1290,6 +1290,15 @@
           <attribute name="icon">taper-stroke</attribute>
         </item>
       </section>
+      <!-- Rosepen 05-04: Smart Fill -->
+      <section>
+        <item>
+          <attribute name="label" translatable="yes">_Smart Fill Tool</attribute>
+          <attribute name="action">win.tool-switch</attribute>
+          <attribute name="target">SmartFill</attribute>
+          <attribute name="icon">fill-between-many</attribute>
+        </item>
+      </section>
     </submenu>
     <submenu id="window-menu">
       <attribute name="label" translatable="yes">_Window</attribute>

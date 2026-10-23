@@ -225,6 +225,16 @@ ALLOW=(
     "src/ui/toolbar/artistic-media-toolbar.cpp"
     # Rosepen MCP server (committed after the 05-03 plan was written)
     "tools/rosepen-mcp/*"
+    # 05-04 smart fill (new files; visible to the scope check once committed)
+    "share/ui/toolbar-smart-fill.ui"
+    "src/path/smart-fill-geometry.h"
+    "src/path/smart-fill-geometry.cpp"
+    "src/actions/actions-smart-fill.h"
+    "src/actions/actions-smart-fill.cpp"
+    "src/ui/tools/smart-fill-tool.h"
+    "src/ui/tools/smart-fill-tool.cpp"
+    "src/ui/toolbar/smart-fill-toolbar.h"
+    "src/ui/toolbar/smart-fill-toolbar.cpp"
 )
 
 # ---------------------------------------------------------------------------

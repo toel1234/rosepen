@@ -1600,3 +1600,46 @@ add_artistic_media_test(set-mode)
 add_artistic_media_test(break-apart)
 add_artistic_media_test(repair-fallback)
 add_artistic_media_test(bad-input)
+
+#############################################################################################
+### smart fill lock (05-04 task 2)                                                        ###
+#############################################################################################
+# Headless Smart Fill lock: every scenario in smart-fill.expect.json calls app.smart-fill on
+# the fixture, then proves the model headlessly: the plain-SVG export (new path count, parent,
+# sibling position, exact style, document bbox and area/subpath count) and RGB pixels on the
+# PNG export.  With --pdf (capypdf builds) the PDF export is additionally re-imported through
+# Rosepen's own PDF importer and the same pixels are checked on the rasterized result.
+# CLI tests run SERIALLY (D-Bus app-id race).
+function(add_smart_fill_test scenario)
+    set(SOURCE_SVG "${CMAKE_CURRENT_SOURCE_DIR}/testcases/smart-fill/smart-fill.svg")
+    set(EXPECT_JSON "${CMAKE_CURRENT_SOURCE_DIR}/testcases/smart-fill/smart-fill.expect.json")
+    # Watching fixtures + expectations means changes re-run cmake on change
+    watch("${SOURCE_SVG}" "${EXPECT_JSON}")
+    add_test(NAME cli_smart-fill-${scenario}
+        COMMAND python3 -I ${CMAKE_CURRENT_SOURCE_DIR}/check_smart_fill.py
+                $<TARGET_FILE:inkscape>
+                ${SOURCE_SVG}
+                ${EXPECT_JSON}
+                ${CMAKE_CURRENT_BINARY_DIR}/smart-fill/${scenario}
+                ${scenario}
+                $<$<BOOL:${WITH_CAPYPDF}>:--pdf>)
+    set_tests_properties(cli_smart-fill-${scenario} PROPERTIES
+        ENVIRONMENT "${INKSCAPE_TEST_PROFILE_DIR_ENV}/cli_smart-fill-${scenario};${CMAKE_CTEST_ENV}"
+        LABELS smart-fill
+        RUN_SERIAL TRUE)
+endfunction()
+
+add_smart_fill_test(lens-source)
+add_smart_fill_test(lens-explicit)
+add_smart_fill_test(split-by-line)
+add_smart_fill_test(crescent)
+add_smart_fill_test(donut-ring)
+add_smart_fill_test(donut-hole)
+add_smart_fill_test(nested-outer)
+add_smart_fill_test(nested-inner)
+add_smart_fill_test(into-group)
+add_smart_fill_test(use-clone)
+add_smart_fill_test(lpe-source)
+add_smart_fill_test(outline)
+add_smart_fill_test(excluded)
+add_smart_fill_test(bad-input)

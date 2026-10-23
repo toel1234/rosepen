@@ -41,6 +41,8 @@ NEW_ITEMS = {
     # 05-03 Artistic Media: Corel-only tool and command, no classic counterpart
     ('win.tool-switch', 'ArtisticMedia'),
     ('app.artistic-break', ''),
+    # 05-04 Smart Fill tool: Corel-only tool, no classic menubar counterpart
+    ('win.tool-switch', 'SmartFill'),
 }
 
 # Classic pairs intentionally unreachable from the Corel menubar, with reasons.
