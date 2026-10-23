@@ -235,6 +235,21 @@ ALLOW=(
     "src/ui/tools/smart-fill-tool.cpp"
     "src/ui/toolbar/smart-fill-toolbar.h"
     "src/ui/toolbar/smart-fill-toolbar.cpp"
+    # 05-05 live sketch (new files; visible to the scope check once committed)
+    "share/ui/toolbar-live-sketch.ui"
+    "src/path/live-sketch-geometry.h"
+    "src/path/live-sketch-geometry.cpp"
+    "src/actions/actions-live-sketch.h"
+    "src/actions/actions-live-sketch.cpp"
+    "src/ui/tools/live-sketch-tool.h"
+    "src/ui/tools/live-sketch-tool.cpp"
+    "src/ui/toolbar/live-sketch-toolbar.h"
+    "src/ui/toolbar/live-sketch-toolbar.cpp"
+    # docs (public launch: README + screenshots)
+    ".gitignore"
+    "README.md"
+    "doc/screenshots/workspace.png"
+    "doc/screenshots/print-output.png"
 )
 
 # ---------------------------------------------------------------------------

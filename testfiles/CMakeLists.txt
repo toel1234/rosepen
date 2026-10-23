@@ -115,6 +115,9 @@ set(TEST_SOURCES
     # 05-04 smart fill
     smart-fill-geometry-test
     smart-fill-ops-test
+    # 05-05 live sketch
+    live-sketch-geometry-test
+    live-sketch-ops-test
     path-reverse-lpe-test
     preferences-test
     rebase-hrefs-test

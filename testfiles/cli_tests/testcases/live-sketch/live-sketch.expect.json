@@ -1,0 +1,213 @@
+{
+  "comment": "Rosepen 05-05 Live Sketch lock. Points and expected values are in fixture user units (1 uu = 1 mm) and are hand-derived from the fixture (see the INVARIANT comment in live-sketch.svg) and the pure model, never from a render. Each scenario drives app.live-sketch headless and checks the plain-SVG export (new path count, id, parent, sibling position, label, exact style, document bbox, node/C/L counts, open flag, worst point-to-curve distance) and RGB pixel samples on the PNG (and PDF when built with capypdf).",
+  "scenarios": {
+    "two-point": {
+      "actions": "live-sketch:10 10 110 10,stroke-width=2",
+      "_comment": "Two points make one cubic (lib2geom fits len == 2 exactly): nodes 2, C 1, endpoints (10,10)/(110,10), bbox 10..110 x 10. A 2 mm stroke covers y 9..11, so (60,10) is black and (60,12.5) is page white. Default parent is the last layer L2.",
+      "new_paths": {
+        "count": 1,
+        "items": [
+          {
+            "parent": "L2",
+            "last_child": true,
+            "label": "Live Sketch",
+            "style": {"fill": "none", "stroke": "#000000", "stroke-opacity": "1", "stroke-width": "2", "stroke-linecap": "round", "stroke-linejoin": "round"},
+            "bbox": [10.0, 10.0, 110.0, 10.0],
+            "nodes": 2,
+            "commands": {"C": 1},
+            "closed": false
+          }
+        ]
+      },
+      "png": {"samples": [[60.0, 10.0, "#000000"], [60.0, 12.5, "#ffffff"]]}
+    },
+    "raw-polyline": {
+      "actions": "live-sketch:10 51 19 49 28 51 37 49 46 51 55 49 64 51 73 49 82 51 91 49 100 51 109 49 118 51 127 49 136 51 145 49 154 51 163 49 172 51 181 49 190 51,smoothing=0",
+      "_comment": "Smoothing 0 is the exact raw trail: 21 nodes through all 21 zigzag points, 20 line segments, bbox 10..190 x 49..51.",
+      "new_paths": {
+        "count": 1,
+        "items": [
+          {
+            "parent": "L2",
+            "nodes": 21,
+            "commands": {"L": 20},
+            "closed": false,
+            "bbox": [10.0, 49.0, 190.0, 51.0]
+          }
+        ]
+      }
+    },
+    "smooth-noisy": {
+      "actions": "live-sketch:10 51 19 49 28 51 37 49 46 51 55 49 64 51 73 49 82 51 91 49 100 51 109 49 118 51 127 49 136 51 145 49 154 51 163 49 172 51 181 49 190 51",
+      "_comment": "Default smoothing 50 = 2.5 mm. The line y = 50 is within 1 mm of every point, so only a few cubics are needed and every point stays within 2.5 mm. FINDING (05-05 Task 2): the plan expected 2 nodes / C 1; lib2geom's spike heuristic rejects a single cubic for this zigzag (a max_beziers=1 attempt returns -1) and splits into 2 cubics, whose true worst distance is 1.96 mm. The bound and the small node count are locked here; 3 nodes / C 2 is the re-derived expectation.",
+      "new_paths": {
+        "count": 1,
+        "items": [
+          {
+            "parent": "L2",
+            "nodes": 3,
+            "commands": {"C": 2},
+            "closed": false,
+            "bbox_within": [10.0, 48.95, 190.0, 51.05],
+            "max_point_distance": {
+              "points": [[10, 51], [19, 49], [28, 51], [37, 49], [46, 51], [55, 49], [64, 51], [73, 49], [82, 51], [91, 49], [100, 51], [109, 49], [118, 51], [127, 49], [136, 51], [145, 49], [154, 51], [163, 49], [172, 51], [181, 49], [190, 51]],
+              "limit": 2.5
+            }
+          }
+        ]
+      }
+    },
+    "tight-smoothing": {
+      "actions": "live-sketch:10 51 19 49 28 51 37 49 46 51 55 49 64 51 73 49 82 51 91 49 100 51 109 49 118 51 127 49 136 51 145 49 154 51 163 49 172 51 181 49 190 51,smoothing=10",
+      "_comment": "Smoothing 10 = 0.5 mm, below the +-1 mm amplitude, so the fit must follow the zigzag: at least 3 nodes (at most the 21 input points) and every point within 0.5 mm.",
+      "new_paths": {
+        "count": 1,
+        "items": [
+          {
+            "parent": "L2",
+            "nodes_min": 3,
+            "nodes_max": 21,
+            "closed": false,
+            "max_point_distance": {
+              "points": [[10, 51], [19, 49], [28, 51], [37, 49], [46, 51], [55, 49], [64, 51], [73, 49], [82, 51], [91, 49], [100, 51], [109, 49], [118, 51], [127, 49], [136, 51], [145, 49], [154, 51], [163, 49], [172, 51], [181, 49], [190, 51]],
+              "limit": 0.5
+            }
+          }
+        ]
+      }
+    },
+    "closed-gesture": {
+      "actions": "live-sketch:20 20 60 20 60 60 20 60 20 20,smoothing=0,stroke-width=2",
+      "_comment": "A gesture that returns to its start stays OPEN: 5 nodes, 4 line segments, no Z, first node == last node, bbox 20..60 x 20..60. Fill is none, so the centre (40,40) is white while (40,20) is on the 2 mm top stroke.",
+      "new_paths": {
+        "count": 1,
+        "items": [
+          {
+            "parent": "L2",
+            "nodes": 5,
+            "commands": {"L": 4},
+            "closed": false,
+            "bbox": [20.0, 20.0, 60.0, 60.0]
+          }
+        ]
+      },
+      "png": {"samples": [[40.0, 20.0, "#000000"], [40.0, 40.0, "#ffffff"]]}
+    },
+    "into-group": {
+      "actions": "live-sketch:110 60 150 60,parent=g1,id=ls1,stroke=#ff0000,stroke-width=2,smoothing=0",
+      "_comment": "g1 is translate(100,50) scale(2). Document points (110,60)/(150,60) are g1-local (5,5)/(25,5); the local d keeps those and the document bbox is 110..150 x 60. A 2 mm visual stroke in a 2x group is 1 local unit, so stroke-width is 1.",
+      "new_paths": {
+        "count": 1,
+        "items": [
+          {
+            "id": "ls1",
+            "parent": "g1",
+            "last_child": true,
+            "label": "Live Sketch",
+            "style": {"fill": "none", "stroke": "#ff0000", "stroke-opacity": "1", "stroke-width": "1", "stroke-linecap": "round", "stroke-linejoin": "round"},
+            "bbox": [110.0, 60.0, 150.0, 60.0],
+            "nodes": 2,
+            "closed": false
+          }
+        ]
+      },
+      "png": {"samples": [[130.0, 60.0, "#ff0000"]]}
+    },
+    "styled": {
+      "actions": "live-sketch:10 80 190 80,id=ls2,stroke=#0000ff,stroke-width=2",
+      "_comment": "Explicit stroke colour and 2 mm width on the line y = 80: (100,80) is blue, (100,82.5) is clear of the 2 mm band and stays white. r0 and g1 are untouched.",
+      "new_paths": {
+        "count": 1,
+        "items": [
+          {
+            "id": "ls2",
+            "parent": "L2",
+            "last_child": true,
+            "style": {"fill": "none", "stroke": "#0000ff", "stroke-opacity": "1", "stroke-width": "2", "stroke-linecap": "round", "stroke-linejoin": "round"},
+            "bbox": [10.0, 80.0, 190.0, 80.0],
+            "nodes": 2,
+            "closed": false
+          }
+        ]
+      },
+      "unchanged_ids": ["r0", "g1"],
+      "png": {"samples": [[100.0, 80.0, "#0000ff"], [100.0, 82.5, "#ffffff"]]}
+    },
+    "two-calls": {
+      "actions": "live-sketch:10 90 50 90,id=a1;live-sketch:60 90 100 90,id=b1",
+      "_comment": "Two calls in one run: both append to L2 in call order, so a1 is not the last child and b1 is.",
+      "new_paths": {
+        "count": 2,
+        "items": [
+          {
+            "id": "a1",
+            "parent": "L2",
+            "last_child": false,
+            "bbox": [10.0, 90.0, 50.0, 90.0],
+            "nodes": 2
+          },
+          {
+            "id": "b1",
+            "parent": "L2",
+            "last_child": true,
+            "bbox": [60.0, 90.0, 100.0, 90.0],
+            "nodes": 2
+          }
+        ]
+      }
+    },
+    "handoff-artistic": {
+      "actions": "live-sketch:20 30 60 20 100 30 140 20 180 30,id=ls3;select-by-id:ls3;artistic-apply:mode=preset,width=4",
+      "_comment": "app.live-sketch selects its new path; select-by-id:ls3 selects it explicitly by id, then artistic-apply converts it in place: the same id carries the artistic media effect (path-effect + original-d) and the rosepen-artistic class. No pixel samples: headless export does not re-evaluate live effects.",
+      "new_paths": {
+        "count": 1,
+        "items": [
+          {
+            "id": "ls3",
+            "parent": "L2",
+            "attrs_present": ["inkscape:path-effect", "inkscape:original-d"],
+            "class_contains": "rosepen-artistic"
+          }
+        ]
+      }
+    },
+    "huge": {
+      "actions": "live-sketch:1000000 1000000 1000100 1000050 1000200 1000000,smoothing=0",
+      "_comment": "Huge but in-plane coordinates (1e6, far outside the page) behave like small ones: 3 nodes, 2 line segments, bbox 1000000..1000200 x 1000000..1000050. No pixel samples (off the page).",
+      "new_paths": {
+        "count": 1,
+        "items": [
+          {
+            "parent": "L2",
+            "nodes": 3,
+            "commands": {"L": 2},
+            "closed": false,
+            "bbox": [1000000.0, 1000000.0, 1000200.0, 1000050.0]
+          }
+        ]
+      }
+    },
+    "bad-input": {
+      "actions": "live-sketch:abc 1;live-sketch:10 10 20;live-sketch:10 10 10 10;live-sketch:10 10 20 20,smooth=5;live-sketch:10 10 20 20,smoothing=150;live-sketch:10 10 20 20,smoothing=x;live-sketch:10 10 20 20,stroke=blue;live-sketch:10 10 20 20,stroke-width=0;live-sketch:1e19 0 20 20;live-sketch:10 10 20 20,parent=r0;live-sketch:10 10 20 20,parent=nosuch;live-sketch:10 10 20 20,id=r0",
+      "_comment": "Every call fails before changing the document, so no path is created and the fixture is unchanged: r0 is still the grey square at (5,5)..(15,15).",
+      "new_paths": {"count": 0, "items": []},
+      "stderr_contains": [
+        "live-sketch: bad number 'abc'",
+        "live-sketch: odd number of coordinates",
+        "live-sketch: needs at least two distinct points",
+        "live-sketch: unknown option 'smooth'",
+        "live-sketch: smoothing must be between 0 and 100",
+        "live-sketch: bad number 'x'",
+        "live-sketch: bad color 'blue'",
+        "live-sketch: stroke-width must be > 0 and <= 100 mm",
+        "live-sketch: coordinates out of range",
+        "live-sketch: parent 'r0' is not a group",
+        "live-sketch: parent 'nosuch' is not a group",
+        "live-sketch: id 'r0' already exists"
+      ],
+      "allow_warnings": ["live-sketch:"],
+      "unchanged_ids": ["r0", "g1"],
+      "png": {"samples": [[10.0, 10.0, "#808080"]]}
+    }
+  }
+}

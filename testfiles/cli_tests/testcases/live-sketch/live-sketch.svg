@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg xmlns="http://www.w3.org/2000/svg"
+     xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+     xmlns:xlink="http://www.w3.org/1999/xlink"
+     xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+     width="200mm" height="100mm" viewBox="0 0 200 100">
+  <sodipodi:namedview id="namedview1" inkscape:pagecolor="#ffffff" inkscape:pageopacity="0"
+                      inkscape:document-units="mm"/>
+  <!-- INVARIANT GEOMETRY (1 user unit = 1 mm, document order = paint order):
+       r0  rect x 5..15, y 5..15, fill #808080 (100 uu^2) - never changes
+       g1  group translate(100,50) scale(2), empty (a transformed parent)
+       L1  layer holding r0 and g1
+       L2  empty layer, the default parent (last top-level layer)
+       Zigzag Z, used by the smoothing scenarios:
+         i = 0..20: x = 10 + 9i, y = 51 for even i and 49 for odd i, i.e.
+         10 51 19 49 28 51 37 49 46 51 55 49 64 51 73 49 82 51 91 49
+         100 51 109 49 118 51 127 49 136 51 145 49 154 51 163 49
+         172 51 181 49 190 51
+         x range 10..190; every point is within 1 mm of the line y = 50.
+       Hand-derived: smoothing 0 keeps all 21 points as 20 line segments;
+       smoothing 50 (2.5 mm) must stay within 2.5 mm of every point and needs
+       only a few cubics; smoothing 10 (0.5 mm) is below the +-1 amplitude, so
+       the fit must follow the zigzag (at least 3 nodes).
+       A 2 mm stroke on y = 10 covers y 9..11; (60,12.5) is clear of it. -->
+  <g id="L1" inkscape:groupmode="layer" inkscape:label="Layer 1">
+    <rect id="r0" x="5" y="5" width="10" height="10" style="fill:#808080;stroke:none"/>
+    <g id="g1" transform="translate(100,50) scale(2)"/>
+  </g>
+  <g id="L2" inkscape:groupmode="layer" inkscape:label="Layer 2"/>
+</svg>

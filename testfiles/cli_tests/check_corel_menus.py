@@ -43,6 +43,8 @@ NEW_ITEMS = {
     ('app.artistic-break', ''),
     # 05-04 Smart Fill tool: Corel-only tool, no classic menubar counterpart
     ('win.tool-switch', 'SmartFill'),
+    # 05-05 LiveSketch tool: Corel-only tool, no classic menubar counterpart
+    ('win.tool-switch', 'LiveSketch'),
 }
 
 # Classic pairs intentionally unreachable from the Corel menubar, with reasons.

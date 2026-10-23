@@ -1643,3 +1643,44 @@ add_smart_fill_test(lpe-source)
 add_smart_fill_test(outline)
 add_smart_fill_test(excluded)
 add_smart_fill_test(bad-input)
+
+#############################################################################################
+### live sketch lock (05-05 task 2)                                                       ###
+#############################################################################################
+# Headless Live Sketch lock: every scenario in live-sketch.expect.json calls app.live-sketch
+# on the fixture, then proves the model headlessly: the plain-SVG export (new path count, id,
+# parent, sibling position, label, exact style, document bbox, node/C/L counts, open flag,
+# worst point-to-curve distance, expected attributes/class) and RGB pixels on the PNG export.
+# With --pdf (capypdf builds) the PDF export is additionally re-imported through Rosepen's own
+# PDF importer and the same pixels are checked on the rasterized result.
+# CLI tests run SERIALLY (D-Bus app-id race).
+function(add_live_sketch_test scenario)
+    set(SOURCE_SVG "${CMAKE_CURRENT_SOURCE_DIR}/testcases/live-sketch/live-sketch.svg")
+    set(EXPECT_JSON "${CMAKE_CURRENT_SOURCE_DIR}/testcases/live-sketch/live-sketch.expect.json")
+    # Watching fixtures + expectations means changes re-run cmake on change
+    watch("${SOURCE_SVG}" "${EXPECT_JSON}")
+    add_test(NAME cli_live-sketch-${scenario}
+        COMMAND python3 -I ${CMAKE_CURRENT_SOURCE_DIR}/check_live_sketch.py
+                $<TARGET_FILE:inkscape>
+                ${SOURCE_SVG}
+                ${EXPECT_JSON}
+                ${CMAKE_CURRENT_BINARY_DIR}/live-sketch/${scenario}
+                ${scenario}
+                $<$<BOOL:${WITH_CAPYPDF}>:--pdf>)
+    set_tests_properties(cli_live-sketch-${scenario} PROPERTIES
+        ENVIRONMENT "${INKSCAPE_TEST_PROFILE_DIR_ENV}/cli_live-sketch-${scenario};${CMAKE_CTEST_ENV}"
+        LABELS live-sketch
+        RUN_SERIAL TRUE)
+endfunction()
+
+add_live_sketch_test(two-point)
+add_live_sketch_test(raw-polyline)
+add_live_sketch_test(smooth-noisy)
+add_live_sketch_test(tight-smoothing)
+add_live_sketch_test(closed-gesture)
+add_live_sketch_test(into-group)
+add_live_sketch_test(styled)
+add_live_sketch_test(two-calls)
+add_live_sketch_test(handoff-artistic)
+add_live_sketch_test(huge)
+add_live_sketch_test(bad-input)

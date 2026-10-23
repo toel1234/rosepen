@@ -24,6 +24,7 @@
 #include "ui/tools/dimension-tool.h"
 #include "ui/tools/artistic-media-tool.h"
 #include "ui/tools/smart-fill-tool.h"
+#include "ui/tools/live-sketch-tool.h"
 #include "ui/tools/mesh-tool.h"
 #include "ui/tools/node-tool.h"
 #include "ui/tools/object-picker-tool.h"
@@ -74,6 +75,8 @@ ToolBase *ToolFactory::createObject(SPDesktop *desktop, std::string const &id)
         tool = new ArtisticMediaTool(desktop);
     else if (id == "/tools/smartfill")
         tool = new SmartFillTool(desktop);
+    else if (id == "/tools/livesketch")
+        tool = new LiveSketchTool(desktop);
     else if (id == "/tools/mesh")
         tool = new MeshTool(desktop);
     else if (id == "/tools/nodes")

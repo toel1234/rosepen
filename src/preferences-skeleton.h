@@ -143,6 +143,7 @@ static char const preferences_skeleton[] =
     <group id="dimension" mode="auto" precision="2" unit="mm" offset="5" text="above" horizontal="0" units="1" />
     <eventcontext id="artistic" style="fill:black;fill-opacity:1;fill-rule:nonzero;stroke:none;" usecurrent="0" mode="preset" preset="lens" brush="dry-brush" width="10" angle="30" smoothing="50" scale_with_object="1" selcue="1" />
     <eventcontext id="smartfill" style="fill:#808080;fill-opacity:1;stroke:#000000;stroke-opacity:1;" usecurrent="0" fillmode="source" strokemode="none" strokewidth="0.25" selcue="1" />
+    <eventcontext id="livesketch" style="fill:none;stroke:#000000;stroke-opacity:1;stroke-width:1px;stroke-linecap:round;stroke-linejoin:round;" usecurrent="0" smoothing="50" selcue="1" />
   </group>
 
   <group id="palette">

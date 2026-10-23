@@ -302,6 +302,30 @@
                     <property name="halign">center</property>
                     <property name="valign">center</property>
                     <property name="action-name">win.tool-switch</property>
+                    <property name="action-target">'LiveSketch'</property>
+                    <property name="has-frame">False</property>
+                    <style>
+                      <class name="square-button"/>
+                    </style>
+                    <child>
+                      <object class="GtkImage" id="icon-live-sketch">
+                        <property name="icon-name">sketch</property>
+                      </object>
+                    </child>
+                  </object>
+                </property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkFlowBoxChild">
+                <property name="child">
+                  <object class="GtkToggleButton">
+                    <property name="group">toolsradio</property>
+                    <property name="focusable">True</property>
+                    <property name="focus-on-click">False</property>
+                    <property name="halign">center</property>
+                    <property name="valign">center</property>
+                    <property name="action-name">win.tool-switch</property>
                     <property name="action-target">'ArtisticMedia'</property>
                     <property name="has-frame">False</property>
                     <style>

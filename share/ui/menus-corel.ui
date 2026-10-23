@@ -1299,6 +1299,15 @@
           <attribute name="icon">fill-between-many</attribute>
         </item>
       </section>
+      <!-- Rosepen 05-05: Live Sketch -->
+      <section>
+        <item>
+          <attribute name="label" translatable="yes">_Live Sketch Tool</attribute>
+          <attribute name="action">win.tool-switch</attribute>
+          <attribute name="target">LiveSketch</attribute>
+          <attribute name="icon">sketch</attribute>
+        </item>
+      </section>
     </submenu>
     <submenu id="window-menu">
       <attribute name="label" translatable="yes">_Window</attribute>

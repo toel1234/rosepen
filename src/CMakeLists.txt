@@ -275,6 +275,18 @@ target_sources(inkscape_base PRIVATE
   ui/toolbar/smart-fill-toolbar.h
 )
 
+# Rosepen 05-05: live sketch
+target_sources(inkscape_base PRIVATE
+  path/live-sketch-geometry.cpp
+  path/live-sketch-geometry.h
+  actions/actions-live-sketch.cpp
+  actions/actions-live-sketch.h
+  ui/tools/live-sketch-tool.cpp
+  ui/tools/live-sketch-tool.h
+  ui/toolbar/live-sketch-toolbar.cpp
+  ui/toolbar/live-sketch-toolbar.h
+)
+
 # -----------------------------------------------------------------------------
 # Load in subdirectories
 # -----------------------------------------------------------------------------
