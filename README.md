@@ -13,9 +13,10 @@ crop marks, a flyout toolbox with context property bar, dockable panels, and a p
 — container clipping, dimension tools, artistic strokes, smart fill and live sketching —
 re-implemented clean-room from documented behavior.
 
-![The Rosepen workspace: a poster with a gradient sky, a container-clipped frame, a calligraphic
-artistic stroke on its editable skeleton, a live dimension and a CMYK card, with the toolbox,
-command bar, palette and Object Properties docker around the canvas](doc/screenshots/workspace.png)
+![The Rosepen workspace with a dusk-scene poster: gradient sky, moon and low sun, a container
+frame clipping its contents, an amber calligraphic artistic stroke, a live-sketch doodle, a
+smart-fill lens where two circles overlap, a 160 mm live dimension and the CMYK bar, with the
+toolbox, command bar, palette and Object Properties docker around the canvas](doc/screenshots/workspace.png)
 
 ---
 
@@ -86,8 +87,8 @@ AppImage build (`fork/scripts/build-local.sh`).
 
 ## Status
 
-Rosepen is in active development toward **v0.1**: 19 of 21 milestone plans are complete.
-`.cdr` import is the next major work item.
+Rosepen is in active development toward **v0.1**: 20 of 21 milestone plans are complete
+(Phases 1–5 done). `.cdr` import is the next major work item.
 
 ## Provenance and references
 
