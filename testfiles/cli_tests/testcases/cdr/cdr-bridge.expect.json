@@ -1,0 +1,627 @@
+{
+  "_comment": [
+    "Headless corpus for the 06-02 bridge (crate-primary import, true CMYK and",
+    "spot colours, and the reader fallback). Every drawing input is generated at",
+    "test time by rp-cdr-write from bridge-fixture.export.json, or is one of the",
+    "two in-tree fixtures; no binary file is committed.",
+    "Numbers are hand-derived and then compared against the real output; each",
+    "scenario's '_comment' records the evidence behind its expectations.",
+    "Generated files come from the bridge's own writer, which has no ink table",
+    "and states one page size per file: a spot colour arrives as its process",
+    "stand-in (tint applied) and a two-page file whose pages differ in size",
+    "comes back with the first page's size for both."
+  ],
+  "scenarios": {
+    "bridge-plain": {
+      "input": "generated:bridge-fixture.export.json@14",
+      "profile": null,
+      "actions": null,
+      "argv_extra": [
+        "--export-type=png",
+        "--export-dpi=96",
+        "--export-background=#ffffff",
+        "--export-background-opacity=1",
+        "--export-filename={outdir}/run.png"
+      ],
+      "expect_rc": 0,
+      "stderr_contains": [],
+      "allow_warnings": [],
+      "page_list": {
+        "lines": 2,
+        "same_size": true
+      },
+      "svg": {
+        "inkscape": {
+          "page_elements": 2,
+          "color_profiles": 0,
+          "layers": [
+            "Page 1",
+            "Page 2"
+          ],
+          "layer_labels_contains": [
+            "Page 1",
+            "Artwork",
+            "Hidden notes",
+            "Page 2",
+            "Back"
+          ],
+          "hidden_layer_labels": [],
+          "no_data_rp": true,
+          "min_paths": 6,
+          "flat_paints": 7,
+          "icc_paints": 0
+        }
+      },
+      "png": {
+        "min_nonwhite_percent": 1.0
+      },
+      "_comment": "crate route, no profile: two pages (both 210 x 297 mm - the writer states one page size, so page 2's 100 x 50 mm is lost with a warning), the source layer names as sublayers under 'Page 1'/'Page 2', no colour profile, no icc-colour, every data-rp annotation consumed, 7 flat sRGB paints (the six filled shapes and the rect's outline; the text arrives as an unfilled outline path) and about 16% painted pixels."
+    },
+    "bridge-cmyk": {
+      "input": "generated:bridge-fixture.export.json@14",
+      "profile": "data/colors/default_cmyk.icc",
+      "actions": null,
+      "argv_extra": [
+        "--export-type=png",
+        "--export-dpi=96",
+        "--export-background=#ffffff",
+        "--export-background-opacity=1",
+        "--export-filename={outdir}/run.png"
+      ],
+      "expect_rc": 0,
+      "stderr_contains": [],
+      "allow_warnings": [],
+      "page_list": {
+        "lines": 2,
+        "same_size": true
+      },
+      "svg": {
+        "inkscape": {
+          "page_elements": 2,
+          "color_profiles": 1,
+          "output_profile": "Artifex-CMYK-SWOP-Profile",
+          "layer_labels_contains": [
+            "Page 1",
+            "Artwork",
+            "Hidden notes",
+            "Page 2",
+            "Back"
+          ],
+          "no_data_rp": true,
+          "icc_tuples_exact": [
+            [
+              0.1,
+              0.2,
+              0.3,
+              0.4
+            ],
+            [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            [
+              0.0,
+              0.5,
+              1.0,
+              0.0
+            ],
+            [
+              0.0,
+              0.25,
+              0.5,
+              0.0
+            ]
+          ],
+          "flat_paints": 7,
+          "icc_paints": 7,
+          "require_icc_on_all_flat": true
+        }
+      },
+      "png": {
+        "min_nonwhite_percent": 1.0
+      },
+      "_comment": "with the preferred CMYK output profile the file's own numbers arrive verbatim: the rect's fill 0.1/0.2/0.3/0.4 as written, its 100% K outline, the spot ellipse as the ink's process stand-in 0/0.5/1/0 and page 2's 50% tint as 0/0.25/0.5/0 - the writer has no ink table, so the ellipse and the page-2 rect come back as CMYK, not as named spots (FINDING: a spot is written as its stand-in). The three sRGB shapes are converted into the same space, so every one of the seven flat paints is an icc-color of that profile."
+    },
+    "bridge-v13": {
+      "input": "generated:bridge-fixture.export.json@13",
+      "profile": null,
+      "actions": null,
+      "argv_extra": [
+        "--export-type=png",
+        "--export-dpi=96",
+        "--export-background=#ffffff",
+        "--export-background-opacity=1",
+        "--export-filename={outdir}/run.png"
+      ],
+      "expect_rc": 0,
+      "stderr_contains": [],
+      "allow_warnings": [],
+      "page_list": {
+        "lines": 2,
+        "same_size": true
+      },
+      "svg": {
+        "inkscape": {
+          "page_elements": 2,
+          "color_profiles": 0,
+          "layers": [
+            "Page 1",
+            "Page 2"
+          ],
+          "layer_labels_contains": [
+            "Page 1",
+            "Artwork",
+            "Hidden notes",
+            "Page 2",
+            "Back"
+          ],
+          "no_data_rp": true,
+          "min_paths": 6
+        }
+      },
+      "png": {
+        "min_nonwhite_percent": 1.0
+      },
+      "_comment": "the same drawing as a version 13 RIFF file (prepare checks the container magic): the reader understands it, the pages, the layer names and the content are those of the version 14 file."
+    },
+    "bridge-v27": {
+      "input": "generated:bridge-fixture.export.json@27",
+      "profile": null,
+      "actions": null,
+      "argv_extra": [
+        "--export-type=png",
+        "--export-dpi=96",
+        "--export-background=#ffffff",
+        "--export-background-opacity=1",
+        "--export-filename={outdir}/run.png"
+      ],
+      "expect_rc": 0,
+      "stderr_contains": [],
+      "allow_warnings": [],
+      "page_list": {
+        "lines": 2,
+        "same_size": true
+      },
+      "svg": {
+        "inkscape": {
+          "page_elements": 2,
+          "color_profiles": 0,
+          "layers": [
+            "Page 1",
+            "Page 2"
+          ],
+          "layer_labels_contains": [
+            "Page 1",
+            "Artwork",
+            "Hidden notes",
+            "Page 2",
+            "Back"
+          ],
+          "no_data_rp": true,
+          "min_paths": 6
+        }
+      },
+      "png": {
+        "min_nonwhite_percent": 1.0
+      },
+      "_comment": "the same drawing as a version 27 ZIP file (prepare checks the container magic): the newest version the writer produces reads back like the others."
+    },
+    "bridge-strict-libcdr-fixture": {
+      "input": "librevenge_formats/cdr_draw2.cdr",
+      "importer": "tracecdr",
+      "profile": "data/colors/default_cmyk.icc",
+      "actions": null,
+      "argv_extra": [
+        "--export-type=png",
+        "--export-dpi=96",
+        "--export-background=#ffffff",
+        "--export-background-opacity=1",
+        "--export-filename={outdir}/run.png"
+      ],
+      "expect_rc": 0,
+      "stderr_contains": [],
+      "allow_warnings": [],
+      "page_list": {
+        "lines": 1
+      },
+      "svg": {
+        "inkscape": {
+          "color_profiles": 1,
+          "output_profile": "Artifex-CMYK-SWOP-Profile",
+          "no_data_rp": true,
+          "min_paths": 5,
+          "spot_names": [
+            "Spot 11",
+            "Spot 326",
+            "Spot 445",
+            "Spot 626"
+          ]
+        }
+      },
+      "png": {
+        "min_nonwhite_percent": 1.0
+      },
+      "_comment": "the reader pinned by name: the crate reads the in-tree fixture that libcdr also reads (probe: version 9, 1 page of 210 x 297 mm, 1 layer, 1 top-level shape drawn as six paths, 0 skipped, one warning that four spot colours come from colour libraries and are named by number only). With the CMYK profile those four library inks arrive as named spot swatches ('Spot N' is the reader's name for a palette entry), and every source annotation is consumed. This scenario also proves the strict mode: nothing falls back here, the crate's reading is used as it is."
+    },
+    "zip-container": {
+      "input": "librevenge_formats/cdr_draw.cdr",
+      "profile": null,
+      "actions": null,
+      "argv_extra": [
+        "--export-type=png",
+        "--export-dpi=96",
+        "--export-background=#ffffff",
+        "--export-background-opacity=1",
+        "--export-filename={outdir}/run.png"
+      ],
+      "expect_rc": 0,
+      "stderr_contains": [],
+      "allow_warnings": [],
+      "page_list": {
+        "lines": 1
+      },
+      "png": {
+        "min_nonwhite_percent": 1.0
+      },
+      "_comment": "the in-tree file libcdr cannot parse (06-01's dead-argv expects exit code 1 from it): the crate opens it as a version 14 ZIP container, one page of 279.4 x 215.9 mm, and it paints. The import no longer fails on a file of this kind."
+    },
+    "both-fail": {
+      "input": "generated:garbage",
+      "profile": null,
+      "actions": null,
+      "argv_extra": [
+        "--export-type=png",
+        "--export-filename={outdir}/failed.png"
+      ],
+      "expect_rc": 1,
+      "stderr_contains": [
+        "cdr import: drawing reader failed",
+        "cannot be opened!",
+        "failed to create document!"
+      ],
+      "allow_warnings": [
+        "drawing reader failed",
+        "parser error",
+        "WARNING"
+      ],
+      "expect_no_file": [
+        "failed.png"
+      ],
+      "_comment": "4 KiB of a RIFF header, 'CDRx' and deterministic junk: the crate refuses it ('not a drawing-format file'), the policy falls back to libcdr with one warning naming that reason, libcdr refuses it too, and the 06-01 rule makes the converter exit 1 without writing a file."
+    },
+    "forced-libcdr": {
+      "input": "librevenge_formats/cdr_draw2.cdr",
+      "importer": "libcdr",
+      "profile": null,
+      "actions": null,
+      "argv_extra": [
+        "--export-type=png",
+        "--export-dpi=96",
+        "--export-background=#ffffff",
+        "--export-background-opacity=1",
+        "--export-filename={outdir}/run.png"
+      ],
+      "expect_rc": 0,
+      "stderr_contains": [],
+      "allow_warnings": [],
+      "svg": {
+        "plain": {
+          "flat_paints": 7,
+          "icc_paints": 0,
+          "color_profiles": 0,
+          "page_elements": 0
+        }
+      },
+      "png": {
+        "min_nonwhite_percent": 2.0
+      },
+      "_comment": "the environment override forces the library reader: the same fixture gives exactly the paint counts of 06-01's plain-single (seven flat fills, no icc-colour, no profile, no page element), so the override reaches the importer. This is how the 06-01 scenarios stay pinned to libcdr."
+    },
+    "interop-v13-libcdr": {
+      "input": "generated:bridge-fixture.export.json@13",
+      "importer": "libcdr",
+      "profile": null,
+      "actions": null,
+      "argv_extra": [
+        "--export-type=png",
+        "--export-dpi=96",
+        "--export-background=#ffffff",
+        "--export-background-opacity=1",
+        "--export-filename={outdir}/run.png"
+      ],
+      "expect_rc": 0,
+      "stderr_contains": [],
+      "allow_warnings": [],
+      "png": {
+        "min_nonwhite_percent": 1.0
+      },
+      "_comment": "an independent reader reading our writer's output: libcdr 0.1.7 (RIFF versions 7-13 only) opens the version 13 file the bridge wrote and paints about 16% of the page. The version 14+ containers are ZIP archives libcdr does not know, which is why this scenario uses 13."
+    },
+    "export-basic": {
+      "input": "cdr/export-basic.svg",
+      "profile": null,
+      "actions": null,
+      "expect_rc": 0,
+      "stderr_contains": [],
+      "allow_warnings": [],
+      "cdr_export": {
+        "version": null,
+        "expect_rc": 0,
+        "magic": "zip",
+        "stderr_contains": [
+          "gradient",
+          "image"
+        ],
+        "reopen": {
+          "importer": "tracecdr",
+          "profile": "data/colors/default_cmyk.icc",
+          "page_list": {
+            "lines": 2,
+            "same_size": true
+          },
+          "svg": {
+            "page_elements": 2,
+            "color_profiles": 1,
+            "output_profile": "Artifex-CMYK-SWOP-Profile",
+            "layers": [
+              "Page 1",
+              "Page 2"
+            ],
+            "layer_labels_contains": [
+              "Page 1",
+              "Artwork",
+              "Hidden notes",
+              "Page 2",
+              "Back"
+            ],
+            "no_data_rp": true,
+            "icc_tuples_exact": [
+              [
+                0.1,
+                0.2,
+                0.3,
+                0.4
+              ]
+            ],
+            "require_icc_on_all_flat": true,
+            "min_paths": 6
+          },
+          "png": {
+            "min_nonwhite_percent": 1.0
+          }
+        }
+      },
+      "_comment": "the export round trip: the fixture exports as a ZIP-container file of version 14 (rc 0; the gradient and the image produce their named messages, in document order), and the reopened file has the two pages (both the first page's size - the writer keeps one page size), the source layer names, the exact CMYK numbers of the profiled rect and no leftover annotations. The spot ellipse comes back as the ink's process stand-in and the hidden layer comes back visible: the writer has no ink table and no hidden layers (both recorded as findings), so their names are asserted through the layer list, not through spot swatches or display:none."
+    },
+    "export-v13": {
+      "input": "cdr/export-basic.svg",
+      "profile": null,
+      "actions": null,
+      "expect_rc": 0,
+      "stderr_contains": [],
+      "allow_warnings": [
+        "version 13 is experimental"
+      ],
+      "cdr_export": {
+        "version": 13,
+        "expect_rc": 0,
+        "magic": "riff",
+        "stderr_contains": [
+          "version 13 is experimental"
+        ],
+        "reopen": {
+          "importer": "tracecdr",
+          "page_list": {
+            "lines": 2,
+            "same_size": true
+          },
+          "svg": {
+            "page_elements": 2,
+            "color_profiles": 0,
+            "layers": [
+              "Page 1",
+              "Page 2"
+            ],
+            "layer_labels_contains": [
+              "Page 1",
+              "Artwork",
+              "Page 2",
+              "Back"
+            ],
+            "no_data_rp": true,
+            "min_paths": 6
+          },
+          "png": {
+            "min_nonwhite_percent": 1.0
+          }
+        }
+      },
+      "_comment": "a version below 14 is written as a RIFF container and says so: the preference /extensions/org.inkscape.output.cdr.version carries 13, the export warns 'experimental' and the reader takes the RIFF file back (structure as in the version 14 round trip, without a profile)."
+    },
+    "export-v27": {
+      "input": "cdr/export-basic.svg",
+      "profile": null,
+      "actions": null,
+      "expect_rc": 0,
+      "stderr_contains": [],
+      "allow_warnings": [],
+      "cdr_export": {
+        "version": 27,
+        "expect_rc": 0,
+        "magic": "zip",
+        "stderr_contains": [],
+        "reopen": {
+          "importer": "tracecdr",
+          "page_list": {
+            "lines": 2,
+            "same_size": true
+          },
+          "svg": {
+            "page_elements": 2,
+            "color_profiles": 0,
+            "layers": [
+              "Page 1",
+              "Page 2"
+            ],
+            "layer_labels_contains": [
+              "Page 1",
+              "Artwork",
+              "Page 2",
+              "Back"
+            ],
+            "no_data_rp": true,
+            "min_paths": 6
+          },
+          "png": {
+            "min_nonwhite_percent": 1.0
+          }
+        }
+      },
+      "_comment": "the newest version the writer produces round trips like the others (ZIP container, no experimental warning)."
+    },
+    "export-fail": {
+      "input": "cdr/export-basic.svg",
+      "profile": null,
+      "actions": null,
+      "expect_rc": 0,
+      "stderr_contains": [],
+      "allow_warnings": [],
+      "cdr_export": {
+        "version": null,
+        "expect_rc": 1,
+        "target_is_dir": true,
+        "stderr_contains": [
+          "cdr export: cannot open"
+        ],
+        "allow_warnings": [
+          "cdr export: cannot open"
+        ]
+      },
+      "_comment": "the export target is a directory: the write fails, the extension throws save_failed and the converter exits 1 (the export rc rule); the message names the target."
+    },
+    "e2e-pdfx4": {
+      "input": "generated:bridge-fixture.export.json@14",
+      "profile": "data/colors/default_cmyk.icc",
+      "actions": "select-all;object-rotate-90",
+      "expect_rc": 0,
+      "stderr_contains": [],
+      "allow_warnings": [],
+      "pdf": {
+        "pages": 2,
+        "pdfx": {
+          "version": "X-4",
+          "output_intent": true,
+          "pages": 2,
+          "cmyk_exact": [
+            [
+              0.1,
+              0.2,
+              0.3,
+              0.4
+            ],
+            [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            [
+              0.0,
+              0.5,
+              1.0,
+              0.0
+            ]
+          ]
+        }
+      },
+      "_comment": "the phase's success test, headless: the generated drawing is opened through the bridge with the CMYK profile, everything is selected and rotated by 90 degrees (the edit), and the PDF/X-4 export carries the /GTS_PDFX OutputIntent and the exact CMYK operands of the drawing - the rect's 0.1/0.2/0.3/0.4, the full-K outline and the spot's process stand-in 0/0.5/1/0. The spot itself is a stand-in since the export (the writer has no ink table), so no /Separation is expected here; the spot-survival path is locked by e2e-pdfx-spot on the in-tree fixture."
+    },
+    "e2e-pdfx1a": {
+      "input": "generated:bridge-fixture.export.json@14",
+      "profile": "data/colors/default_cmyk.icc",
+      "actions": "select-all;object-rotate-90",
+      "expect_rc": 0,
+      "stderr_contains": [],
+      "allow_warnings": [],
+      "pdf": {
+        "pages": 2,
+        "pdfx": {
+          "version": "X-1a",
+          "output_intent": true,
+          "pages": 2,
+          "cmyk_exact": [
+            [
+              0.1,
+              0.2,
+              0.3,
+              0.4
+            ],
+            [
+              0.0,
+              0.5,
+              1.0,
+              0.0
+            ]
+          ]
+        }
+      },
+      "_comment": "the same success test against PDF/X-1a:2003: the exact source CMYK numbers survive there too."
+    },
+    "e2e-pdfx-spot": {
+      "input": "librevenge_formats/cdr_draw2.cdr",
+      "profile": "data/colors/default_cmyk.icc",
+      "actions": null,
+      "expect_rc": 0,
+      "stderr_contains": [],
+      "allow_warnings": [],
+      "pdf": {
+        "pages": 1,
+        "pdfx": {
+          "version": "X-4",
+          "output_intent": true,
+          "pages": 1,
+          "separations": [
+            "Spot 11",
+            "Spot 326",
+            "Spot 445",
+            "Spot 626"
+          ]
+        }
+      },
+      "_comment": "the spot path of the success test on the in-tree fixture: the crate import turns the four library inks into named spot swatches (bridge-strict-libcdr-fixture proves that), and the PDF/X-4 export writes each of them as a /Separation with its escaped name (#20 for the space)."
+    },
+    "real-file": {
+      "input": "env:ROSEPEN_CDR_REAL_FILE",
+      "profile": null,
+      "actions": null,
+      "argv_extra": [
+        "--export-type=png",
+        "--export-dpi=96",
+        "--export-background=#ffffff",
+        "--export-background-opacity=1",
+        "--export-filename={outdir}/run.png"
+      ],
+      "expect_rc": 0,
+      "stderr_contains": [],
+      "allow_warnings": [
+        "WARNING"
+      ],
+      "page_list": {
+        "lines_min": 1
+      },
+      "png": {
+        "min_nonwhite_percent": 0.5
+      },
+      "pdf": {
+        "pages": null,
+        "pdfx": {
+          "version": "X-4",
+          "output_intent": true
+        }
+      },
+      "_comment": "the opt-in local real-file corpus: the file named by ROSEPEN_CDR_REAL_FILE opens through the bridge (rc 0, at least one page, page 1 paints), and with --pdf it exports a PDF/X-4 with an OutputIntent. Registered only when -DROSEPEN_CDR_REAL_CORPUS points at a directory; never in CI."
+    }
+  }
+}

@@ -1,0 +1,102 @@
+{
+  "_comment": [
+    "The export model of the 06-02 bridge corpus, written to a drawing file at",
+    "test time by rp-cdr-write (no binary fixture is committed). Numbers are",
+    "hand-derived from what the bridge's writer can carry:",
+    "- a CMYK rect with a 100% K outline, a spot ellipse at full strength, an",
+    "  sRGB path, text (arrives as outlines), a group of two rects;",
+    "- a hidden 'Hidden notes' layer (the writer stores no layer visibility and",
+    "  writes no objects for it, so it comes back as an empty visible layer);",
+    "- a second page with a spot at 50% tint (flattened to its tinted process",
+    "  stand-in by the writer, which keeps no ink table).",
+    "Page sizes differ on purpose: the writer states one page size for the",
+    "whole file, so both pages come back 210 x 297 mm with a warning."
+  ],
+  "schema": "rosepen-cdr-export/1",
+  "title": "Bridge",
+  "inks": [
+    {"name": "Test Ink", "cmyk": [0.0, 0.5, 1.0, 0.0]}
+  ],
+  "pages": [
+    {
+      "name": "Page 1",
+      "width_mm": 210.0,
+      "height_mm": 297.0,
+      "layers": [
+        {
+          "name": "Artwork",
+          "visible": true,
+          "shapes": [
+            {
+              "kind": "rect",
+              "name": "box",
+              "x": 20.0,
+              "y": 20.0,
+              "w": 80.0,
+              "h": 60.0,
+              "fill": {"model": "cmyk", "c": 0.1, "m": 0.2, "y": 0.3, "k": 0.4},
+              "stroke": {
+                "paint": {"model": "cmyk", "c": 0.0, "m": 0.0, "y": 0.0, "k": 1.0},
+                "width_mm": 1.0
+              }
+            },
+            {
+              "kind": "ellipse",
+              "cx": 150.0,
+              "cy": 60.0,
+              "rx": 25.0,
+              "ry": 20.0,
+              "fill": {"model": "spot", "ink": 0, "tint": 1.0}
+            },
+            {
+              "kind": "path",
+              "d": "M20 120 L100 120 L60 180 Z",
+              "fill": {"model": "rgb", "r": 0.2, "g": 0.4, "b": 0.8}
+            },
+            {
+              "kind": "text",
+              "x": 20.0,
+              "y": 240.0,
+              "align": "left",
+              "spans": [
+                {"text": "Rosepen", "family": "DejaVu Sans", "size_pt": 24.0}
+              ]
+            },
+            {
+              "kind": "group",
+              "children": [
+                {"kind": "rect", "x": 140.0, "y": 120.0, "w": 20.0, "h": 20.0,
+                 "fill": {"model": "rgb", "r": 1.0, "g": 0.0, "b": 0.0}},
+                {"kind": "rect", "x": 170.0, "y": 120.0, "w": 20.0, "h": 20.0,
+                 "fill": {"model": "rgb", "r": 0.0, "g": 1.0, "b": 0.0}}
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Hidden notes",
+          "visible": false,
+          "shapes": [
+            {"kind": "rect", "x": 20.0, "y": 200.0, "w": 40.0, "h": 20.0,
+             "fill": {"model": "rgb", "r": 0.5, "g": 0.5, "b": 0.5}}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Page 2",
+      "width_mm": 100.0,
+      "height_mm": 50.0,
+      "layers": [
+        {
+          "name": "Back",
+          "visible": true,
+          "shapes": [
+            {"kind": "rect", "x": 10.0, "y": 10.0, "w": 20.0, "h": 10.0,
+             "fill": {"model": "spot", "ink": 0, "tint": 0.5}}
+          ]
+        }
+      ]
+    }
+  ]
+}

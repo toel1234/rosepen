@@ -234,7 +234,9 @@ InkFileExportCmd::do_export(SPDocument* doc, std::string filename_in)
                     } else if (type == "pdf") {
                         do_export_ps_pdf(doc, filename_out, "application/pdf", *oext);
                     } else {
-                        do_export_extension(doc, filename_out, oext);
+                        if (do_export_extension(doc, filename_out, oext) != 0) {
+                            _export_failed = true; // the process exits 1
+                        }
                     }
                     exported = true;
                     break;

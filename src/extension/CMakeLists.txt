@@ -210,7 +210,7 @@ if(WITH_POPPLER)
     )
 endif()
 
-if(WITH_LIBCDR)
+if(WITH_LIBCDR OR WITH_TRACECDR)
     target_sources(inkscape_base PRIVATE
 		internal/cdr-input.cpp
 		internal/cdr-input.h
@@ -244,6 +244,29 @@ target_sources(inkscape_base PRIVATE
 		internal/rvng-pages.h
 		internal/cdr-import-mapping.cpp
 		internal/cdr-import-mapping.h
+	)
+
+# Rosepen 06-02: TraceDraw bridge (Rust staticlib)
+if(WITH_TRACECDR)
+    target_link_libraries(inkscape_base PRIVATE Rosepen::TraceCdrFfi)
+    add_dependencies(inkscape_base tracecdr_ffi_build)
+    target_sources(inkscape_base PRIVATE
+		internal/cdr-crate-import.cpp
+		internal/cdr-crate-import.h
+		internal/cdr-output.cpp
+		internal/cdr-output.h
+	)
+endif()
+
+# Rosepen 06-02: importer choice, source colours and export model (Rust-free;
+# always built so the gtests run in cargo-less builds)
+target_sources(inkscape_base PRIVATE
+		internal/cdr-import-policy.cpp
+		internal/cdr-import-policy.h
+		internal/cdr-source-colors.cpp
+		internal/cdr-source-colors.h
+		internal/cdr-export-model.cpp
+		internal/cdr-export-model.h
 	)
 
 if(WITH_MAGICK)

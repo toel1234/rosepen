@@ -32,6 +32,23 @@ Prints one "STAGE <name> OK|FAIL|SKIP[: <reason>]" line per stage and a final
 "CDR_IMPORT_OK scenario=<s>"; exits non-zero on the first FAIL. python3 stdlib
 only (runs under python3 -I).
 
+06-02 additions (all optional; a scenario without them behaves exactly as in
+06-01):
+
+  --cdr-writer <path>   test helper that turns an export model into a drawing
+                        file; needed by "generated:" inputs
+  "env": {NAME: VALUE}  environment for every rosepen run of the scenario
+  "importer": NAME      shorthand for env ROSEPEN_CDR_IMPORTER
+  "generated:<json>[@<version>]"
+                        write <testcases>/cdr/<json> as <outdir>/generated-v<version>.cdr
+                        at prepare time (default version 14) and check the
+                        container magic the version implies
+  "generated:garbage"   4 KiB of a RIFF header, "CDRx" and deterministic junk:
+                        a file neither reader can open
+  svg keys              "layer_labels_contains" (any depth, ordered),
+                        "hidden_layer_labels", "no_data_rp", "icc_tuples_exact",
+                        "spot_names", "min_paths"
+
 Fixture paths are relative to <testfiles_dir>/cli_tests/testcases/; profile
 paths are relative to <testfiles_dir>. Every rosepen run gets its own fresh
 INKSCAPE_PROFILE_DIR so a seeded preference cannot leak between runs.
@@ -39,6 +56,7 @@ INKSCAPE_PROFILE_DIR so a seeded preference cannot leak between runs.
 
 import json
 import os
+import random
 import re
 import shutil
 import struct
@@ -76,11 +94,16 @@ def fail(reason):
 
 # ------------------------------------------------------------------- running --
 
-def run_rosepen(binary, args, profile_dir, expect_rc, allow_warnings, contains=()):
+def run_rosepen(binary, args, profile_dir, expect_rc, allow_warnings, contains=(),
+                extra_env=None):
     """Run one rosepen command with a private profile; returns (stdout, stderr)."""
     try:
-        proc = subprocess.run([binary] + args, capture_output=True, text=True,
-                              timeout=TIMEOUT_S, env=dict(ROS, INKSCAPE_PROFILE_DIR=profile_dir))
+        # The library reader echoes bytes of a file it cannot parse; decode
+        # leniently so binary noise cannot break the checker.
+        proc = subprocess.run([binary] + args, capture_output=True, timeout=TIMEOUT_S,
+                              encoding="utf-8", errors="replace",
+                              env=dict(ROS, INKSCAPE_PROFILE_DIR=profile_dir,
+                                       **(extra_env or {})))
     except subprocess.TimeoutExpired:
         fail(f"rosepen timed out after {TIMEOUT_S}s: {' '.join(args)}")
     except OSError as err:
@@ -107,15 +130,26 @@ def run_rosepen(binary, args, profile_dir, expect_rc, allow_warnings, contains=(
     return stdout, stderr
 
 
-def fresh_profile(outdir, tag, profile_uri):
+def fresh_profile(outdir, tag, profile_uri, extension_prefs=None):
     """A brand new profile directory per run, optionally seeding the preferred
-    output profile. Without a uri the preferences file stays absent (defaults)."""
+    output profile and extension parameters. Without a uri the preferences
+    file stays absent (defaults)."""
     path = os.path.join(outdir, "profile-" + tag)
     shutil.rmtree(path, ignore_errors=True)
     os.makedirs(path)
-    if profile_uri:
+    if profile_uri or extension_prefs:
+        attributes = "".join(' %s=%s' % (key, quoteattr(str(value)))
+                             for key, value in sorted((extension_prefs or {}).items()))
+        extensions = '<group id="extensions"%s/>' % attributes if extension_prefs else ""
         with open(os.path.join(path, "preferences.xml"), "w", encoding="utf-8") as f:
-            f.write(PREFERENCES_XML % quoteattr(profile_uri))
+            f.write(
+                '<?xml version="1.0"?>'
+                '<inkscape xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd" '
+                'xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" version="1">'
+                '<group id="options"><group id="document"><group id="outputprofile" '
+                'uri=%s intent="0"/></group></group>'
+                '%s</inkscape>'
+                % (quoteattr(profile_uri or ""), extensions))
     return path
 
 
@@ -340,6 +374,44 @@ def layer_labels(root):
             if node.get("{%s}groupmode" % INK_NS) == "layer"]
 
 
+def all_layer_labels(root):
+    """Every layer label, at any depth, in document order."""
+    return [node.get("{%s}label" % INK_NS) for node in root.iter()
+            if node.get("{%s}groupmode" % INK_NS) == "layer"]
+
+
+def hidden_layer_labels(root):
+    """Labels of the layers whose style hides them."""
+    out = []
+    for node in root.iter():
+        if node.get("{%s}groupmode" % INK_NS) != "layer":
+            continue
+        if parse_style(node.get("style")).get("display") == "none":
+            label = node.get("{%s}label" % INK_NS)
+            if label is not None:
+                out.append(label)
+    return out
+
+
+def spot_names(root):
+    """Ink names of the document's spot swatches (inkscape:spot-name)."""
+    attribute = "{%s}spot-name" % INK_NS
+    return [node.get(attribute) for node in root.iter() if node.get(attribute)]
+
+
+ICC_TUPLE = re.compile(
+    r"icc-color\([^,]+, ([-+]?[0-9]*\.?[0-9]+), ([-+]?[0-9]*\.?[0-9]+), "
+    r"([-+]?[0-9]*\.?[0-9]+), ([-+]?[0-9]*\.?[0-9]+)\)")
+
+
+def icc_tuple(value):
+    """The four components of one icc-color() paint, or None."""
+    match = ICC_TUPLE.search(value)
+    if not match:
+        return None
+    return [float(match.group(index)) for index in range(1, 5)]
+
+
 def check_svg(expect, path, label, baseline_flat=None):
     root, flat, with_icc = paint_stats(path)
     wanted_profiles = expect.get("color_profiles")
@@ -398,6 +470,44 @@ def check_svg(expect, path, label, baseline_flat=None):
         text = open(path, encoding="utf-8", errors="replace").read()
         if re.search(pattern, text):
             fail(f"{label}: forbidden pattern present: {pattern}")
+    wanted_contains = expect.get("layer_labels_contains")
+    if wanted_contains is not None:
+        found = [found_label for found_label in all_layer_labels(root)
+                 if found_label is not None]
+        position = 0
+        for wanted in wanted_contains:
+            try:
+                position = found.index(wanted, position) + 1
+            except ValueError:
+                fail(f"{label}: layer labels {found} lack {wanted!r} in order")
+    wanted_hidden = expect.get("hidden_layer_labels")
+    if wanted_hidden is not None:
+        found = hidden_layer_labels(root)
+        if found != wanted_hidden:
+            fail(f"{label}: hidden layers {found}, expected {wanted_hidden}")
+    if expect.get("no_data_rp"):
+        for node in root.iter():
+            for key in node.attrib:
+                if "data-rp-" in key:
+                    fail(f"{label}: a source-colour annotation survived: {key}")
+    wanted_tuples = expect.get("icc_tuples_exact")
+    if wanted_tuples is not None:
+        found = [values for values in (icc_tuple(value) for value in with_icc) if values]
+        for wanted in wanted_tuples:
+            if not any(all(abs(a - b) <= 1e-4 for a, b in zip(wanted, have))
+                       for have in found):
+                fail(f"{label}: no icc-color paint with {wanted}; found {found[:6]}")
+    wanted_spots = expect.get("spot_names")
+    if wanted_spots is not None:
+        found = spot_names(root)
+        for wanted in wanted_spots:
+            if wanted not in found:
+                fail(f"{label}: spot swatches {found} lack {wanted!r}")
+    minimum_paths = expect.get("min_paths")
+    if minimum_paths is not None:
+        found = count_elements(root, "path")
+        if found < minimum_paths:
+            fail(f"{label}: {found} paths, expected at least {minimum_paths}")
 
 
 # ------------------------------------------------------------------ png reading --
@@ -553,7 +663,7 @@ def pdf_cmyk_ops(path, text):
 # -------------------------------------------------------------------- stages --
 
 class Context:
-    def __init__(self, binary, testfiles_dir, expect, outdir, scenario):
+    def __init__(self, binary, testfiles_dir, expect, outdir, scenario, writer=None):
         self.binary = binary
         self.testfiles_dir = testfiles_dir
         self.expect = expect
@@ -561,13 +671,43 @@ class Context:
         self.scenario = scenario
         self.profile = resolve_profile(testfiles_dir, expect.get("profile"))
         self.allow = expect.get("allow_warnings") or []
+        self.writer = writer
+        # The scenario's environment applies to every rosepen run it makes;
+        # "importer" is the shorthand for the reader override.
+        self.env = dict(expect.get("env") or {})
+        if expect.get("importer"):
+            self.env["ROSEPEN_CDR_IMPORTER"] = expect["importer"]
         self.input = resolve_input(testfiles_dir, expect["input"])
         source = expect["input"]
+        self.generated = None        # fixture name, "garbage", or None
+        self.generated_version = None
+        self.env_input = None        # environment variable naming the input
         if source.startswith("derived:"):
             copies = int(source.split(":", 1)[1].rsplit("-", 1)[-1])
             self.derived = os.path.join(outdir, source.replace(":", "-") + ".cdr")
             self.input = self.derived
             self.derive_copies = copies
+        elif source.startswith("env:"):
+            # A local file named by the environment (the opt-in real-file
+            # corpus); prepared stage checks that it exists.
+            self.derived = None
+            self.derive_copies = 0
+            self.generated = None
+            self.generated_version = None
+            self.env_input = source.split(":", 1)[1]
+            self.input = None
+        elif source.startswith("generated:"):
+            self.derived = None
+            self.derive_copies = 0
+            spec = source.split(":", 1)[1]
+            if spec == "garbage":
+                self.generated = "garbage"
+                self.input = os.path.join(outdir, "generated-garbage.cdr")
+            else:
+                name, _, version = spec.partition("@")
+                self.generated = name
+                self.generated_version = int(version) if version else 14
+                self.input = os.path.join(outdir, "generated-v%d.cdr" % self.generated_version)
         else:
             self.derived = None
             self.derive_copies = 0
@@ -584,12 +724,66 @@ class Context:
         delete_stale(target)
         profile = fresh_profile(self.outdir, "export-" + os.path.basename(target), self.profile)
         run_rosepen(self.binary, [self.input] + extra + [f"--export-filename={target}"],
-                    profile, 0, self.allow)
+                    profile, 0, self.allow, (), self.env)
         if not os.path.isfile(target):
             fail(f"{os.path.basename(target)} was not created")
 
 
+GARBAGE_SEED = 602
+GARBAGE_BYTES = 4096
+
+
+def write_garbage(path):
+    """A RIFF header and a version-less junk body: no reader can open it."""
+    body = b"RIFF" + struct.pack("<I", GARBAGE_BYTES - 8) + b"CDRx"
+    rng = random.Random(GARBAGE_SEED)
+    body += bytes(rng.randrange(256) for _ in range(GARBAGE_BYTES - len(body)))
+    with open(path, "wb") as f:
+        f.write(body)
+
+
+def check_generated_magic(path, version):
+    """The container a version implies: ZIP from 14, RIFF below."""
+    with open(path, "rb") as f:
+        head = f.read(16)
+    if len(head) < 12:
+        fail("the generated file is too short")
+    if version >= 14:
+        if head[:4] != b"PK\x03\x04":
+            fail(f"version {version} is not a ZIP container: {head[:4]!r}")
+    elif head[:4] != b"RIFF" or head[8:11] != b"CDR":
+        fail(f"version {version} is not a RIFF drawing: {head[:12]!r}")
+
+
 def stage_prepare(ctx):
+    if ctx.env_input is not None:
+        ctx.input = os.environ.get(ctx.env_input)
+        if not ctx.input or not os.path.isfile(ctx.input):
+            fail("the environment variable %s names no file" % ctx.env_input)
+        return "OK"
+    if ctx.generated == "garbage":
+        os.makedirs(ctx.outdir, exist_ok=True)
+        write_garbage(ctx.input)
+        return "OK"
+    if ctx.generated:
+        if not ctx.writer:
+            fail("no cdr writer")
+        os.makedirs(ctx.outdir, exist_ok=True)
+        fixture = os.path.join(fixtures_base(ctx.testfiles_dir), "cdr", ctx.generated)
+        if not os.path.isfile(fixture):
+            fail(f"the export model {ctx.generated} does not exist")
+        delete_stale(ctx.input)
+        command = [ctx.writer, fixture, ctx.input, str(ctx.generated_version)]
+        try:
+            proc = subprocess.run(command, capture_output=True, text=True, timeout=TIMEOUT_S)
+        except (OSError, subprocess.TimeoutExpired) as err:
+            fail(f"the cdr writer could not run: {err}")
+        if proc.returncode != 0:
+            fail(f"the cdr writer failed: {' '.join((proc.stderr or '').split())[:300]}")
+        if not os.path.isfile(ctx.input):
+            fail("the cdr writer wrote no file")
+        check_generated_magic(ctx.input, ctx.generated_version)
+        return "OK"
     if not ctx.derived:
         return "SKIP: no derived input"
     os.makedirs(ctx.outdir, exist_ok=True)
@@ -601,10 +795,15 @@ def stage_prepare(ctx):
 
 
 def stage_run(ctx):
+    # 06-02: a bare input with no actions and no export arguments is not a
+    # headless command (it would open the GUI); such scenarios exercise the
+    # converter in their own stages (cdr_export, pdf).
+    if not ctx.expect.get("actions") and not ctx.expect.get("argv_extra"):
+        return "SKIP: no run command (the scenario's own stages run the converter)"
     profile = fresh_profile(ctx.outdir, "run", ctx.profile)
     os.makedirs(ctx.outdir, exist_ok=True)
     run_rosepen(ctx.binary, ctx.command(), profile, ctx.expect.get("expect_rc", 0),
-                ctx.allow, ctx.expect.get("stderr_contains") or [])
+                ctx.allow, ctx.expect.get("stderr_contains") or [], ctx.env)
     for name in ctx.expect.get("expect_no_file") or []:
         path = os.path.join(ctx.outdir, name)
         if os.path.lexists(path):
@@ -623,10 +822,13 @@ def stage_page_list(ctx):
     if not wanted:
         return "SKIP: no page-list expectation"
     profile = fresh_profile(ctx.outdir, "page-list", ctx.profile)
-    stdout, _ = run_rosepen(ctx.binary, [ctx.input, "--actions=page-list"], profile, 0, ctx.allow)
+    stdout, _ = run_rosepen(ctx.binary, [ctx.input, "--actions=page-list"], profile, 0, ctx.allow,
+                            (), ctx.env)
     lines = [line for line in stdout.splitlines() if line.strip()]
-    if len(lines) != wanted["lines"]:
+    if "lines" in wanted and len(lines) != wanted["lines"]:
         fail(f"page-list printed {len(lines)} lines, expected {wanted['lines']}")
+    if "lines_min" in wanted and len(lines) < wanted["lines_min"]:
+        fail(f"page-list printed {len(lines)} lines, expected at least {wanted['lines_min']}")
     sizes = []
     for index, line in enumerate(lines, 1):
         fields = line.split("\t")
@@ -652,7 +854,7 @@ def stage_svg(ctx):
         delete_stale(target)
         profile = fresh_profile(ctx.outdir, "baseline", None)
         run_rosepen(ctx.binary, [ctx.input, "--export-plain-svg",
-                                 f"--export-filename={target}"], profile, 0, ctx.allow)
+                                 f"--export-filename={target}"], profile, 0, ctx.allow, (), ctx.env)
         if not os.path.isfile(target):
             fail("baseline.svg was not created")
         _, flat, _ = paint_stats(target)
@@ -702,7 +904,8 @@ def stage_png(ctx):
         delete_stale(baseline)
         profile = fresh_profile(ctx.outdir, "png-baseline", None)
         run_rosepen(ctx.binary, [ctx.input, "--export-type=png", "--export-dpi=96"] +
-                    EXPORT_BG + [f"--export-filename={baseline}"], profile, 0, ctx.allow)
+                    EXPORT_BG + [f"--export-filename={baseline}"], profile, 0, ctx.allow, (),
+                    ctx.env)
         delta = mean_channel_difference(baseline, exported[0])
         if delta > limit:
             fail(f"png: mean per-channel difference to the profile-less baseline "
@@ -718,9 +921,10 @@ def stage_pdf(ctx):
     target = os.path.join(ctx.outdir, "out.pdf")
     ctx.export(target, ["--export-type=pdf"])
     text = pdf_inflated_text(target)
-    found = len(re.findall(r"/Type\s*/Page\b", text))
-    if found != expect["pages"]:
-        fail(f"pdf: {found} page objects, expected {expect['pages']}")
+    if expect.get("pages") is not None:
+        found = len(re.findall(r"/Type\s*/Page\b", text))
+        if found != expect["pages"]:
+            fail(f"pdf: {found} page objects, expected {expect['pages']}")
     minimum = expect.get("cmyk_ops_min")
     if minimum is not None:
         ops = pdf_cmyk_ops(target, text)
@@ -728,22 +932,180 @@ def stage_pdf(ctx):
             fail(f"pdf: {ops} CMYK colour operators in the export, "
                  f"expected at least {minimum}")
         return f"OK (cmyk_ops={ops})"
+
+    # 06-02: the PDF/X success test — exact CMYK operands and named spot
+    # separations survive the drawing round trip.
+    pdfx = expect.get("pdfx")
+    if pdfx:
+        pdfx_target = os.path.join(ctx.outdir, "out-x.pdf")
+        ctx.export(pdfx_target, ["--export-type=pdf",
+                                 "--export-pdf-version=" + pdfx["version"]])
+        xtext = pdf_inflated_text(pdfx_target)
+        if pdfx.get("output_intent") and not re.search(r"/S\s*/GTS_PDFX\b", xtext):
+            fail("pdfx: no /GTS_PDFX OutputIntent in the export")
+        wanted_pages = pdfx.get("pages")
+        if wanted_pages is not None:
+            found = len(re.findall(r"/Type\s*/Page\b", xtext))
+            if found != wanted_pages:
+                fail(f"pdfx: {found} page objects, expected {wanted_pages}")
+        wanted = pdfx.get("cmyk_exact") or []
+        if wanted:
+            found_tuples = [[float(n) for n in match]
+                            for match in CMYK_OPERANDS.findall(xtext)]
+            # sc/scn paints through a 4-component colour space count too.
+            if CS_OPERATORS.search(xtext):
+                for match in re.finditer(
+                        r"(?<![0-9.[-])([-+]?[0-9.]+)\s+([-+]?[0-9.]+)\s+"
+                        r"([-+]?[0-9.]+)\s+([-+]?[0-9.]+)\s+sc[n]?(?![a-zA-Z0-9])", xtext):
+                    found_tuples.append([float(n) for n in match.groups()])
+            for values in wanted:
+                if not any(all(abs(a - b) <= 1e-3 for a, b in zip(values, have))
+                           for have in found_tuples):
+                    fail(f"pdfx: no CMYK operator with {values}; "
+                         f"found {found_tuples[:6]}")
+            if not found_tuples:
+                fail("pdfx: no CMYK colour operators at all")
+        for name in pdfx.get("separations") or []:
+            escaped = name.replace(" ", "#20")
+            pattern = r"/Separation\s*/" + re.escape(escaped) + r"(?![\w#])"
+            if not re.search(pattern, xtext):
+                fail(f"pdfx: no /Separation for the ink {name!r}")
+        return "OK (pdfx)"
+    return "OK"
+
+
+def stage_page_list_for(binary, target, profile, env, allow, wanted, outdir):
+    """The page-list expectations of stage_page_list, for any input."""
+    stdout, _ = run_rosepen(binary, [target, "--actions=page-list"], profile, 0, allow, (), env)
+    lines = [line for line in stdout.splitlines() if line.strip()]
+    if "lines" in wanted and len(lines) != wanted["lines"]:
+        fail(f"page-list printed {len(lines)} lines, expected {wanted['lines']}")
+    if "lines_min" in wanted and len(lines) < wanted["lines_min"]:
+        fail(f"page-list printed {len(lines)} lines, expected at least {wanted['lines_min']}")
+    sizes = []
+    for index, line in enumerate(lines, 1):
+        fields = line.split("\t")
+        if len(fields) != 5:
+            fail(f"page-list line {index} has {len(fields)} fields: {line!r}")
+        if fields[0] != str(index):
+            fail(f"page-list line {index} starts with {fields[0]!r}")
+        if not re.fullmatch(r"[0-9.]+x[0-9.]+", fields[3]):
+            fail(f"page-list line {index} has no size: {line!r}")
+        sizes.append(fields[3])
+    if wanted.get("same_size") and len(set(sizes)) != 1:
+        fail(f"page sizes differ: {sizes}")
+    return sizes
+
+
+def stage_cdr_export(ctx):
+    """Export the scenario input as a drawing-format file and, when asked,
+    reopen the result through rosepen again (06-02)."""
+    spec = ctx.expect.get("cdr_export")
+    if not spec:
+        return "SKIP: no cdr export expectation"
+
+    target = os.path.join(ctx.outdir, "out.cdr")
+    version = spec.get("version")
+    extension_prefs = {"org.inkscape.output.cdr.version": version} if version is not None else None
+    profile = fresh_profile(ctx.outdir, "cdr-export", ctx.profile, extension_prefs)
+
+    if spec.get("target_is_dir"):
+        # A directory in the target's place forces the write to fail.
+        shutil.rmtree(target, ignore_errors=True)
+        os.makedirs(target)
+    else:
+        delete_stale(target)
+
+    # g_message lands on stdout, g_warning on stderr; both are the export's
+    # protocol, so the ordered needles may match in either stream.
+    stdout, stderr = run_rosepen(ctx.binary,
+                                 [ctx.input, "--export-type=cdr", f"--export-filename={target}"],
+                                 profile, spec.get("expect_rc", 0),
+                                 ctx.allow + spec.get("allow_warnings", []),
+                                 (), ctx.env)
+    combined = stdout + "\n" + stderr
+    position = 0
+    for needle in spec.get("stderr_contains") or []:
+        found = combined.find(needle, position)
+        if found < 0:
+            fail(f"the export output lacks {needle!r} (in order)")
+        position = found + len(needle)
+
+    if spec.get("target_is_dir"):
+        if spec.get("expect_rc", 0) == 0:
+            fail("exporting onto a directory succeeded")
+        return "OK"
+
+    if not os.path.isfile(target):
+        fail("the drawing file was not created")
+    magic = spec.get("magic")
+    if magic:
+        with open(target, "rb") as f:
+            head = f.read(12)
+        if magic == "zip" and head[:4] != b"PK\x03\x04":
+            fail(f"the drawing file is not a ZIP container: {head[:4]!r}")
+        if magic == "riff" and (head[:4] != b"RIFF" or head[8:11] != b"CDR"):
+            fail(f"the drawing file is not a RIFF drawing: {head[:12]!r}")
+
+    reopen = spec.get("reopen")
+    if reopen:
+        env = dict(ctx.env)
+        if reopen.get("importer"):
+            env["ROSEPEN_CDR_IMPORTER"] = reopen["importer"]
+        reopen_profile_uri = resolve_profile(ctx.testfiles_dir, reopen.get("profile"))
+        allow = ctx.allow + reopen.get("allow_warnings", [])
+        if reopen.get("page_list"):
+            sizes = stage_page_list_for(ctx.binary, target,
+                                        fresh_profile(ctx.outdir, "reopen-list",
+                                                      reopen_profile_uri),
+                                        env, allow, reopen["page_list"], ctx.outdir)
+        if reopen.get("svg"):
+            svg_target = os.path.join(ctx.outdir, "reopen.svg")
+            delete_stale(svg_target)
+            run_rosepen(ctx.binary, [target, "--export-type=svg",
+                                     f"--export-filename={svg_target}"],
+                        fresh_profile(ctx.outdir, "reopen-svg", reopen_profile_uri),
+                        0, allow, (), env)
+            if not os.path.isfile(svg_target):
+                fail("the reopened SVG was not created")
+            check_svg(reopen["svg"], svg_target, "svg reopen")
+        if reopen.get("png"):
+            png_target = os.path.join(ctx.outdir, "reopen.png")
+            delete_stale(png_target)
+            run_rosepen(ctx.binary, [target, "--export-type=png", "--export-dpi=96"] +
+                        EXPORT_BG + [f"--export-filename={png_target}"],
+                        fresh_profile(ctx.outdir, "reopen-png", reopen_profile_uri),
+                        0, allow, (), env)
+            if not os.path.isfile(png_target):
+                fail("the reopened PNG was not created")
+            if nonwhite_percent(png_target) < reopen["png"].get("min_nonwhite_percent", 1.0):
+                fail("the reopened PNG is blank")
     return "OK"
 
 
 STAGES = [("prepare", stage_prepare), ("run", stage_run),
           ("page_list", stage_page_list), ("svg", stage_svg),
-          ("png", stage_png), ("pdf", stage_pdf)]
+          ("png", stage_png), ("pdf", stage_pdf), ("cdr_export", stage_cdr_export)]
 
 
 def main(argv):
-    pdf = "--pdf" in argv[1:]
-    rest = [arg for arg in argv[1:] if arg != "--pdf"]
-    if len(rest) != 5:
+    args = argv[1:]
+    pdf = "--pdf" in args
+    args = [arg for arg in args if arg != "--pdf"]
+    writer = None
+    if "--cdr-writer" in args:
+        index = args.index("--cdr-writer")
+        if index + 1 >= len(args):
+            print("--cdr-writer needs a path", file=sys.stderr)
+            return 2
+        writer = args[index + 1]
+        del args[index:index + 2]
+    if len(args) != 5:
         print(f"usage: {os.path.basename(argv[0])} <rosepen> <testfiles_dir> "
-              f"<expect.json> <outdir> <scenario> [--pdf]", file=sys.stderr)
+              f"<expect.json> <outdir> <scenario> [--pdf] [--cdr-writer <path>]",
+              file=sys.stderr)
         return 2
-    binary, testfiles_dir, expect_path, outdir, scenario = rest
+    binary, testfiles_dir, expect_path, outdir, scenario = args
 
     with open(expect_path, encoding="utf-8") as f:
         document = json.load(f)
@@ -756,7 +1118,7 @@ def main(argv):
         return 1
 
     os.makedirs(outdir, exist_ok=True)
-    ctx = Context(binary, testfiles_dir, expect, outdir, scenario)
+    ctx = Context(binary, testfiles_dir, expect, outdir, scenario, writer)
     ctx.pdf = pdf
 
     for name, stage in STAGES:

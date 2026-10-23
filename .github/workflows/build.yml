@@ -47,6 +47,23 @@ jobs:
       - name: Install build dependencies
         run: fork/scripts/install-build-deps-ubuntu.sh
 
+      - name: Install Rust toolchain
+        run: |
+          rustup toolchain install stable --profile minimal
+          rustup default stable
+          rustc --version
+          cargo --version
+
+      - name: Restore cargo cache
+        uses: actions/cache@v6
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            build/rust
+          key: cargo-${{ runner.os }}-${{ hashFiles('src/rust/tracecdr-ffi/Cargo.lock') }}
+          restore-keys: cargo-${{ runner.os }}-
+
       - name: Build
         run: |
           fork/scripts/build-local.sh

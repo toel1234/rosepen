@@ -216,10 +216,11 @@ int main(int argc, char *argv[])
     {
         // The application object is destroyed before the preferences are saved,
         // exactly like the temporary it used to be. A file named on the command
-        // line that could not be opened makes the process fail.
+        // line that could not be opened, or an extension export that failed,
+        // makes the process fail.
         InkscapeApplication app;
         ret = app.gio_app()->run(argc, argv);
-        if (ret == EXIT_SUCCESS && app.open_failed()) {
+        if (ret == EXIT_SUCCESS && (app.open_failed() || app.export_failed())) {
             ret = EXIT_FAILURE;
         }
     }

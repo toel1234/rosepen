@@ -1726,3 +1726,116 @@ if(WITH_LIBCDR)
         add_cdr_import_test(e2e-seed)
     endif()
 endif()
+
+#############################################################################################
+### cdr bridge lock (06-02)                                                               ###
+#############################################################################################
+# The crate-primary import corpus. The bridge's export model is written to a drawing file at
+# test time (rp-cdr-write; no binary fixture is committed) and imported through the crate with
+# and without a CMYK output profile, as versions 13, 14 and 27; the in-tree fixtures cover the
+# pinned reader and the ZIP container libcdr cannot read; one generated junk file proves the
+# fallback chain and its exit code. CLI tests run SERIALLY (D-Bus app-id race).
+if(WITH_TRACECDR)
+    # The writer is a cargo binary: build it once, as the corpus's setup fixture.
+    add_test(NAME cli_cdr-bridge-setup
+        COMMAND ${CMAKE_COMMAND} -E env "CARGO_TARGET_DIR=${TRACECDR_TARGET_DIR}"
+                "${CARGO_EXECUTABLE}" build --release --locked --bin rp-cdr-write
+                --manifest-path "${CMAKE_SOURCE_DIR}/src/rust/tracecdr-ffi/Cargo.toml")
+    set_tests_properties(cli_cdr-bridge-setup PROPERTIES
+        FIXTURES_SETUP cdr_bridge_writer
+        LABELS cdr-bridge
+        RUN_SERIAL TRUE)
+
+    function(add_cdr_bridge_test scenario)
+        set(EXPECT_JSON "${CMAKE_CURRENT_SOURCE_DIR}/testcases/cdr/cdr-bridge.expect.json")
+        # Watching fixtures + expectations means changes re-run cmake on change
+        watch("${EXPECT_JSON}"
+              "${CMAKE_CURRENT_SOURCE_DIR}/testcases/cdr/bridge-fixture.export.json"
+              "${CMAKE_CURRENT_SOURCE_DIR}/testcases/librevenge_formats/cdr_draw2.cdr"
+              "${CMAKE_CURRENT_SOURCE_DIR}/testcases/librevenge_formats/cdr_draw.cdr")
+        add_test(NAME cli_cdr-bridge-${scenario}
+            COMMAND python3 -I ${CMAKE_CURRENT_SOURCE_DIR}/check_cdr_import.py
+                    $<TARGET_FILE:inkscape>
+                    ${CMAKE_CURRENT_SOURCE_DIR}/..
+                    ${EXPECT_JSON}
+                    ${CMAKE_CURRENT_BINARY_DIR}/cdr-bridge/${scenario}
+                    ${scenario}
+                    $<$<BOOL:${WITH_CAPYPDF}>:--pdf>
+                    --cdr-writer ${TRACECDR_TARGET_DIR}/release/rp-cdr-write)
+        set_tests_properties(cli_cdr-bridge-${scenario} PROPERTIES
+            ENVIRONMENT "${INKSCAPE_TEST_PROFILE_DIR_ENV}/cli_cdr-bridge-${scenario};INKSCAPE_FONTCONFIG=${CMAKE_CURRENT_SOURCE_DIR}/../rendering_tests/fonts/isolated.conf;${CMAKE_CTEST_ENV}"
+            LABELS cdr-bridge
+            RUN_SERIAL TRUE
+            FIXTURES_REQUIRED cdr_bridge_writer)
+    endfunction()
+
+    add_cdr_bridge_test(bridge-plain)
+    add_cdr_bridge_test(bridge-cmyk)
+    add_cdr_bridge_test(bridge-v13)
+    add_cdr_bridge_test(bridge-v27)
+    add_cdr_bridge_test(bridge-strict-libcdr-fixture)
+    add_cdr_bridge_test(zip-container)
+    add_cdr_bridge_test(both-fail)
+    add_cdr_bridge_test(forced-libcdr)
+    add_cdr_bridge_test(interop-v13-libcdr)
+    # 06-02 task 3: the native export, its failure exit code and the PDF/X
+    # success tests (the e2e scenarios need the capypdf writer).
+    add_cdr_bridge_test(export-basic)
+    add_cdr_bridge_test(export-v13)
+    add_cdr_bridge_test(export-v27)
+    add_cdr_bridge_test(export-fail)
+    if(WITH_CAPYPDF)
+        add_cdr_bridge_test(e2e-pdfx4)
+        add_cdr_bridge_test(e2e-pdfx1a)
+        add_cdr_bridge_test(e2e-pdfx-spot)
+    endif()
+
+    # The opt-in local real-file corpus: set -DROSEPEN_CDR_REAL_CORPUS=<dir>
+    # to run every .cdr file in that directory through the bridge (never in
+    # CI, never committed; file names stay out of the test names).
+    set(ROSEPEN_CDR_REAL_CORPUS "" CACHE PATH
+        "Directory of local drawing-format files for cli_cdr-real-* (not committed)")
+    if(ROSEPEN_CDR_REAL_CORPUS)
+        file(GLOB real_cdr_files "${ROSEPEN_CDR_REAL_CORPUS}/*.cdr"
+                                 "${ROSEPEN_CDR_REAL_CORPUS}/*.CDR")
+        list(SORT real_cdr_files)
+        set(real_index 0)
+        foreach(real_file IN LISTS real_cdr_files)
+            math(EXPR real_index "${real_index} + 1")
+            string(SUBSTRING "00${real_index}" "-3" 3 real_tag)
+            add_test(NAME cli_cdr-real-${real_tag}
+                COMMAND python3 -I ${CMAKE_CURRENT_SOURCE_DIR}/check_cdr_import.py
+                        $<TARGET_FILE:inkscape>
+                        ${CMAKE_CURRENT_SOURCE_DIR}/..
+                        ${CMAKE_CURRENT_SOURCE_DIR}/testcases/cdr/cdr-bridge.expect.json
+                        ${CMAKE_CURRENT_BINARY_DIR}/cdr-real/${real_tag}
+                        real-file
+                        --pdf)
+            set_tests_properties(cli_cdr-real-${real_tag} PROPERTIES
+                ENVIRONMENT "${INKSCAPE_TEST_PROFILE_DIR_ENV}/cli_cdr-real-${real_tag};INKSCAPE_FONTCONFIG=${CMAKE_CURRENT_SOURCE_DIR}/../rendering_tests/fonts/isolated.conf;ROSEPEN_CDR_REAL_FILE=${real_file};${CMAKE_CTEST_ENV}"
+                LABELS cdr-bridge
+                RUN_SERIAL TRUE)
+        endforeach()
+    endif()
+endif()
+
+# The 06-01 corpus is a library-reader lock. Where both readers are compiled in, pin it to
+# libcdr: the crate's route reads the ZIP container that 06-01 expects to fail and sees one
+# page of the derived multi-page copy. The 06-01 registration itself is untouched.
+if(WITH_LIBCDR AND WITH_TRACECDR)
+    foreach(scenario plain-single cmyk-single multipage multipage-cmyk dead-argv dead-action
+                      profile-missing profile-invalid e2e-seed)
+        if(TEST cli_cdr-import-${scenario})
+            set_property(TEST cli_cdr-import-${scenario} APPEND PROPERTY
+                         ENVIRONMENT "ROSEPEN_CDR_IMPORTER=libcdr")
+        endif()
+    endforeach()
+    # The PNG lock of the same fixture (06-01) compares pixels: it must keep
+    # rendering through the library reader too.
+    foreach(test_name cli_import_cdr2_build cli_import_cdr2_check cli_import_cdr2_clean)
+        if(TEST ${test_name})
+            set_property(TEST ${test_name} APPEND PROPERTY
+                         ENVIRONMENT "ROSEPEN_CDR_IMPORTER=libcdr")
+        endif()
+    endforeach()
+endif()

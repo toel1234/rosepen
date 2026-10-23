@@ -23,3 +23,6 @@
 [submodule "src/3rdparty/capypdf"]
 	path = src/3rdparty/capypdf
 	url = https://github.com/jpakkane/capypdf
+[submodule "src/3rdparty/tracedraw"]
+	path = src/3rdparty/tracedraw
+	url = https://github.com/igtoth/tracedraw

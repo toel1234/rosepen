@@ -121,6 +121,10 @@ set(TEST_SOURCES
     # 06-01 cdr import
     rvng-pages-test
     cdr-import-mapping-test
+    # 06-02 TraceDraw bridge
+    cdr-import-policy-test
+    cdr-source-colors-test
+    cdr-export-model-test
     path-reverse-lpe-test
     preferences-test
     rebase-hrefs-test
@@ -170,6 +174,18 @@ if(WITH_CAPYPDF)
     )
 endif()
 
+# 06-02 TraceDraw bridge
+if(WITH_TRACECDR)
+    list(APPEND TEST_SOURCES
+        tracecdr-ffi-test
+    )
+    add_test(NAME rust_tracecdr-ffi
+        COMMAND ${CMAKE_COMMAND} -E env "CARGO_TARGET_DIR=${TRACECDR_TARGET_DIR}"
+                "${CARGO_EXECUTABLE}" test --release --locked
+                --manifest-path "${CMAKE_SOURCE_DIR}/src/rust/tracecdr-ffi/Cargo.toml")
+    set_tests_properties(rust_tracecdr-ffi PROPERTIES RUN_SERIAL TRUE LABELS tracecdr)
+endif()
+
 add_library(cpp_test_static_library SHARED inkscape-test.cpp doc-per-case-test.cpp compare-paths-test.h lpespaths-test.h store-integrity-test.h test-with-svg-object-pairs.cpp)
 target_link_libraries(cpp_test_static_library PUBLIC ${GTEST_LIBRARIES} inkscape_base)
 
@@ -184,6 +200,15 @@ foreach(test_source ${TEST_SOURCES})
     set_tests_properties(${testname} PROPERTIES ENVIRONMENT "${INKSCAPE_TEST_PROFILE_DIR_ENV}/${testname};${CMAKE_CTEST_ENV}")
     add_dependencies(tests ${testname})
 endforeach()
+
+# 06-02 TraceDraw bridge: the static library is linked into the test itself,
+# for the C header's include path and so the ABI test does not depend on which
+# rp_* symbols inkscape_base happens to pull in from the archive (R3).
+if(WITH_TRACECDR AND TARGET test_tracecdr-ffi)
+    target_link_libraries(test_tracecdr-ffi Rosepen::TraceCdrFfi)
+    add_dependencies(test_tracecdr-ffi tracecdr_ffi_build)
+endif()
+
 foreach(test_source ${LIBNRTYPE_TESTS})
     string(REPLACE "/" "_" testname "test_${test_source}")
     set_property(TEST ${testname} APPEND PROPERTY ENVIRONMENT "INKSCAPE_FONTCONFIG=${CMAKE_CURRENT_SOURCE_DIR}/rendering_tests/fonts/isolated.conf")

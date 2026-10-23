@@ -67,8 +67,11 @@
 #ifdef WITH_LIBVISIO
 #include "internal/vsd-input.h"
 #endif
-#ifdef WITH_LIBCDR
+#if defined(WITH_LIBCDR) || defined(WITH_TRACECDR)
 #include "internal/cdr-input.h"
+#endif
+#ifdef WITH_TRACECDR
+#include "internal/cdr-output.h"
 #endif
 #include "preferences.h"
 #include "io/resource.h"
@@ -228,8 +231,11 @@ init()
 #ifdef WITH_LIBVISIO
     Internal::VsdInput::init();
 #endif
-#ifdef WITH_LIBCDR
+#if defined(WITH_LIBCDR) || defined(WITH_TRACECDR)
     Internal::CdrInput::init();
+#endif
+#ifdef WITH_TRACECDR
+    Internal::CdrOutput::init();
 #endif
     Internal::Gif::init();
 

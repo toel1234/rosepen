@@ -108,6 +108,9 @@ public:
     /// Whether an input file given on the command line failed to open (process rc 1).
     bool                  open_failed() const { return _open_failed; }
 
+    /// Whether an extension export failed (process rc 1).
+    bool                  export_failed() const { return _file_export.export_failed(); }
+
     /* These require a GUI! */
     void                  document_fix(SPDesktop *desktop);
 

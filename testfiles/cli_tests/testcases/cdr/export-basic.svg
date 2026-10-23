@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- invariants for the export round trip (06-02):
+     - two pages of 210x297 mm and 100x50 mm: the drawing-format writer keeps
+       one page size per file, so the reopened file has two pages of the first
+       size and the export says so in a message;
+     - the layers "Artwork" and "Hidden notes" keep their names; the hidden
+       layer goes out visible (the format stores no hidden layers) with a
+       message, its rect is not lost;
+     - the CMYK rect carries 0.1/0.2/0.3/0.4 as an icc-color of the embedded
+       cmyk-out profile: those exact numbers must come back on reimport with
+       the same profile preferred;
+     - the ellipse's spot swatch "Test Ink" becomes a named ink on export and
+       a process stand-in on reimport (the writer has no ink table);
+     - the gradient rect and the 2x2 image exercise the two named fallbacks
+       ("gradient" message, then "image" message, in document order);
+     - the dashed 2 px outline and the 50 % opacity travel as millimetres and
+       a shape opacity. -->
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd" xmlns:xlink="http://www.w3.org/1999/xlink" width="210mm" height="297mm" viewBox="0 0 793.7007874 1122.5196850394" version="1.1" id="svg1">
+  <sodipodi:namedview id="namedview1" pagecolor="#ffffff" bordercolor="#666666" inkscape:document-units="mm" inkscape:output-profile="cmyk-out"/>
+  <defs id="defs1">
+    <color-profile id="profile1" name="cmyk-out" xlink:href="../../../data/colors/default_cmyk.icc"/>
+    <linearGradient id="grad" x1="0" y1="0" x2="1" y2="0">
+      <stop id="grad-stop1" offset="0" style="stop-color:#ff0000"/>
+      <stop id="grad-stop2" offset="1" style="stop-color:#0000ff"/>
+    </linearGradient>
+    <linearGradient id="spot-Test_Ink" inkscape:swatch="solid" inkscape:spot-name="Test Ink" x1="0" y1="0" x2="1" y2="0">
+      <stop id="spot-stop1" offset="0" style="stop-color:device-cmyk(0 0.5 1 0)"/>
+    </linearGradient>
+    <view id="p1" viewBox="0 0 793.7007874 1122.5196850394" inkscape:label="Page 1"/>
+    <view id="p2" viewBox="793.7007874 0 377.9527559 188.97637795" inkscape:label="Page 2"/>
+  </defs>
+  <g inkscape:groupmode="layer" inkscape:label="Artwork" id="art">
+    <!-- CMYK 0.1/0.2/0.3/0.4 at (10 mm, 10 mm), 40x30 mm -->
+    <rect id="cmyk" x="37.79527559" y="37.79527559" width="151.18110236" height="113.38582677" style="fill:#907f6f icc-color(cmyk-out, 0.1, 0.2, 0.3, 0.4)"/>
+    <!-- spot ellipse, 20 mm radius -->
+    <ellipse id="spot" cx="302.36220472" cy="94.48818898" rx="75.59055118" ry="75.59055118" style="fill:url(#spot-Test_Ink)"/>
+    <!-- an ordinary sRGB path -->
+    <path id="rgbpath" d="M 360,250 L 430,250 L 395,310 Z" fill="#3366cc"/>
+    <!-- plain horizontal text -->
+    <text id="hello" x="37.79527559" y="400" style="font-family:DejaVu Sans;font-size:24px;fill:#000000">Rosepen</text>
+    <!-- a group of two rects -->
+    <g id="pair">
+      <rect id="pair1" x="500" y="37.79527559" width="75.59055118" height="37.79527559" fill="#abcdef"/>
+      <rect id="pair2" x="500" y="94.48818898" width="75.59055118" height="37.79527559" fill="#fedcba"/>
+    </g>
+    <!-- 1 mm outline, dashed 2 mm/1 mm, on a rect without fill -->
+    <rect id="dashed" x="37.79527559" y="450" width="151.18110236" height="75.59055118" fill="none" stroke="#000000" stroke-width="3.77952756" stroke-dasharray="7.55905512 3.77952756"/>
+    <!-- half transparent -->
+    <rect id="half" x="226.77165354" y="450" width="151.18110236" height="75.59055118" fill="#123456" opacity="0.5"/>
+    <!-- the two fallbacks: a gradient, then an image -->
+    <rect id="grad-rect" x="415.7480315" y="450" width="151.18110236" height="75.59055118" style="fill:url(#grad)"/>
+    <image id="img" x="604.72440945" y="450" width="75.59055118" height="75.59055118" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAIAAAD91JpzAAAAEElEQVR4nGNwaDgARAwQCgAoDgYBQzpj2gAAAABJRU5ErkJggg=="/>
+  </g>
+  <g inkscape:groupmode="layer" inkscape:label="Hidden notes" id="hid" style="display:none">
+    <rect id="note" x="37.79527559" y="600" width="75.59055118" height="56.69291339" fill="#454545"/>
+  </g>
+  <g inkscape:groupmode="layer" inkscape:label="Back" id="back">
+    <!-- page 2 starts at x = 793.7007874 px (210 mm); a 20x10 mm rect at
+         (10 mm, 5 mm) of page 2 -->
+    <rect id="p2rect" x="831.49606299" y="18.8976378" width="75.59055118" height="37.79527559" fill="#00ff00"/>
+  </g>
+</svg>

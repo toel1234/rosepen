@@ -246,6 +246,9 @@ if(WITH_LIBCDR)
     endif()
 endif()
 
+# Rosepen 06-02: TraceDraw drawing-format reader/writer (Rust, optional)
+include(${CMAKE_SOURCE_DIR}/CMakeScripts/TraceCdr.cmake)
+
 find_package(JPEG)
 if(JPEG_FOUND)
     list(APPEND INKSCAPE_LIBS JPEG::JPEG)

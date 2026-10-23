@@ -45,8 +45,13 @@ public:
 
     void do_export(SPDocument* doc, std::string filename_in="");
 
+    /// Whether an extension export failed (process rc 1).
+    bool export_failed() const { return _export_failed; }
+
 private:
     ExportAreaType export_area_type{ExportAreaType::Unset};
+    bool _export_failed = false; // An extension export failed (process rc 1)
+
     Glib::ustring export_area{};
     void fit_to_export_area(SPDocument *doc, SPObject *object);
     Inkscape::Colors::Color get_bgcolor(SPDocument *doc);

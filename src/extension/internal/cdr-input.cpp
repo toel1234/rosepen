@@ -16,36 +16,154 @@
  * Released under GNU GPL v2+, read the file 'COPYING' for more information.
  */
 
+// WITH_LIBCDR lives in the generated configuration header; the Rust bridge's
+// WITH_TRACECDR comes from the compile definitions.
+#ifdef HAVE_CONFIG_H
+# include "config.h"
+#endif
+
 #include "cdr-input.h"
 
-#include <libcdr/libcdr.h>
+#include <glib.h>
 
+#include "document.h"
 #include "extension/input.h"
 #include "extension/internal/cdr-import-mapping.h"
-#include "extension/internal/rvng-import-dialog.h"
+#include "extension/internal/cdr-import-policy.h"
+#include "extension/internal/cdr-source-colors.h"
+#include "extension/internal/rvng-pages.h"
 #include "extension/system.h"
+#include "preferences.h"
+
+#ifdef WITH_LIBCDR
+#include <libcdr/libcdr.h>
+
+#include "extension/internal/rvng-import-dialog.h"
+#endif
+
+#ifdef WITH_TRACECDR
+#include "extension/internal/cdr-crate-import.h"
+#endif
 
 namespace Inkscape::Extension::Internal {
 
-std::unique_ptr<SPDocument> CdrInput::open(Inkscape::Extension::Input *, char const *uri, bool is_importing)
+constexpr bool HAVE_CRATE =
+#ifdef WITH_TRACECDR
+    true;
+#else
+    false;
+#endif
+
+constexpr bool HAVE_LIBCDR =
+#ifdef WITH_LIBCDR
+    true;
+#else
+    false;
+#endif
+
+#ifdef WITH_LIBCDR
+/**
+ * The library reader's route (06-01): every page when there is no GUI, one page
+ * of the user's choice when there is.
+ */
+static std::unique_ptr<SPDocument> open_with_libcdr(char const *uri)
 {
     RvngOpenOptions options;
     options.all_pages_headless = true;
-    auto doc = rvng_open(uri, libcdr::CDRDocument::isSupported, libcdr::CDRDocument::parse, options);
+    return rvng_open(uri, libcdr::CDRDocument::isSupported, libcdr::CDRDocument::parse, options);
+}
+#endif
 
-    // Opening a drawing imports every page and maps its flat colours into the
-    // preferred output profile; importing into an existing document leaves that
-    // document's own output profile in charge.
-    if (doc) {
-        // The profile is stored as an href relative to the drawing's directory,
-        // so the document must know its filename before the profile is attached.
-        doc->setDocumentFilename(uri);
-        if (!is_importing) {
-            CdrImport::map_to_preferred_output_profile(doc.get());
+#ifdef WITH_TRACECDR
+/**
+ * The colour chain of a crate import: attach the preferred output profile,
+ * apply the drawing's own CMYK and spot colours, then convert what is left.
+ *
+ * The profile and intent are the two preferences
+ * CdrImport::map_to_preferred_output_profile() reads; the steps are called one
+ * by one here because the source colours must land before the flat paints are
+ * converted.
+ */
+static void map_crate_colours(SPDocument *doc)
+{
+    auto prefs = Inkscape::Preferences::get();
+    auto const uri = prefs->getString("/options/document/outputprofile/uri");
+    auto const intent = static_cast<Colors::RenderingIntent>(
+        prefs->getInt("/options/document/outputprofile/intent"));
+    CdrImport::attach_output_profile(doc, uri.raw(), intent);
+    CdrImport::apply_source_colors(doc);
+    CdrImport::convert_flat_paints(doc);
+}
+#endif
+
+std::unique_ptr<SPDocument> CdrInput::open(Inkscape::Extension::Input *, char const *uri, bool is_importing)
+{
+    auto const prefs = Inkscape::Preferences::get();
+    auto const engine = CdrImport::choose_engine(
+        prefs->getString("/options/cdrimport/engine").raw(), g_getenv("ROSEPEN_CDR_IMPORTER"),
+        HAVE_CRATE, HAVE_LIBCDR);
+    [[maybe_unused]] bool use_libcdr = engine == CdrImport::Engine::LibCdr;
+
+#ifdef WITH_TRACECDR
+    if (engine != CdrImport::Engine::LibCdr) {
+        auto outcome = CdrImport::open_with_crate(uri);
+        CdrImport::CrateSummary summary{outcome.code, outcome.info.pages, outcome.info.shapes,
+                                        outcome.info.skipped_objects, false};
+        std::unique_ptr<SPDocument> doc;
+        if (outcome.code == RP_OK) {
+            auto result = RvngPages::document_from_pages(outcome.pages);
+            for (int page : result.failed_pages) {
+                if (page > 1) {
+                    g_warning("rvng import: page %d could not be read; left empty", page);
+                }
+            }
+            summary.page1_unreadable = !result.doc;
+            doc = std::move(result.doc);
+        }
+
+        if (auto const reason = CdrImport::fallback_reason(summary)) {
+            // Everything else is reported and kept: warnings and skipped
+            // objects do not mean the library reader would do better.
+            if (engine == CdrImport::Engine::Auto && HAVE_LIBCDR) {
+                g_warning("cdr import: drawing reader failed (%s); trying libcdr", reason->c_str());
+                use_libcdr = true;
+            } else {
+                g_warning("cdr import: drawing reader failed (%s)", reason->c_str());
+                return nullptr;
+            }
+        } else {
+            // The profile is stored as an href relative to the drawing's
+            // directory, so the document must know its filename first.
+            doc->setDocumentFilename(uri);
+            if (is_importing) {
+                // A free-standing import document has no output space to give
+                // the source numbers: keep the sRGB preview, drop the markers.
+                CdrImport::apply_source_colors(doc.get());
+            } else {
+                map_crate_colours(doc.get());
+            }
+            return doc;
         }
     }
+#endif
 
-    return doc;
+#ifdef WITH_LIBCDR
+    if (use_libcdr) {
+        auto doc = open_with_libcdr(uri);
+        // Opening a drawing imports every page and maps its flat colours into
+        // the preferred output profile; importing into an existing document
+        // leaves that document's own output profile in charge.
+        if (doc) {
+            doc->setDocumentFilename(uri);
+            if (!is_importing) {
+                CdrImport::map_to_preferred_output_profile(doc.get());
+            }
+        }
+        return doc;
+    }
+#endif
+
+    return nullptr;
 }
 
 #include "clear-n_.h"

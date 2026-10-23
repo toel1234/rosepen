@@ -1,0 +1,41 @@
+# SPDX-License-Identifier: GPL-2.0-or-later
+# Rosepen's C ABI (version 1) over the TraceDraw drawing-format reader and writer.
+# Copyright (C) 2026 Authors
+# Released under GNU GPL v2+, read the file 'COPYING' for more information.
+#
+# The TraceDraw crates linked here are MIT OR Apache-2.0; Rosepen elects the
+# MIT branch for GPL-2.0 compatibility (see THIRD-PARTY.md).
+
+[package]
+name = "tracecdr-ffi"
+version = "0.1.0"
+edition = "2021"
+license = "GPL-2.0-or-later"
+publish = false
+description = "Rosepen's panic-proof C bridge to the TraceDraw drawing-format reader and writer"
+
+[lib]
+name = "tracecdr_ffi"
+crate-type = ["staticlib", "rlib"]
+
+# A workspace of its own: this crate is Rosepen's, not TraceDraw's (adding a
+# member there would change vendored content).
+[workspace]
+
+[dependencies]
+tracedraw-core = { path = "../../3rdparty/tracedraw/crates/core" }
+tracedraw-cdr = { path = "../../3rdparty/tracedraw/crates/cdr" }
+tracedraw-io = { path = "../../3rdparty/tracedraw/crates/io" }
+tracedraw-text = { path = "../../3rdparty/tracedraw/crates/text" }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+[dev-dependencies]
+roxmltree = "0.21"
+
+[profile.release]
+lto = "thin"
+# catch_unwind needs unwinding: a panic must return RP_ERR_PANIC, never cross
+# the C boundary.
+panic = "unwind"
+codegen-units = 4
