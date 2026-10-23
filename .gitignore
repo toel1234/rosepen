@@ -72,3 +72,8 @@ tags
 
 # YCM code completer
 .ycm_*
+
+# internal project bookkeeping (local only)
+.paul/
+.commandcode/
+t3-p4.d
