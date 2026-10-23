@@ -1,11 +1,17 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 #include "rvng-import-dialog.h"
 
+#include <algorithm>
+#include <optional>
+#include <string>
+#include <vector>
+
 #include <glibmm/i18n.h>
 
 #include "inkscape.h"
 #include "extension/input.h"
 #include "object/sp-root.h"
+#include "rvng-pages.h"
 #include "ui/controller.h"
 #include "ui/dialog-events.h"
 #include "ui/dialog-run.h"
@@ -139,7 +145,7 @@ void RvngImportDialog::_setPreviewPage()
     _preview.setDocument(_doc.get());
 }
 
-std::unique_ptr<SPDocument> rvng_open(
+std::optional<std::vector<std::string>> rvng_parse_pages(
     char const *uri,
     bool (*is_supported)(RVNGInputStream *),
     bool (*parse)(RVNGInputStream *, RVNGDrawingInterface *))
@@ -156,50 +162,67 @@ std::unique_ptr<SPDocument> rvng_open(
 #endif
 
     if (!is_supported(&input)) {
-        return nullptr;
+        return std::nullopt;
     }
 
     RVNGStringVector output;
     RVNGSVGDrawingGenerator generator(output, "svg");
 
-    if (!parse(&input, &generator)) {
-        return nullptr;
+    if (!parse(&input, &generator) || output.empty()) {
+        return std::nullopt;
     }
 
-    if (output.empty()) {
-        return nullptr;
-    }
-
-    std::vector<RVNGString> tmpSVGOutput;
-    for (unsigned i=0; i<output.size(); ++i) {
+    std::vector<std::string> pages;
+    pages.reserve(output.size());
+    for (unsigned i = 0; i < output.size(); ++i) {
         RVNGString tmpString("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 1.1//EN\" \"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd\">\n");
         tmpString.append(output[i]);
-        tmpSVGOutput.push_back(tmpString);
+        pages.emplace_back(tmpString.cstr(), tmpString.size());
+    }
+    return pages;
+}
+
+std::unique_ptr<SPDocument> rvng_open(
+    char const *uri,
+    bool (*is_supported)(RVNGInputStream *),
+    bool (*parse)(RVNGInputStream *, RVNGDrawingInterface *),
+    RvngOpenOptions const &options)
+{
+    auto pages = rvng_parse_pages(uri, is_supported, parse);
+    if (!pages) {
+        return nullptr;
     }
 
-    unsigned page_num = 1;
+    // With a GUI, a drawing of more than one page means the user picks one.
+    if (pages->size() > 1 && INKSCAPE.use_gui()) {
+        std::vector<RVNGString> dialog_pages;
+        dialog_pages.reserve(pages->size());
+        for (auto const &page : *pages) {
+            dialog_pages.emplace_back(page.c_str());
+        }
 
-    // If only one page is present, import that one without bothering user
-    if (tmpSVGOutput.size() > 1 && INKSCAPE.use_gui()) {
-        auto dlg = RvngImportDialog(tmpSVGOutput);
+        auto dlg = RvngImportDialog(dialog_pages);
         if (!dlg.showDialog()) {
             throw Input::open_cancelled();
         }
 
         // Get needed page
-        page_num = std::clamp<int>(dlg.getSelectedPage(), 1, tmpSVGOutput.size());
+        auto const page_num = std::clamp<int>(dlg.getSelectedPage(), 1, dialog_pages.size());
+        return RvngPages::document_from_page((*pages)[page_num - 1]);
     }
 
-    auto doc = SPDocument::createNewDocFromMem(as_span(tmpSVGOutput[page_num - 1]));
-
-    if (doc && !doc->getRoot()->viewBox_set) {
-        // Scales the document to account for 72dpi scaling in librevenge(<=0.0.4)
-        doc->setWidth(Inkscape::Util::Quantity(doc->getWidth().quantity, "pt"), false);
-        doc->setHeight(Inkscape::Util::Quantity(doc->getHeight().quantity, "pt"), false);
-        doc->setViewBox(Geom::Rect::from_xywh(0, 0, doc->getWidth().value("pt"), doc->getHeight().value("pt")));
+    // A format may ask for every page when no GUI is in the way.
+    if (options.all_pages_headless) {
+        auto result = RvngPages::document_from_pages(*pages);
+        for (int page : result.failed_pages) {
+            if (page > 1) {
+                g_warning("rvng import: page %d could not be read; left empty", page);
+            }
+        }
+        return std::move(result.doc);
     }
 
-    return doc;
+    return RvngPages::document_from_page((*pages)[0]);
 }
 
 } // namespace Inkscape::Extension::Internal

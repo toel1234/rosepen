@@ -6,6 +6,8 @@
 #define INKSCAPE_EXTENSION_INTERNAL_RVNGIMPORTDIALOG_H
 
 #include <memory>
+#include <optional>
+#include <string>
 #include <vector>
 #include <librevenge/librevenge.h>
 #include <gtkmm/adjustment.h>
@@ -60,10 +62,26 @@ private:
     Inkscape::UI::View::SVGViewWidget _preview;
 };
 
-std::unique_ptr<SPDocument> rvng_open(
+struct RvngOpenOptions
+{
+    bool all_pages_headless = false; ///< Build one multipage document when there is no GUI
+};
+
+/**
+ * Read every page of a drawing as a complete SVG document string.
+ *
+ * @returns The page strings, or nothing when the file is unsupported or cannot be parsed.
+ */
+std::optional<std::vector<std::string>> rvng_parse_pages(
     char const *uri,
     bool (*is_supported)(librevenge::RVNGInputStream *),
     bool (*parse)(librevenge::RVNGInputStream *, librevenge::RVNGDrawingInterface *));
+
+std::unique_ptr<SPDocument> rvng_open(
+    char const *uri,
+    bool (*is_supported)(librevenge::RVNGInputStream *),
+    bool (*parse)(librevenge::RVNGInputStream *, librevenge::RVNGDrawingInterface *),
+    RvngOpenOptions const &options = {});
 
 } // namespace Inkscape::Extension::Internal
 

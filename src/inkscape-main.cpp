@@ -10,6 +10,8 @@
  * Released under GNU GPL v2+, read the file 'COPYING' for more information.
  */
 
+#include <cstdlib>
+
 #include <glibmm/miscutils.h>
 #include <gsl/gsl_errno.h>
 
@@ -210,7 +212,17 @@ int main(int argc, char *argv[])
     set_themes_env();
     set_extensions_env();
 
-    auto ret = InkscapeApplication().gio_app()->run(argc, argv);
+    int ret = EXIT_SUCCESS;
+    {
+        // The application object is destroyed before the preferences are saved,
+        // exactly like the temporary it used to be. A file named on the command
+        // line that could not be opened makes the process fail.
+        InkscapeApplication app;
+        ret = app.gio_app()->run(argc, argv);
+        if (ret == EXIT_SUCCESS && app.open_failed()) {
+            ret = EXIT_FAILURE;
+        }
+    }
 
     Inkscape::Preferences::get()->save();
 

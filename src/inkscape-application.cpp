@@ -1119,6 +1119,7 @@ void InkscapeApplication::on_open(Gio::Application::type_vec_files const &files,
         auto [document, cancelled] = document_open(file);
         if (!document) {
             if (!cancelled) {
+                _open_failed = true;
                 std::cerr << "InkscapeApplication::on_open: failed to create document!" << std::endl;
             }
             continue;

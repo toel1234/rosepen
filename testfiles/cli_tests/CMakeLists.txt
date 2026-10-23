@@ -1446,10 +1446,8 @@ add_powerclip_test(refuse-single)
 
 # librevenge formats
 if(WITH_LIBCDR)
-  # add_cli_test(import_cdr  PARAMETERS --export-type=png   # fails to open (regression in libcdr 1.6.0)
-  #                          INPUT_FILENAME librevenge_formats/cdr_draw.cdr OUTPUT_FILENAME format_cdr_draw.png
-  #                          REFERENCE_FILENAME librevenge_formats/cdr_draw_expected.png # check png size is correct
-  #                          FUZZ_PERCENTAGE 3)
+  # cdr_draw.cdr (ZIP-container CDR) does not parse with libcdr 0.1.7; it is locked as a
+  # NEGATIVE test (clean failure, rc 1) by cli_cdr-import-dead-argv (06-01) — do not "fix" the fixture.
   add_cli_test(import_cdr2 PARAMETERS --export-type=png
                            INPUT_FILENAME librevenge_formats/cdr_draw2.cdr OUTPUT_FILENAME format_cdr_draw2.png
                            REFERENCE_FILENAME librevenge_formats/cdr_draw2_expected.png
@@ -1684,3 +1682,47 @@ add_live_sketch_test(two-calls)
 add_live_sketch_test(handoff-artistic)
 add_live_sketch_test(huge)
 add_live_sketch_test(bad-input)
+
+#############################################################################################
+### cdr import lock (06-01 task 2)                                                        ###
+#############################################################################################
+# Headless import corpus for the in-tree drawing fixtures: single-page plain and CMYK, a
+# three-page copy derived at test time from the single-page fixture, the unreadable container
+# (argv rc 1, file-open action rc 0) and the missing/invalid preferred output profile. Every
+# scenario checks stderr order, the page list, the SVG structure/colours and the PNG result;
+# with --pdf the PDF export is checked for one page object per page and, for the
+# 06-02 seed, for at least "cmyk_ops_min" CMYK colour operators.
+# CLI tests run SERIALLY (D-Bus app-id race).
+function(add_cdr_import_test scenario)
+    set(EXPECT_JSON "${CMAKE_CURRENT_SOURCE_DIR}/testcases/cdr/cdr-import.expect.json")
+    # Watching fixtures + expectations means changes re-run cmake on change
+    watch("${EXPECT_JSON}"
+          "${CMAKE_CURRENT_SOURCE_DIR}/testcases/librevenge_formats/cdr_draw2.cdr"
+          "${CMAKE_CURRENT_SOURCE_DIR}/testcases/librevenge_formats/cdr_draw.cdr")
+    add_test(NAME cli_cdr-import-${scenario}
+        COMMAND python3 -I ${CMAKE_CURRENT_SOURCE_DIR}/check_cdr_import.py
+                $<TARGET_FILE:inkscape>
+                ${CMAKE_CURRENT_SOURCE_DIR}/..
+                ${EXPECT_JSON}
+                ${CMAKE_CURRENT_BINARY_DIR}/cdr-import/${scenario}
+                ${scenario}
+                $<$<BOOL:${WITH_CAPYPDF}>:--pdf>)
+    set_tests_properties(cli_cdr-import-${scenario} PROPERTIES
+        ENVIRONMENT "${INKSCAPE_TEST_PROFILE_DIR_ENV}/cli_cdr-import-${scenario};INKSCAPE_FONTCONFIG=${CMAKE_CURRENT_SOURCE_DIR}/../rendering_tests/fonts/isolated.conf;${CMAKE_CTEST_ENV}"
+        LABELS cdr-import
+        RUN_SERIAL TRUE)
+endfunction()
+
+if(WITH_LIBCDR)
+    add_cdr_import_test(plain-single)
+    add_cdr_import_test(cmyk-single)
+    add_cdr_import_test(multipage)
+    add_cdr_import_test(multipage-cmyk)
+    add_cdr_import_test(dead-argv)
+    add_cdr_import_test(dead-action)
+    add_cdr_import_test(profile-missing)
+    add_cdr_import_test(profile-invalid)
+    if(WITH_CAPYPDF)
+        add_cdr_import_test(e2e-seed)
+    endif()
+endif()

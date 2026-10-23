@@ -238,6 +238,14 @@ if(WITH_LIBCDR OR WITH_LIBVISIO)
 	)
 endif()
 
+# Rosepen 06-01: CDR import core (Gtk-free, no librevenge; always built so the gtests run everywhere)
+target_sources(inkscape_base PRIVATE
+		internal/rvng-pages.cpp
+		internal/rvng-pages.h
+		internal/cdr-import-mapping.cpp
+		internal/cdr-import-mapping.h
+	)
+
 if(WITH_MAGICK)
     target_sources(inkscape_base PRIVATE
 		internal/bitmap/adaptiveThreshold.cpp

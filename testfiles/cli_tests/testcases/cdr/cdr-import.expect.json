@@ -1,0 +1,198 @@
+{
+  "_comment": [
+    "Headless import corpus for the in-tree drawing fixtures (06-01).",
+    "Input paths are relative to <testfiles_dir>/cli_tests/testcases/,",
+    "profile paths are relative to <testfiles_dir>; absolute profile paths are",
+    "used as they are. Numbers are hand-derived from the fixtures: the drawing",
+    "is one A4 page (8.2677 x 11.6929 in, viewBox 0 0 595.2756 841.8898) with",
+    "seven flat fills per page, and every page of the derived three-page copy is",
+    "the same page record, so its paints and pixels repeat.",
+    "'derived:multipage-3' means: rebuild cdr_draw2.cdr at test time with three",
+    "drawing pages (the page record is duplicated inside the compressed drawing",
+    "stream and the source-path credit strings are neutralised)."
+  ],
+  "scenarios": {
+    "plain-single": {
+      "input": "librevenge_formats/cdr_draw2.cdr",
+      "profile": null,
+      "actions": null,
+      "argv_extra": [
+        "--export-type=png", "--export-dpi=96",
+        "--export-background=#ffffff", "--export-background-opacity=1",
+        "--export-filename={outdir}/run.png"
+      ],
+      "expect_rc": 0,
+      "stderr_contains": [],
+      "allow_warnings": [],
+      "page_list": {"lines": 1},
+      "svg": {
+        "plain": {
+          "icc_paints": 0,
+          "color_profiles": 0,
+          "page_elements": 0,
+          "flat_paints": 7,
+          "absent": ["icc-color\\("]
+        }
+      },
+      "png": {"min_nonwhite_percent": 2.0},
+      "_comment": "one page, no output profile set: no pages, no icc-colour, the sRGB drawing; the page is painted (a thin-line A4 drawing covers about 3% of the canvas at 96 dpi)."
+    },
+    "cmyk-single": {
+      "input": "librevenge_formats/cdr_draw2.cdr",
+      "profile": "data/colors/default_cmyk.icc",
+      "actions": null,
+      "argv_extra": [
+        "--export-type=png", "--export-dpi=96",
+        "--export-background=#ffffff", "--export-background-opacity=1",
+        "--export-filename={outdir}/run.png"
+      ],
+      "expect_rc": 0,
+      "stderr_contains": [],
+      "allow_warnings": [],
+      "svg": {
+        "plain": {
+          "icc_paints": 7,
+          "flat_paints": 7,
+          "color_profiles": 1,
+          "page_elements": 0,
+          "require_icc_on_all_flat": true,
+          "baseline_flat_paints": true,
+          "icc_name": "Artifex-CMYK-SWOP-Profile",
+          "profile_href": "default_cmyk.icc"
+        },
+        "inkscape": {
+          "color_profiles": 1,
+          "output_profile": "Artifex-CMYK-SWOP-Profile"
+        }
+      },
+      "png": {"baseline_max_mean_diff": 24.0},
+      "_comment": "the preferred output profile is attached on open and every flat paint is converted: seven fills, all icc-color, one profile element, the same paint count as the profile-less baseline; the on-screen pixels may move by at most 24/255 per channel."
+    },
+    "multipage": {
+      "input": "derived:multipage-3",
+      "profile": null,
+      "actions": null,
+      "argv_extra": [
+        "--export-type=png", "--export-page=1", "--export-dpi=96",
+        "--export-background=#ffffff", "--export-background-opacity=1",
+        "--export-filename={outdir}/run.png"
+      ],
+      "expect_rc": 0,
+      "stderr_contains": [],
+      "allow_warnings": [],
+      "page_list": {"lines": 3, "same_size": true},
+      "svg": {
+        "inkscape": {
+          "layers": ["Page 1", "Page 2", "Page 3"],
+          "page_elements": 3,
+          "color_profiles": 0
+        }
+      },
+      "png": {"pages": [1, 2, 3], "pages_max_mean_diff": 2.0},
+      "pdf": {"pages": 3},
+      "_comment": "three drawing pages: three pages of the same A4 size, one top-level Page N layer each, identical duplicated content (page exports may differ only by antialiasing noise) and three PDF page objects."
+    },
+    "multipage-cmyk": {
+      "input": "derived:multipage-3",
+      "profile": "data/colors/default_cmyk.icc",
+      "actions": null,
+      "argv_extra": [
+        "--export-type=png", "--export-page=2", "--export-dpi=96",
+        "--export-background=#ffffff", "--export-background-opacity=1",
+        "--export-filename={outdir}/run.png"
+      ],
+      "expect_rc": 0,
+      "stderr_contains": [],
+      "allow_warnings": [],
+      "page_list": {"lines": 3, "same_size": true},
+      "svg": {
+        "plain": {
+          "flat_paints": 21,
+          "icc_paints": 21,
+          "color_profiles": 1,
+          "page_elements": 3,
+          "require_icc_on_all_flat": true,
+          "icc_name": "Artifex-CMYK-SWOP-Profile"
+        }
+      },
+      "_comment": "three identical pages with the preferred output profile: three page elements and 3 x 7 flat paints, all of them icc-color of that profile."
+    },
+    "dead-argv": {
+      "input": "librevenge_formats/cdr_draw.cdr",
+      "profile": null,
+      "actions": null,
+      "argv_extra": ["--export-type=png", "--export-filename={outdir}/dead.png"],
+      "expect_rc": 1,
+      "stderr_contains": ["cannot be opened!", "failed to create document!"],
+      "allow_warnings": ["parser error", "WARNING"],
+      "expect_no_file": ["dead.png"],
+      "_comment": "a container the parser cannot read: the command line converter fails with exit code 1, keeps the existing stderr lines and writes no output. The parser noise on stderr is expected for this fixture only."
+    },
+    "dead-action": {
+      "input": "librevenge_formats/cdr_draw2.cdr",
+      "profile": null,
+      "actions": "file-open:{fixtures}/librevenge_formats/cdr_draw.cdr;export-filename:{outdir}/still.png;export-do",
+      "argv_extra": [],
+      "expect_rc": 0,
+      "stderr_contains": ["cannot be opened!"],
+      "allow_warnings": ["parser error", "WARNING"],
+      "expect_file_nonblank": ["still.png"],
+      "_comment": "the file-open action keeps the action convention: stderr and exit code 0, the previously active document stays active and is what gets exported."
+    },
+    "profile-missing": {
+      "input": "librevenge_formats/cdr_draw2.cdr",
+      "profile": "/nonexistent/rosepen-06-01.icc",
+      "actions": null,
+      "argv_extra": [
+        "--export-type=png", "--export-dpi=96",
+        "--export-background=#ffffff", "--export-background-opacity=1",
+        "--export-filename={outdir}/run.png"
+      ],
+      "expect_rc": 0,
+      "stderr_contains": [],
+      "allow_warnings": [],
+      "svg": {
+        "plain": {
+          "icc_paints": 0,
+          "color_profiles": 0,
+          "flat_paints": 7
+        }
+      },
+      "_comment": "a preferred profile file that does not exist is ignored silently, exactly like a new document ignores it: the drawing stays sRGB."
+    },
+    "profile-invalid": {
+      "input": "librevenge_formats/cdr_draw2.cdr",
+      "profile": "cli_tests/testcases/librevenge_formats/cdr_draw2_expected.png",
+      "actions": null,
+      "argv_extra": [
+        "--export-type=png", "--export-dpi=96",
+        "--export-background=#ffffff", "--export-background-opacity=1",
+        "--export-filename={outdir}/run.png"
+      ],
+      "expect_rc": 0,
+      "stderr_contains": ["is not a valid ICC profile"],
+      "allow_warnings": ["is not a valid ICC profile"],
+      "svg": {
+        "plain": {
+          "icc_paints": 0,
+          "color_profiles": 0
+        }
+      },
+      "_comment": "an existing file that is not an ICC profile is reported once with the new-document wording and ignored: exit code 0 and no colour is converted."
+    },
+    "e2e-seed": {
+      "input": "librevenge_formats/cdr_draw2.cdr",
+      "profile": "data/colors/default_cmyk.icc",
+      "actions": null,
+      "argv_extra": [
+        "--export-type=pdf",
+        "--export-filename={outdir}/run.pdf"
+      ],
+      "expect_rc": 0,
+      "stderr_contains": [],
+      "allow_warnings": [],
+      "pdf": {"pages": 1, "cmyk_ops_min": 1},
+      "_comment": "06-02 seed: the drawing opens with the preferred CMYK output profile and the capypdf export carries that colour — its content paints through the embedded 4-component ICCBased colour space (or four-operand k/K), so 'converted CMYK reaches the PDF'. Without the profile the paints stay sRGB and the pdf stage fails (the deliberate negative self-test), which is why this scenario has no svg/png expectations of its own."
+    }
+  }
+}

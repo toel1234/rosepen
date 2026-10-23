@@ -21,14 +21,31 @@
 #include <libcdr/libcdr.h>
 
 #include "extension/input.h"
+#include "extension/internal/cdr-import-mapping.h"
 #include "extension/internal/rvng-import-dialog.h"
 #include "extension/system.h"
 
 namespace Inkscape::Extension::Internal {
 
-std::unique_ptr<SPDocument> CdrInput::open(Inkscape::Extension::Input *, char const *uri, bool)
+std::unique_ptr<SPDocument> CdrInput::open(Inkscape::Extension::Input *, char const *uri, bool is_importing)
 {
-    return rvng_open(uri, libcdr::CDRDocument::isSupported, libcdr::CDRDocument::parse);
+    RvngOpenOptions options;
+    options.all_pages_headless = true;
+    auto doc = rvng_open(uri, libcdr::CDRDocument::isSupported, libcdr::CDRDocument::parse, options);
+
+    // Opening a drawing imports every page and maps its flat colours into the
+    // preferred output profile; importing into an existing document leaves that
+    // document's own output profile in charge.
+    if (doc) {
+        // The profile is stored as an href relative to the drawing's directory,
+        // so the document must know its filename before the profile is attached.
+        doc->setDocumentFilename(uri);
+        if (!is_importing) {
+            CdrImport::map_to_preferred_output_profile(doc.get());
+        }
+    }
+
+    return doc;
 }
 
 #include "clear-n_.h"

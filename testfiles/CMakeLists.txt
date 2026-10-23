@@ -118,6 +118,9 @@ set(TEST_SOURCES
     # 05-05 live sketch
     live-sketch-geometry-test
     live-sketch-ops-test
+    # 06-01 cdr import
+    rvng-pages-test
+    cdr-import-mapping-test
     path-reverse-lpe-test
     preferences-test
     rebase-hrefs-test

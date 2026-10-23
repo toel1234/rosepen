@@ -259,6 +259,14 @@ ALLOW=(
     "README.md"
     "doc/screenshots/workspace.png"
     "doc/screenshots/print-output.png"
+    # 06-01 cdr import (new files; visible to the scope check once committed)
+    "src/extension/internal/rvng-pages.h"
+    "src/extension/internal/rvng-pages.cpp"
+    "src/extension/internal/cdr-import-mapping.h"
+    "src/extension/internal/cdr-import-mapping.cpp"
+    "src/extension/internal/rvng-import-dialog.h"
+    "src/extension/internal/rvng-import-dialog.cpp"
+    "src/inkscape-application.h"
 )
 
 # ---------------------------------------------------------------------------

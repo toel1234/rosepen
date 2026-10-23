@@ -105,6 +105,9 @@ public:
     bool                  document_revert(SPDocument* document);
     void                  document_close(SPDocument* document);
 
+    /// Whether an input file given on the command line failed to open (process rc 1).
+    bool                  open_failed() const { return _open_failed; }
+
     /* These require a GUI! */
     void                  document_fix(SPDesktop *desktop);
 
@@ -135,6 +138,7 @@ protected:
 
     bool _with_gui    = true;
     bool _batch_process = false; // Temp
+    bool _open_failed = false; // An input file given on the command line failed to open
     bool _use_shell   = false;
     bool _use_pipe    = false;
     bool _auto_export = false;
