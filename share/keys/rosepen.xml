@@ -1,9 +1,9 @@
 <?xml version="1.0"?>
 <keys name="Rosepen" xmlns:xi="http://www.w3.org/2001/XInclude">
 
-<!-- CorelDRAW-style defaults; Inkscape bindings inherited.
+<!-- Classic-suite defaults; Inkscape bindings inherited.
      Everything not overridden here comes from inkscape.xml through the
-     xi:include below. Rosepen 04-04; validated by check_corel_keys.py. -->
+     xi:include below. Rosepen 04-04; validated by check_classic_keys.py. -->
 
 <xi:include href="inkscape.xml" />
 

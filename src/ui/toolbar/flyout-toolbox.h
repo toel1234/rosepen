@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 /*
- * FlyoutToolbox - Corel-style single-column toolbox with flyout tool groups.
+ * FlyoutToolbox - classic-style single-column toolbox with flyout tool groups.
  *
  * One button per tool group. The face shows the group's last-used tool and
  * carries a corner indicator when the group has more members; click-and-hold

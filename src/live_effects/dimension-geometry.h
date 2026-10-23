@@ -143,7 +143,7 @@ Result build(Kind kind, std::span<Geom::Point const> pts, Style const &style, bo
  * (precision clamped to 0..6); a negative zero result is normalised to
  * positive. @a sep is " " for linear units and "" for the degree sign.
  * Units are omitted when @a show_units is false; for an angular label with
- * an empty @a unit_abbr the degree sign is used. Corel default look:
+ * an empty @a unit_abbr the degree sign is used. Classic-suite default look:
  * format_label(50.0, 2, "mm", true) == "50.00 mm".
  */
 Glib::ustring format_label(double value, int precision, Glib::ustring const &unit_abbr, bool show_units,

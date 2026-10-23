@@ -103,7 +103,7 @@ set(TEST_SOURCES
     master-layer-display-test
     toolbox-groups-test
     property-bar-context-test
-    # 04-03 Corel dockers
+    # 04-03 classic dockers
     object-manager-filter-test
     properties-panel-kind-test
     workspace-defaults-test

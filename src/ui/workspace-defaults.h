@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 /*
- * WorkspaceDefaults - pure workspace model for the Corel-style workspace.
+ * WorkspaceDefaults - pure workspace model for the classic-style workspace.
  *
  * Every decision here (which menubar file to load, where the colour palette
  * lives and how many lines it shows, which key profile is a default, and the
@@ -22,7 +22,7 @@
 
 namespace Inkscape::UI::Workspace {
 
-/// Preference holding the menubar layout ("corel" or "classic").
+/// Preference holding the menubar layout ("rosepen" or "classic").
 inline constexpr char const *menubar_layout_pref = "/options/menubar/layout";
 
 /// Preference holding the colour palette placement ("bottom" or "right").
@@ -34,7 +34,7 @@ inline constexpr char const *document_tabs_pref = "/options/documenttabs/always"
 /// The Rosepen key profile; a default, so no keys warning is shown for it.
 inline constexpr char const *rosepen_keys_file = "rosepen.xml";
 
-/// The commands bar for a /toolbox/layout value: the Corel standard bar
+/// The commands bar for a /toolbox/layout value: the classic standard bar
 /// unless the classic (upstream) toolbox layout is chosen.
 std::string commandbar_ui_file(std::string_view toolbox_layout);
 
@@ -42,7 +42,7 @@ std::string commandbar_ui_file(std::string_view toolbox_layout);
  * The GtkBuilder file for a menubar layout value.
  *
  * Exactly "classic" selects the upstream menus.ui; anything else, including an
- * empty or unknown value, selects the CorelDRAW-order menus-corel.ui.
+ * empty or unknown value, selects the classic-order menus-classic.ui.
  */
 std::string menubar_ui_file(std::string_view layout_value);
 
@@ -61,7 +61,7 @@ inline std::string menubar_ui_file(char const *layout_value)
 /// Where the palette strip is packed in the drawing window.
 enum class PalettePlacement
 {
-    Right,  ///< CorelDRAW's classic vertical strip at the right edge.
+    Right,  ///< The reference suite's classic vertical strip at the right edge.
     Bottom, ///< The reference screenshot's horizontal row; upstream packing.
 };
 
@@ -109,7 +109,7 @@ struct PrefValue
     char const *value;
 };
 
-/// The complete Rosepen (Corel-style) workspace preset.
+/// The complete Rosepen (classic-style) workspace preset.
 std::span<PrefValue const> rosepen_workspace();
 
 /// The complete Inkscape (upstream) workspace preset.

@@ -51,9 +51,12 @@ void strip_ids_recursively(Inkscape::XML::Node *node) {
 }
 
 /**
- * Return true if the given metadata belongs to a CorelDraw layer.
+ * Return true if the given metadata belongs to a layer imported from a CDR
+ * drawing. The id prefixes/suffixes are byte-exact identifiers the original
+ * application writes into its documents; they are part of the file format,
+ * not a trademark use, and stay verbatim.
  */
-bool is_corel_layer_metadata(SPMetadata const &metadata)
+bool is_cdr_layer_metadata(SPMetadata const &metadata)
 {
     char const *id = metadata.getId();
     return id &&                                  //
@@ -62,15 +65,15 @@ bool is_corel_layer_metadata(SPMetadata const &metadata)
 }
 
 /**
- * Get the label of a CorelDraw layer.
+ * Get the label of a layer imported from a CDR drawing.
  */
-std::string corel_layer_get_label(SPGroup const &layer)
+std::string cdr_layer_get_label(SPGroup const &layer)
 {
     char const *id = layer.getId();
     if (id) {
         return std::regex_replace(id, std::regex("_x0020_"), " ");
     }
-    return "<unnamed-corel-layer>";
+    return "<unnamed-cdr-layer>";
 }
 }
 
@@ -118,13 +121,13 @@ void SPMetadata::update(SPCtx* /*ctx*/, unsigned int flags) {
 
         /* do something? */
 
-        // Detect CorelDraw layers
-        if (is_corel_layer_metadata(*this)) {
+        // Detect layers imported from CDR drawings
+        if (is_cdr_layer_metadata(*this)) {
             auto layer = cast<SPGroup>(parent);
             if (layer && layer->layerMode() == SPGroup::GROUP) {
                 layer->setLayerMode(SPGroup::LAYER);
                 if (!layer->label()) {
-                    layer->setLabel(corel_layer_get_label(*layer).c_str());
+                    layer->setLabel(cdr_layer_get_label(*layer).c_str());
                 }
             }
         }

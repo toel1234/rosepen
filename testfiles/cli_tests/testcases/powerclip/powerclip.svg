@@ -25,8 +25,8 @@
     powerclip.expect.json): the topmost painted object wins at the sample
     after clipping; the container paints where only it covers; an unplaced
     object paints normally; else white.
-  * The expectations are spec-derived from .paul/phases/05-corel-tools/
-    05-01-PLAN.md (task 3); contradicting observed output is a finding, never
+  * The expectations are spec-derived from the .paul phase 05-01 plan
+    (task 3); contradicting observed output is a finding, never
     a reason to loosen the checker or retune an expectation.
 -->
 <svg

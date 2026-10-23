@@ -10,14 +10,14 @@ Every docked or transient dialog id in the shipped defaults must exist in the
 DialogData registry (dialog-data.cpp) AND in the DialogContainer factory
 (dialog-container.cpp); the transient count must match the dialogsN keys; no
 id may be docked and transient or docked twice; and the first notebook must
-hold the Rosepen Corel-style default set in the shipped order.
+hold the Rosepen classic-style default set in the shipped order.
 """
 
 import configparser
 import re
 import sys
 
-COREL_SET = ["ObjectProperties", "Objects", "FillStroke", "Pages"]
+CLASSIC_SET = ["ObjectProperties", "Objects", "FillStroke", "Pages"]
 
 DATA_ROW = re.compile(r'^\s*\{"(\w+)",\s*_\(', re.MULTILINE)
 FACTORY_ROW = re.compile(r'dialog_type == "(\w+)"')
@@ -103,14 +103,14 @@ def main(argv):
     dupes = sorted({did for did in flat_docked if flat_docked.count(did) > 1})
     check("no-duplicate", not dupes, f"docked more than once: {dupes}")
 
-    # corel-set: the first notebook holds exactly the Corel default set, in order.
+    # classic-set: the first notebook holds exactly the classic default set, in order.
     first = None
     for section, key, ids in docked:
         if section == "Window0Column0" and key == "Notebook0Dialogs":
             first = ids
             break
-    check("corel-set", first == COREL_SET,
-          f"Window0Column0/Notebook0Dialogs={first!r}, expected {COREL_SET!r}")
+    check("classic-set", first == CLASSIC_SET,
+          f"Window0Column0/Notebook0Dialogs={first!r}, expected {CLASSIC_SET!r}")
 
     verdict = "DOCKER_DEFAULTS_FAIL" if failed else "DOCKER_DEFAULTS_OK"
     print(f"{verdict} docked={len(flat_docked)} transient={len(flat_transient)}")

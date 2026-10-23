@@ -37,7 +37,7 @@
  */
 
 /* "This product is not manufactured, approved, or supported by
- * Corel Corporation or Corel Corporation Limited."
+ * the original format vendor."
  */
 
 #include "wpg-input.h"
@@ -126,7 +126,7 @@ void WpgInput::init() {
                 "<extension>.wpg</extension>\n"
                 "<mimetype>image/x-wpg</mimetype>\n"
                 "<filetypename>" N_("WordPerfect Graphics (*.wpg)") "</filetypename>\n"
-                "<filetypetooltip>" N_("Vector graphics format used by Corel WordPerfect") "</filetypetooltip>\n"
+                "<filetypetooltip>" N_("Vector graphics format used by WordPerfect documents") "</filetypetooltip>\n"
             "</input>\n"
         "</inkscape-extension>", std::make_unique<WpgInput>());
     // clang-format on

@@ -77,4 +77,5 @@ gzip -9n -c fork/branding/screens/src/<name>.svg > fork/branding/screens/about/<
   external references, no fonts.
 - Every file starts with the XML declaration and the
   `SPDX-License-Identifier: GPL-2.0-or-later` comment.
-- Must not resemble the Inkscape logo, the CorelDRAW balloon or any Corel mark.
+- Must not resemble the Inkscape logo, the reference suite's balloon icon, or
+  any other third-party vector-graphics mark (logos or trade dress).

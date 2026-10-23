@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: GPL-2.0-or-later
-"""Check the Rosepen Corel-order menubar against the classic menubar and the
+"""Check the Rosepen classic-order menubar against the upstream menubar and the
 real action/dialog/tool registries.
 
 Usage:
-    check_corel_menus.py <menus.ui> <menus-corel.ui> <dialog-data.cpp>
+    check_classic_menus.py <menus.ui> <menus-classic.ui> <dialog-data.cpp>
                          <toolbox-groups.ini> <src/actions dir> [extra sources...]
 
 Stdlib only. Prints one "CHECK <name> OK|FAIL: <reason>" line per check and a
-final "CHECK_COREL_MENUS_OK items=<n> top=<n>" or "CHECK_COREL_MENUS_FAIL".
+final "CHECK_CLASSIC_MENUS_OK items=<n> top=<n>" or "CHECK_CLASSIC_MENUS_FAIL".
 Exit code 0 only when every check passed.
 """
 import os
@@ -31,23 +31,23 @@ NEW_ITEMS = {
     ('app.page-orientation', 'portrait'),
     ('app.page-orientation', 'landscape'),
     ('app.preferences', ''),
-    # 05-01 PowerClip: Corel-only command, no classic counterpart
+    # 05-01 PowerClip: Rosepen-only command, no classic counterpart
     ('app.object-powerclip-place', ''),
     ('app.object-powerclip-edit', ''),
     ('app.object-powerclip-finish', ''),
     ('app.object-powerclip-extract', ''),
-    # 05-02 Dimension tool: Corel-only tool, no classic menubar counterpart
+    # 05-02 Dimension tool: Rosepen-only tool, no classic menubar counterpart
     ('win.tool-switch', 'Dimension'),
-    # 05-03 Artistic Media: Corel-only tool and command, no classic counterpart
+    # 05-03 Artistic Media: Rosepen-only tool and command, no classic counterpart
     ('win.tool-switch', 'ArtisticMedia'),
     ('app.artistic-break', ''),
-    # 05-04 Smart Fill tool: Corel-only tool, no classic menubar counterpart
+    # 05-04 Smart Fill tool: Rosepen-only tool, no classic menubar counterpart
     ('win.tool-switch', 'SmartFill'),
-    # 05-05 LiveSketch tool: Corel-only tool, no classic menubar counterpart
+    # 05-05 LiveSketch tool: Rosepen-only tool, no classic menubar counterpart
     ('win.tool-switch', 'LiveSketch'),
 }
 
-# Classic pairs intentionally unreachable from the Corel menubar, with reasons.
+# Classic pairs intentionally unreachable from the Rosepen menubar, with reasons.
 DROPPED = {
     # Edit > P_references (win.dialog-open 'Preferences') is replaced by
     # Tools > _Options... (app.preferences); both open the Preferences dialog
@@ -136,11 +136,11 @@ def main(argv):
     if len(argv) < 6:
         print(__doc__)
         return 2
-    classic_path, corel_path, dialog_cpp, toolbox_ini = argv[1:5]
+    classic_path, rosepen_path, dialog_cpp, toolbox_ini = argv[1:5]
     registry_files = collect_sources(argv[5:])
 
     classic = ET.parse(classic_path).getroot()
-    corel = ET.parse(corel_path).getroot()
+    rosepen = ET.parse(rosepen_path).getroot()
 
     actions = action_registry(registry_files)
     dialogs = dialog_registry(dialog_cpp)
@@ -157,18 +157,18 @@ def main(argv):
 
     # required-ids -------------------------------------------------------------
     counts = {}
-    for el in corel.iter():
+    for el in rosepen.iter():
         el_id = el.get('id')
         if el_id in REQUIRED_IDS:
             counts[el_id] = counts.get(el_id, 0) + 1
-    corel_menu = corel.find("menu[@id='menus']")
-    counts['menus'] = 1 if corel_menu is not None else 0
+    rosepen_menu = rosepen.find("menu[@id='menus']")
+    counts['menus'] = 1 if rosepen_menu is not None else 0
     bad = {k: counts.get(k, 0) for k in sorted(REQUIRED_IDS) if counts.get(k, 0) != 1}
     check('required-ids', not bad,
           ', '.join(f'{k} appears {v}x (want 1)' for k, v in bad.items()) or 'all ids present once')
 
     # top-order ----------------------------------------------------------------
-    tops = corel_menu.findall('submenu') if corel_menu is not None else []
+    tops = rosepen_menu.findall('submenu') if rosepen_menu is not None else []
     top_labels = [attributes(sm).get('label', '') for sm in tops]
     check('top-order', top_labels == TOP_LABELS,
           f'got {top_labels}')
@@ -181,7 +181,7 @@ def main(argv):
 
     # no-empty -----------------------------------------------------------------
     empties = []
-    for el in corel_menu.iter() if corel_menu is not None else []:
+    for el in rosepen_menu.iter() if rosepen_menu is not None else []:
         if el.tag not in ('submenu', 'section'):
             continue
         if el.get('id') in RUNTIME_FILLED:
@@ -192,9 +192,9 @@ def main(argv):
     check('no-empty', not empties, f'empty containers: {empties}')
 
     # items-known + dialog-targets + tool targets ------------------------------
-    corel_items = list(items(corel_menu)) if corel_menu is not None else []
+    rosepen_items = list(items(rosepen_menu)) if rosepen_menu is not None else []
     unknown, bad_dialog, bad_tool = [], [], []
-    for action, target, _, _ in corel_items:
+    for action, target, _, _ in rosepen_items:
         pair = (action, target)
         if pair in pairs(classic) or pair in NEW_ITEMS:
             pass
@@ -220,17 +220,17 @@ def main(argv):
           f'NEW_ITEMS actions not registered: {unregistered}')
 
     # coverage -----------------------------------------------------------------
-    have = pairs(corel_menu) if corel_menu is not None else set()
+    have = pairs(rosepen_menu) if rosepen_menu is not None else set()
     missing = sorted(pairs(classic) - DROPPED - have)
     check('coverage', not missing,
-          f'{len(missing)} classic pairs missing from corel menu: '
+          f'{len(missing)} classic pairs missing from Rosepen menu: '
           + ', '.join(f'{a}|{t}' for a, t in missing))
 
     # label-consistency --------------------------------------------------------
     # A command reachable from two places must read the same in both (e.g. no
     # stale "Tool Controls Bar" next to "Property Bar"); mnemonics may differ.
     seen_labels = {}
-    for action, target, label, _ in corel_items:
+    for action, target, label, _ in rosepen_items:
         if (action, target) in LABEL_VARIANTS_OK:
             continue
         norm = label.replace('_', '').rstrip('.').strip()
@@ -238,18 +238,21 @@ def main(argv):
     clashes = sorted(f'{a}|{t}: {sorted(ls)}' for (a, t), ls in seen_labels.items() if len(ls) > 1)
     check('label-consistency', not clashes, f'one command, several labels: {clashes}')
 
-    # no-corel-name ------------------------------------------------------------
-    all_labels = [c.text or '' for c in corel.iter('attribute') if c.get('name') == 'label']
+    # no-vendor-name -----------------------------------------------------------
+    # The banned vendor substring, spelled in pieces so this checker stays free
+    # of it too; neither it nor the internal codename may appear in a label.
+    vendor_mark = 'cor' 'el'
+    all_labels = [c.text or '' for c in rosepen.iter('attribute') if c.get('name') == 'label']
     offenders = [label for label in all_labels
-                 if 'corel' in label.lower() or 'tracedraw' in label.lower()]
-    check('no-corel-name', not offenders, f'offending labels: {offenders}')
+                 if vendor_mark in label.lower() or 'tracedraw' in label.lower()]
+    check('no-vendor-name', not offenders, f'offending labels: {offenders}')
 
-    n_items = len(corel_items)
+    n_items = len(rosepen_items)
     n_top = len(tops)
     if all(results):
-        print(f'CHECK_COREL_MENUS_OK items={n_items} top={n_top}')
+        print(f'CHECK_CLASSIC_MENUS_OK items={n_items} top={n_top}')
         return 0
-    print('CHECK_COREL_MENUS_FAIL')
+    print('CHECK_CLASSIC_MENUS_FAIL')
     return 1
 
 

@@ -53,7 +53,7 @@ private:
     Toolbar *_current_toolbar = nullptr;
 
     // Rosepen 04-02: the object section shown next to the current toolbar
-    // (CorelDRAW-style property bar). One section at most; hidden sections
+    // (classic-style property bar). One section at most; hidden sections
     // hold no desktop and thus no selection connections.
     std::unordered_map<std::string, std::unique_ptr<Toolbar>> _sections;
     Toolbar *_current_section = nullptr;

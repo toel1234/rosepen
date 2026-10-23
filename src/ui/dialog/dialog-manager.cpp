@@ -139,11 +139,11 @@ const char dialogs_state[] = "dialogs-state-ex.ini";
 const char save_dialog_position[] = "/options/savedialogposition/value";
 const char transient_group[] = "transient";
 
-// Rosepen: profiles created before the Corel workspace carry a saved dock layout
-// that wins over the shipped Corel defaults, so the Corel docker set never
+// Rosepen: profiles created before the classic workspace carry a saved dock layout
+// that wins over the shipped Rosepen defaults, so the classic docker set never
 // appears for them. Migrate once: move the legacy layout aside and use the
 // shipped defaults. The marker keeps this from happening again.
-const char corel_defaults_marker[] = "/options/workspace/corel-defaults-applied";
+const char classic_defaults_marker[] = "/options/workspace/classic-defaults-applied";
 
 // list of dialogs sharing the same state
 std::vector<Glib::ustring> DialogManager::count_dialogs(const Glib::KeyFile *state) const
@@ -239,19 +239,19 @@ void DialogManager::restore_dialogs_state(DialogContainer *docking_container, bo
 
         bool exists = file_exists(filename);
 
-        if (!prefs->getBool(corel_defaults_marker, false)) {
+        if (!prefs->getBool(classic_defaults_marker, false)) {
             if (exists) {
-                std::string const backup = filename + ".pre-corel";
+                std::string const backup = filename + ".pre-classic";
                 std::error_code error;
                 filesystem::rename(filename, backup, error);
                 if (error) {
                     g_warning("Rosepen: could not move the legacy dialog layout aside: %s",
                               error.message().c_str());
                 }
-                // Use the Corel defaults this run even if the backup move failed.
+                // Use the classic defaults this run even if the backup move failed.
                 exists = false;
             }
-            prefs->setBool(corel_defaults_marker, true);
+            prefs->setBool(classic_defaults_marker, true);
         }
 
         if (exists && keyfile->load_from_file(filename)) {

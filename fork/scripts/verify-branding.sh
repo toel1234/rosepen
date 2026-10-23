@@ -114,7 +114,16 @@ ALLOW=(
     "fork/tools/*"
     ".github/*"
     ".paul/*"
-    # 04-01 Corel toolbox
+    # Public-launch trademark sweep: format-only wording in the CDR/WPG/metadata
+    # code, and the vendor-named upstream keyprofiles plus macOS packaging removed.
+    # The keyprofile glob matches the removed files without spelling the mark here.
+    "doc/building/mac.md"
+    "packaging/macos/res/*"
+    "share/keys/core?-draw-x?.xml"
+    "src/extension/internal/cdr-input.cpp"
+    "src/extension/internal/wpg-input.cpp"
+    "src/object/sp-metadata.cpp"
+    # 04-01 classic toolbox
     "share/ui/toolbox-groups.ini"
     "src/ui/toolbar/toolbox-groups.h"
     "src/ui/toolbar/toolbox-groups.cpp"
@@ -125,7 +134,7 @@ ALLOW=(
     "src/ui/dialog/inkscape-preferences.cpp"
     "testfiles/src/toolbox-groups-test.cpp"
     "testfiles/cli_tests/check_toolbox_groups.py"
-    # 04-02 Corel property bar
+    # 04-02 classic property bar
     "src/ui/toolbar/property-bar-context.h"
     "src/ui/toolbar/property-bar-context.cpp"
     "src/ui/toolbar/toolbars.h"
@@ -155,7 +164,7 @@ ALLOW=(
     "src/extension/internal/pdfoutput/build-document.cpp"
     "src/extension/internal/pdfoutput/build-images.cpp"
     "src/extension/internal/pdfoutput/build-drawing.cpp"
-    # 04-03 Corel dockers
+    # 04-03 classic dockers
     "src/ui/dialog/object-manager-filter.h"
     "src/ui/dialog/object-manager-filter.cpp"
     "src/ui/dialog/properties-panel-kind.h"
@@ -165,10 +174,10 @@ ALLOW=(
     "src/ui/contextmenu.cpp"
     "share/ui/dialog-objects.glade"
     "share/ui/default-dialog-state.ini"
-    # 04-04 Corel workspace
+    # 04-04 classic workspace
     "src/ui/workspace-defaults.h"
     "src/ui/workspace-defaults.cpp"
-    "share/ui/menus-corel.ui"
+    "share/ui/menus-classic.ui"
     "share/keys/rosepen.xml"
     "src/ui/desktop/menubar.cpp"
     "src/ui/dialog/startup.cpp"
@@ -178,10 +187,10 @@ ALLOW=(
     "src/ui/widget/desktop-widget.h"
     "src/actions/actions-view-mode.cpp"
     "src/ui/dialog/dialog-manager.cpp"
-    # Rosepen icon theme (TraceDraw icons) and Corel standard bar
+    # Rosepen icon theme (TraceDraw icons) and classic standard bar
     "share/icons/CMakeLists.txt"
     "share/icons/rosepen/*"
-    "share/ui/toolbar-commands-corel.ui"
+    "share/ui/toolbar-commands-classic.ui"
     "src/ui/toolbar/command-toolbar.cpp"
     # Always-visible document tabs with a New Document button
     "src/ui/widget/desktop-tab-controls.h"
@@ -397,10 +406,11 @@ if [ "$assets" -eq 0 ]; then
     pass "all fork SVGs are SPDX-tagged and the about screens render"
 fi
 
-if ! grep -rlqiE 'inkscape|corel' fork/branding/icons fork/branding/logo; then
-    pass "no Inkscape/Corel names in icons or logo"
+# The regex form matches the banned vendor mark without spelling it in this file.
+if ! grep -rlqiE 'inkscape|cor.?el' fork/branding/icons fork/branding/logo; then
+    pass "no Inkscape or vendor marks in icons or logo"
 else
-    bad "no Inkscape/Corel names in icons or logo"
+    bad "no Inkscape or vendor marks in icons or logo"
 fi
 
 icons=0

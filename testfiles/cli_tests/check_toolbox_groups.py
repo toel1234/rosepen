@@ -3,7 +3,7 @@
 #
 # Headless validator for share/ui/toolbox-groups.ini.
 #
-# Cross-checks the Corel-style toolbox group data against the upstream tool
+# Cross-checks the classic-style toolbox group data against the upstream tool
 # toolbar (share/ui/toolbar-tool.ui) and the tool registry
 # (src/ui/tools/tool-data.cpp). Standard library only; run with python3 -I.
 #

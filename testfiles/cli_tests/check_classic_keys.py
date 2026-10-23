@@ -4,15 +4,15 @@
 Inkscape profile it inherits from and the real action/dialog/tool registries.
 
 Usage:
-    check_corel_keys.py <keys dir> <rosepen.xml> <dialog-data.cpp>
+    check_classic_keys.py <keys dir> <rosepen.xml> <dialog-data.cpp>
                         <toolbox-groups.ini> <src/actions dir> [extra sources...]
 
 Resolves xi:include relative to the keys dir. The effective trigger map is the
 document-order replay of the binds (last binding of a trigger wins, mirroring
 Shortcuts::_add_shortcut). Stdlib only. Prints one "CHECK <name> OK|FAIL:
 <reason>" line per check, "OVERRIDE <trigger>: <old> -> <new>" lines for every
-changed Inkscape trigger, and a final "CHECK_COREL_KEYS_OK binds=<n>
-overrides=<m>" or "CHECK_COREL_KEYS_FAIL". Exit code 0 only when all passed.
+changed Inkscape trigger, and a final "CHECK_CLASSIC_KEYS_OK binds=<n>
+overrides=<m>" or "CHECK_CLASSIC_KEYS_FAIL". Exit code 0 only when all passed.
 """
 import os
 import re
@@ -24,7 +24,7 @@ SNAP_TABLE_RE = re.compile(r'"((?:app|win|doc)\.snap-[\w-]+)"')
 DIALOG_ID_RE = re.compile(r'\{\s*"(\w+)",\s*_')
 XINCLUDE_NS = '{http://www.w3.org/2001/XInclude}include'
 
-# The golden CorelDRAW key table: normalized trigger -> exact gaction string.
+# The golden classic-suite key table: normalized trigger -> exact gaction string.
 EXPECTED = {
     # Tools
     'F10': "win.tool-switch('Node')",
@@ -231,7 +231,10 @@ def main(argv):
     # name ----------------------------------------------------------------------
     root = ET.parse(rosepen_xml).getroot()
     name = root.get('name') or ''
-    check('name', root.tag == 'keys' and name == 'Rosepen' and 'corel' not in name.lower(),
+    # vendor_mark: the banned vendor substring, spelled in pieces so this
+    # checker stays free of it too.
+    vendor_mark = 'cor' 'el'
+    check('name', root.tag == 'keys' and name == 'Rosepen' and vendor_mark not in name.lower(),
           f'root={root.tag} name={name!r}')
 
     # actions-known --------------------------------------------------------------
@@ -282,9 +285,9 @@ def main(argv):
           f'undocumented overrides: {undocumented}')
 
     if all(results):
-        print(f'CHECK_COREL_KEYS_OK binds={len(rosepen_binds)} overrides={len(changed)}')
+        print(f'CHECK_CLASSIC_KEYS_OK binds={len(rosepen_binds)} overrides={len(changed)}')
         return 0
-    print('CHECK_COREL_KEYS_FAIL')
+    print('CHECK_CLASSIC_KEYS_FAIL')
     return 1
 
 

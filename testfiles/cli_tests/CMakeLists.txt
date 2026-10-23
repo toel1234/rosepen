@@ -1367,7 +1367,7 @@ if(WITH_CAPYPDF)
     add_pdfx_test(x1a-master)
 endif()
 
-# 04-01 Corel toolbox: validate the shipped group data against the upstream toolbar (orchestrator integration point)
+# 04-01 classic toolbox: validate the shipped group data against the upstream toolbar (orchestrator integration point)
 add_test(NAME cli_toolbox-groups
          COMMAND python3 -I ${CMAKE_CURRENT_SOURCE_DIR}/check_toolbox_groups.py
                  ${CMAKE_SOURCE_DIR}/share/ui/toolbox-groups.ini
@@ -1383,24 +1383,24 @@ add_test(NAME cli_docker-defaults
                  ${CMAKE_SOURCE_DIR}/src/ui/dialog/dialog-container.cpp)
 set_tests_properties(cli_docker-defaults PROPERTIES LABELS docker)
 
-# Rosepen 04-04: validate the Corel-order menubar and the Rosepen key profile
-add_test(NAME cli_corel-menus
-         COMMAND python3 -I ${CMAKE_CURRENT_SOURCE_DIR}/check_corel_menus.py
+# Rosepen 04-04: validate the classic-order menubar and the Rosepen key profile
+add_test(NAME cli_classic-menus
+         COMMAND python3 -I ${CMAKE_CURRENT_SOURCE_DIR}/check_classic_menus.py
                  ${CMAKE_SOURCE_DIR}/share/ui/menus.ui
-                 ${CMAKE_SOURCE_DIR}/share/ui/menus-corel.ui
+                 ${CMAKE_SOURCE_DIR}/share/ui/menus-classic.ui
                  ${CMAKE_SOURCE_DIR}/src/ui/dialog/dialog-data.cpp
                  ${CMAKE_SOURCE_DIR}/share/ui/toolbox-groups.ini
                  ${CMAKE_SOURCE_DIR}/src/actions)
-set_tests_properties(cli_corel-menus PROPERTIES LABELS workspace)
+set_tests_properties(cli_classic-menus PROPERTIES LABELS workspace)
 
-add_test(NAME cli_corel-keys
-         COMMAND python3 -I ${CMAKE_CURRENT_SOURCE_DIR}/check_corel_keys.py
+add_test(NAME cli_classic-keys
+         COMMAND python3 -I ${CMAKE_CURRENT_SOURCE_DIR}/check_classic_keys.py
                  ${CMAKE_SOURCE_DIR}/share/keys
                  ${CMAKE_SOURCE_DIR}/share/keys/rosepen.xml
                  ${CMAKE_SOURCE_DIR}/src/ui/dialog/dialog-data.cpp
                  ${CMAKE_SOURCE_DIR}/share/ui/toolbox-groups.ini
                  ${CMAKE_SOURCE_DIR}/src/actions)
-set_tests_properties(cli_corel-keys PROPERTIES LABELS workspace)
+set_tests_properties(cli_classic-keys PROPERTIES LABELS workspace)
 
 #############################################################################################
 ### PowerClip lock (05-01)                                                                 ###
@@ -1447,12 +1447,12 @@ add_powerclip_test(refuse-single)
 # librevenge formats
 if(WITH_LIBCDR)
   # add_cli_test(import_cdr  PARAMETERS --export-type=png   # fails to open (regression in libcdr 1.6.0)
-  #                          INPUT_FILENAME librevenge_formats/corel_draw.cdr OUTPUT_FILENAME format_corel_draw.png
-  #                          REFERENCE_FILENAME librevenge_formats/corel_draw_expected.png # check png size is correct
+  #                          INPUT_FILENAME librevenge_formats/cdr_draw.cdr OUTPUT_FILENAME format_cdr_draw.png
+  #                          REFERENCE_FILENAME librevenge_formats/cdr_draw_expected.png # check png size is correct
   #                          FUZZ_PERCENTAGE 3)
   add_cli_test(import_cdr2 PARAMETERS --export-type=png
-                           INPUT_FILENAME librevenge_formats/corel_draw2.cdr OUTPUT_FILENAME format_corel_draw2.png
-                           REFERENCE_FILENAME librevenge_formats/corel_draw2_expected.png
+                           INPUT_FILENAME librevenge_formats/cdr_draw2.cdr OUTPUT_FILENAME format_cdr_draw2.png
+                           REFERENCE_FILENAME librevenge_formats/cdr_draw2_expected.png
                            FUZZ_PERCENTAGE 3)
 endif()
 if(WITH_LIBVISIO)

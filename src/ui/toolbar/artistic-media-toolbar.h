@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 /*
- * Artistic Media tool controls bar (Corel property-bar semantics).
+ * Artistic Media tool controls bar (classic property-bar semantics).
  *
  * Every control stores its /tools/artistic/* preference and applies the same
  * change to the selection: existing artistic media strokes through

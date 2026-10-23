@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 /*
- * FlyoutToolbox - Corel-style single-column toolbox with flyout tool groups.
+ * FlyoutToolbox - classic-style single-column toolbox with flyout tool groups.
  *
  * Copyright (C) 2026 Authors
  *
@@ -37,7 +37,7 @@ namespace {
 /// Same pref subtree as the classic toolbox visibility toggles.
 constexpr char const *buttons_path = "/toolbox/tools/buttons";
 
-/// Side of the square corner indicator, in px. Kept small like CorelDRAW's.
+/// Side of the square corner indicator, in px. Kept small like the reference suite's.
 constexpr int indicator_size = 7;
 
 /// Fraction of the face that counts as its bottom-right flyout corner.
@@ -259,7 +259,7 @@ void FlyoutToolbox::build_row(std::size_t index)
 /**
  * Face gestures, using the CAPTURE idiom of ToolToolbar::attachHandlers:
  *  - long-press button 1 opens the flyout and claims the sequence, so the
- *    release does not switch tools (Corel click-and-hold);
+ *    release does not switch tools (classic click-and-hold);
  *  - a single press in the bottom-right corner opens the flyout and claims;
  *  - double-click opens the tool preferences;
  *  - button 3 opens the context menu via the caller's callback;

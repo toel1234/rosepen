@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 /*
- * ToolboxGroups - Corel-style toolbox group model.
+ * ToolboxGroups - classic-style toolbox group model.
  *
  * Copyright (C) 2026 Authors
  *
@@ -30,10 +30,10 @@ struct ToolGroup
     std::vector<Glib::ustring> tools;
 };
 
-/// Preference holding the toolbox layout ("corel" or "classic").
+/// Preference holding the toolbox layout ("rosepen" or "classic").
 inline constexpr char const *toolbox_layout_path = "/toolbox/layout";
 
-/// True unless /toolbox/layout is "classic"; bad or missing values mean "corel".
+/// True unless /toolbox/layout is "classic"; bad or missing values mean "rosepen".
 bool use_flyout_layout();
 
 /**

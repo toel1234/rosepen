@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 /*
- * WorkspaceDefaults - pure workspace model for the Corel-style workspace.
+ * WorkspaceDefaults - pure workspace model for the classic-style workspace.
  *
  * Copyright (C) 2026 Authors
  *
@@ -20,9 +20,9 @@ namespace {
 // Both presets cover the same paths in the same order so that either one
 // resets every workspace choice, including a manual palette placement.
 constexpr PrefValue rosepen_values[] = {
-    {"/toolbox/layout", "corel"},
+    {"/toolbox/layout", "rosepen"},
     {"/toolbox/propertybar/object-sections", "true"},
-    {menubar_layout_pref, "corel"},
+    {menubar_layout_pref, "rosepen"},
     {palette_placement_pref, "bottom"},
     {"/options/kbshortcuts/shortcutfile", rosepen_keys_file},
     {"/window/interface_mode", "false"},
@@ -62,12 +62,12 @@ bool is_bool_literal(char const *value)
 
 std::string commandbar_ui_file(std::string_view toolbox_layout)
 {
-    return toolbox_layout == "classic" ? "toolbar-commands.ui" : "toolbar-commands-corel.ui";
+    return toolbox_layout == "classic" ? "toolbar-commands.ui" : "toolbar-commands-classic.ui";
 }
 
 std::string menubar_ui_file(std::string_view layout_value)
 {
-    return layout_value == "classic" ? "menus.ui" : "menus-corel.ui";
+    return layout_value == "classic" ? "menus.ui" : "menus-classic.ui";
 }
 
 PalettePlacement palette_placement(std::string_view value)

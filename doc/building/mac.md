@@ -116,7 +116,7 @@ Start Inkscape from that folder:
 ./install_dir/bin/inkscape
 ```
 
-To turn the folder into an app or a DMG, you can use the [mibap](https://github.com/dehesselle/mibap) toolset together with the resource files inside the inkscape/packaging/macos directory.
+To turn the folder into an app or a DMG, you can use the [mibap](https://github.com/dehesselle/mibap) toolset.
 
 Follow the steps to install the toolset, package the app, and create a DMG. You will get the app under `/Users/Shared/work/mibap-*/` and you will get a DMG file in the same place you ran ./build_inkscape.sh. 
 

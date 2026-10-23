@@ -1,9 +1,9 @@
 <?xml version="1.0"?>
-<!-- Rosepen 04-04: CorelDRAW-order menubar.
+<!-- Rosepen 04-04: classic-order menubar.
      Every item mirrors share/ui/menus.ui (same action + target), rearranged into the
      reference workspace order; the only new actions are the 04-04 page-navigation rows
-     listed as NEW_ITEMS in testfiles/cli_tests/check_corel_menus.py.
-     Validated by testfiles/cli_tests/check_corel_menus.py. -->
+     listed as NEW_ITEMS in testfiles/cli_tests/check_classic_menus.py.
+     Validated by testfiles/cli_tests/check_classic_menus.py. -->
 <interface>
   <requires lib="gtk" version="4.0" />
   <menu id="menus">

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 /*
- * Unit tests for the pure Corel-style workspace model.
+ * Unit tests for the pure classic-style workspace model.
  *
  * Copyright (C) 2026 Authors
  *
@@ -62,16 +62,16 @@ protected:
 
 TEST(WorkspaceDefaults, menubarUiFile)
 {
-    EXPECT_EQ(menubar_ui_file(""), "menus-corel.ui");
-    EXPECT_EQ(menubar_ui_file("corel"), "menus-corel.ui");
-    EXPECT_EQ(menubar_ui_file("bogus"), "menus-corel.ui");
+    EXPECT_EQ(menubar_ui_file(""), "menus-classic.ui");
+    EXPECT_EQ(menubar_ui_file("rosepen"), "menus-classic.ui");
+    EXPECT_EQ(menubar_ui_file("bogus"), "menus-classic.ui");
     EXPECT_EQ(menubar_ui_file("classic"), "menus.ui");
 }
 
 TEST(WorkspaceDefaults, commandbarUiFile)
 {
-    EXPECT_EQ(commandbar_ui_file("corel"), "toolbar-commands-corel.ui");
-    EXPECT_EQ(commandbar_ui_file(""), "toolbar-commands-corel.ui");
+    EXPECT_EQ(commandbar_ui_file("rosepen"), "toolbar-commands-classic.ui");
+    EXPECT_EQ(commandbar_ui_file(""), "toolbar-commands-classic.ui");
     EXPECT_EQ(commandbar_ui_file("classic"), "toolbar-commands.ui");
 }
 
@@ -97,7 +97,7 @@ TEST(WorkspaceDefaults, isDefaultKeysFile)
     EXPECT_TRUE(is_default_keys_file("inkscape.xml"));
     EXPECT_TRUE(is_default_keys_file("default.xml"));
     EXPECT_TRUE(is_default_keys_file(rosepen_keys_file));
-    EXPECT_FALSE(is_default_keys_file("corel-draw-x8.xml"));
+    EXPECT_FALSE(is_default_keys_file("zoner-draw.xml"));
 }
 
 TEST(WorkspaceDefaults, presetParity)
@@ -140,7 +140,7 @@ TEST(WorkspaceDefaults, presetParity)
     for (auto const &entry : rosepen) {
         auto const *path = entry.path;
         if (std::strcmp(path, "/options/menubar/layout") == 0) {
-            EXPECT_EQ(menubar_ui_file(entry.value), "menus-corel.ui");
+            EXPECT_EQ(menubar_ui_file(entry.value), "menus-classic.ui");
         } else if (std::strcmp(path, "/options/kbshortcuts/shortcutfile") == 0) {
             EXPECT_STREQ(entry.value, rosepen_keys_file);
         } else if (std::strcmp(path, "/embedded/swatches/placement") == 0) {
@@ -190,9 +190,9 @@ TEST_F(WorkspaceDefaultsTest, applyRosepenPreset)
 {
     apply_workspace(rosepen_workspace());
 
-    EXPECT_EQ(prefs->getString("/toolbox/layout"), "corel");
+    EXPECT_EQ(prefs->getString("/toolbox/layout"), "rosepen");
     EXPECT_TRUE(prefs->getBool("/toolbox/propertybar/object-sections", false));
-    EXPECT_EQ(prefs->getString("/options/menubar/layout"), "corel");
+    EXPECT_EQ(prefs->getString("/options/menubar/layout"), "rosepen");
     EXPECT_EQ(prefs->getString("/embedded/swatches/placement"), "bottom");
     EXPECT_EQ(prefs->getString("/options/kbshortcuts/shortcutfile"), rosepen_keys_file);
     ASSERT_TRUE(prefs->getEntry("/window/interface_mode").isSet());
@@ -235,7 +235,7 @@ TEST_F(WorkspaceDefaultsTest, revisionMigratesOldProfileOnce)
     EXPECT_FALSE(prefs->getBool("/theme/darkTheme", true));
     EXPECT_FALSE(prefs->getBool("/theme/preferDarkTheme", true));
     EXPECT_FALSE(prefs->getBool("/theme/symbolicIcons", true));
-    EXPECT_EQ(prefs->getString("/options/menubar/layout"), "corel");
+    EXPECT_EQ(prefs->getString("/options/menubar/layout"), "rosepen");
     EXPECT_EQ(prefs->getInt(workspace_revision_pref, 0), workspace_revision);
 
     // A later user choice survives the next start.

@@ -25,7 +25,7 @@ namespace Inkscape::UI::Toolbar {
 
 namespace {
 
-// Rosepen: the Corel standard bar unless the classic toolbox layout is chosen.
+// Rosepen: the classic standard bar unless the classic toolbox layout is chosen.
 std::string commands_ui_file()
 {
     auto const layout = Preferences::get()->getString(toolbox_layout_path);

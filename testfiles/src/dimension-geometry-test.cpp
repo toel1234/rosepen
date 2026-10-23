@@ -657,7 +657,7 @@ TEST(DimensionBuildTest, DegenerateInputs)
 
 // -------------------------------------------------------------------------
 
-TEST(DimensionLabelTest, CorelDefaultLook)
+TEST(DimensionLabelTest, ClassicDefaultLook)
 {
     EXPECT_EQ(format_label(50.0, 2, "mm", true, "", "", false), "50.00 mm");
 }

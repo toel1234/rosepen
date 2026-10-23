@@ -255,7 +255,7 @@ bool step_page(SPDocument *doc, int delta)
         return false;
     }
 
-    // No wrap: CorelDRAW's PgUp/PgDn stop at the first and last page. The
+    // No wrap: the reference suite's PgUp/PgDn stop at the first and last page. The
     // bounds check must come before selectPage(), which would deselect the
     // page for an out-of-range index.
     int const target = pm.getSelectedPageIndex() + delta;

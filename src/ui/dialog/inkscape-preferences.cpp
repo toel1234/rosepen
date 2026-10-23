@@ -2029,25 +2029,25 @@ void InkscapePreferences::initPageUI()
 
         _page_toolbars.add_line(false, "", toolbox, "", _("Select visible tool buttons"), true);
 
-        Glib::ustring layout_labels[] = {_("Corel-style flyout groups"), _("Classic grid")};
-        Glib::ustring layout_values[] = {"corel", "classic"};
+        Glib::ustring layout_labels[] = {_("Rosepen-style flyout groups"), _("Classic grid")};
+        Glib::ustring layout_values[] = {"rosepen", "classic"};
         auto const layout = Gtk::make_managed<UI::Widget::PrefCombo>();
-        layout->init(Inkscape::UI::Toolbar::toolbox_layout_path, layout_labels, layout_values, "corel");
+        layout->init(Inkscape::UI::Toolbar::toolbox_layout_path, layout_labels, layout_values, "rosepen");
         _page_toolbars.add_line(false, _("Toolbox layout:"), *layout, "",
-                                _("Group related tools behind flyout buttons like CorelDRAW, or show every tool in a grid. Applies to new windows."));
+                                _("Group related tools behind flyout buttons (Rosepen default), or show every tool in a grid. Applies to new windows."));
 
         auto const object_sections = Gtk::make_managed<UI::Widget::PrefCheckButton>();
         object_sections->init(_("Show object properties for the selection"),
                               Inkscape::UI::Toolbar::object_sections_pref_path, true);
         _page_toolbars.add_line(false, "", *object_sections, "",
-                                _("With the Select or Node tool, add the selected rectangle, ellipse, star, spiral or text controls to the tool controls bar (CorelDRAW-style property bar)."));
+                                _("With the Select or Node tool, add the selected rectangle, ellipse, star, spiral or text controls to the tool controls bar (classic-style property bar)."));
 
         // Rosepen 04-04: escape hatches — every workspace default is one
         // preference away from upstream.
         Glib::ustring menubar_labels[] = {_("Rosepen"), _("Classic")};
-        Glib::ustring menubar_values[] = {"corel", "classic"};
+        Glib::ustring menubar_values[] = {"rosepen", "classic"};
         auto const menubar_layout = Gtk::make_managed<UI::Widget::PrefCombo>();
-        menubar_layout->init(Workspace::menubar_layout_pref, menubar_labels, menubar_values, "corel");
+        menubar_layout->init(Workspace::menubar_layout_pref, menubar_labels, menubar_values, "rosepen");
         _page_toolbars.add_line(false, _("Menu bar layout:"), *menubar_layout, "",
                                 _("Switch between the Rosepen menu order and the classic upstream menu. Applies after restart."));
 

@@ -298,6 +298,6 @@ TEST_F(ToolboxGroupsTest, flyoutLayoutPreference)
     prefs->setString(toolbox_layout_path, "classic");
     EXPECT_FALSE(use_flyout_layout());
 
-    prefs->setString(toolbox_layout_path, "corel");
+    prefs->setString(toolbox_layout_path, "rosepen");
     EXPECT_TRUE(use_flyout_layout());
 }

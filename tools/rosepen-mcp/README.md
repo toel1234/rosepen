@@ -37,13 +37,13 @@ in; default: the server's working directory).
 ## Register
 
 ```sh
-# Claude Code (user scope)
-claude mcp add -s user rosepen -- python3 /home/peter/Dokumente/corel/tools/rosepen-mcp/rosepen_mcp.py
+# Claude Code (user scope); run from the repo root
+claude mcp add -s user rosepen -- python3 "$PWD/tools/rosepen-mcp/rosepen_mcp.py"
 
-# CommandCode: ~/.commandcode/mcp.json
+# CommandCode: ~/.commandcode/mcp.json (use the absolute path of your checkout)
 "rosepen": {"transport": "stdio", "enabled": true,
             "command": "python3",
-            "args": ["/home/peter/Dokumente/corel/tools/rosepen-mcp/rosepen_mcp.py"]}
+            "args": ["/absolute/path/to/repo/tools/rosepen-mcp/rosepen_mcp.py"]}
 ```
 
 ## Agent workflow that works

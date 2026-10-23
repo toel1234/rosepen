@@ -66,7 +66,7 @@ bool page_filter_shows(SPItem *item, SPPage const *page, bool enabled)
     }
 
     // Rule 2: a layer itself (or the root) is always listed; layers are
-    // document-wide, like Corel listing every layer under every page.
+    // document-wide, like the reference suite listing every layer under every page.
     if (!top->parent) {
         return true; // the document root itself
     }
@@ -97,7 +97,7 @@ bool page_filter_shows(SPItem *item, SPPage const *page, bool enabled)
     }
 
     // Rule 6: the page manager finds no page for the object: pasteboard
-    // content, shared like Corel's Desktop layer; never hide off-page objects.
+    // content, shared like the reference suite's Desktop layer; never hide off-page objects.
     if (!page->document->getPageManager().getPageFor(top_item, false)) {
         return true;
     }
