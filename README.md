@@ -40,6 +40,9 @@ toolbox, command bar, palette and Object Properties docker around the canvas](do
   preflight pass before export.
 - **Classic workspace** — flyout toolbox groups, selection-driven property bar, docker panel
   system, vertical palette, workspace presets and a golden-table keymap.
+- **`.cdr` import and export** — open multi-page `.cdr` files with true CMYK and spot colors
+  through a native bridge to the TraceDraw `cdr` crate (libcdr as fallback), and save documents
+  back to `.cdr`.
 - **Production tools**
   - *Container clipping* — place objects inside a frame, edit contents in place, extract,
     normalize and repair.
@@ -87,8 +90,8 @@ AppImage build (`fork/scripts/build-local.sh`).
 
 ## Status
 
-Rosepen is in active development toward **v0.1**: 20 of 21 milestone plans are complete
-(Phases 1–5 done). `.cdr` import is the next major work item.
+All 21 plans of the **v0.1** milestone are complete (Phases 1–6), including `.cdr` import and
+export. Manual UI acceptance testing and a polish pass are under way before the first release.
 
 ## Provenance and references
 
