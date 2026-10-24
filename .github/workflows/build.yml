@@ -16,7 +16,7 @@ concurrency:
 jobs:
   linux:
     runs-on: ubuntu-24.04
-    timeout-minutes: 150
+    timeout-minutes: 180
     env:
       CCACHE_DIR: ${{ github.workspace }}/.ccache
       CCACHE_MAXSIZE: 2G
@@ -82,3 +82,19 @@ jobs:
           path: build/appimage/Rosepen-x86_64.AppImage
           if-no-files-found: error
           retention-days: 14
+
+      - name: Build tests
+        run: ninja -C build -j"$(nproc)" tests
+
+      # Fork-owned suites only: every Rosepen CLI corpus carries a ctest label,
+      # plus all gtest/Rust unit tests. Serial on purpose (CLI tests race the
+      # session D-Bus app id). test_style and test_lpe fail on the upstream
+      # fork base and stay excluded until fixed upstream.
+      - name: Test
+        run: |
+          sudo apt-get install -y --no-install-recommends xvfb
+          cd build
+          xvfb-run -a ctest --output-on-failure --timeout 600 \
+            -E '^test_(style|lpe)$' -R '^(test_|rust_)'
+          xvfb-run -a ctest --output-on-failure --timeout 600 \
+            -L 'artistic-media|cdr-bridge|cdr-import|color-corpus|dimension|docker|live-sketch|master-layer|page-ops|pdfx|powerclip|smart-fill|toolbox|tracecdr|workspace'
