@@ -235,6 +235,73 @@ def same_geometry(a, b):
     return True
 
 
+def compose_affine(m1, m2):
+    """Compose two SVG affines given as (a,b,c,d,e,f): apply m2 first."""
+    a1, b1, c1, d1, e1, f1 = m1
+    a2, b2, c2, d2, e2, f2 = m2
+    return (a1 * a2 + c1 * b2, b1 * a2 + d1 * b2,
+            a1 * c2 + c1 * d2, b1 * c2 + d1 * d2,
+            a1 * e2 + c1 * f2 + e1, b1 * e2 + d1 * f2 + f1)
+
+
+def parse_svg_transform(text):
+    """Reduce an SVG transform attribute to (a,b,c,d,e,f); identity when absent.
+    None when the list uses a function this checker cannot reduce, so a caller
+    can report the gap instead of silently skipping the check."""
+    matrix = (1.0, 0.0, 0.0, 1.0, 0.0, 0.0)
+    if not text:
+        return matrix
+    for token in re.findall(r"[A-Za-z]+\s*\([^)]*\)", text):
+        m = re.match(r"([A-Za-z]+)\s*\(([^)]*)\)", token)
+        kind = m.group(1)
+        try:
+            args = [float(v) for v in re.split(r"[\s,]+", m.group(2).strip()) if v]
+        except ValueError:
+            return None
+        if kind == "translate" and 1 <= len(args) <= 2:
+            local = (1.0, 0.0, 0.0, 1.0, args[0], args[1] if len(args) > 1 else 0.0)
+        elif kind == "scale" and 1 <= len(args) <= 2:
+            sx = args[0]
+            local = (sx, 0.0, 0.0, args[1] if len(args) > 1 else sx, 0.0, 0.0)
+        elif kind == "matrix" and len(args) == 6:
+            local = tuple(args)
+        else:
+            return None
+        matrix = compose_affine(local, matrix)
+    return matrix
+
+
+def element_bbox(element, affine):
+    """(left, top, right, bottom) of a rect/circle/ellipse under `affine`, in
+    the surrounding user space; None for shapes this checker cannot measure.
+    rx/ry only round the corners, they never grow the box."""
+    kind = local_name(element)
+    if kind == "rect":
+        x = float(element.get("x") or 0)
+        y = float(element.get("y") or 0)
+        w = float(element.get("width") or 0)
+        h = float(element.get("height") or 0)
+        corners = [(x, y), (x + w, y), (x, y + h), (x + w, y + h)]
+    elif kind == "circle":
+        cx = float(element.get("cx") or 0)
+        cy = float(element.get("cy") or 0)
+        r = float(element.get("r") or 0)
+        corners = [(cx - r, cy - r), (cx + r, cy - r), (cx - r, cy + r), (cx + r, cy + r)]
+    elif kind == "ellipse":
+        cx = float(element.get("cx") or 0)
+        cy = float(element.get("cy") or 0)
+        rx = float(element.get("rx") or 0)
+        ry = float(element.get("ry") or 0)
+        corners = [(cx - rx, cy - ry), (cx + rx, cy - ry), (cx - rx, cy + ry), (cx + rx, cy + ry)]
+    else:
+        return None
+    a, b, c, d, e, f = affine
+    pts = [(a * x + c * y + e, b * x + d * y + f) for x, y in corners]
+    xs = [p[0] for p in pts]
+    ys = [p[1] for p in pts]
+    return (min(xs), min(ys), max(xs), max(ys))
+
+
 def check_svg_stage(expect, path):
     try:
         root = ET.parse(path).getroot()
@@ -310,6 +377,33 @@ def check_svg_stage(expect, path):
                 svg_expect.get("shared_clip_ok") and same_geometry(target, container)):
             fail(f"frame '{frame.get('id')}': clip use targets '{target.get('id')}' "
                  f"which is not the container '{cid}' (nor identical geometry)")
+
+        if svg_expect.get("clip_follows_container"):
+            # The live clip must be glued to the container: the bbox of the
+            # clip <use> (it renders the target, x/y and transform included)
+            # equals the container's bbox in the frame's user space. The
+            # contents group carries no transform (checked above), so its user
+            # space is the frame's; a compensating transform left on the use by
+            # clone compensation shows up here as a mismatch.
+            use_affine = parse_svg_transform(children[0].get("transform"))
+            if use_affine is not None:
+                dx = float(children[0].get("x") or 0)
+                dy = float(children[0].get("y") or 0)
+                if dx or dy:
+                    use_affine = compose_affine((1.0, 0.0, 0.0, 1.0, dx, dy), use_affine)
+            target_affine = parse_svg_transform(target.get("transform"))
+            container_affine = parse_svg_transform(container.get("transform"))
+            if use_affine is None or target_affine is None or container_affine is None:
+                fail(f"frame '{frame.get('id')}': transform attribute too complex "
+                     "for the clip-follows-container bbox check")
+            clip_bbox = element_bbox(target, compose_affine(use_affine, target_affine))
+            container_bbox = element_bbox(container, container_affine)
+            if clip_bbox is None or container_bbox is None:
+                fail(f"frame '{frame.get('id')}': cannot measure the bbox of the clip "
+                     "use target/container for the clip-follows-container check")
+            if any(abs(got - want) > 1e-6 for got, want in zip(clip_bbox, container_bbox)):
+                fail(f"frame '{frame.get('id')}': clip bbox {clip_bbox} != container "
+                     f"bbox {container_bbox} (the live clip does not follow the container)")
 
     if remaining:
         fail(f"frames not found in the SVG: {[c.get('container') for c in remaining]}")

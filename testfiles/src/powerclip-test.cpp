@@ -28,6 +28,7 @@
 
 #include <src/document-undo.h>
 #include <src/document.h>
+#include <src/enums.h>                          // for SP_CLONE_COMPENSATION_*
 #include <src/inkscape.h>
 #include <src/object/master-layer-display.h>
 #include <src/object/master-layer.h>
@@ -40,6 +41,7 @@
 #include <src/object/sp-root.h>
 #include <src/object/sp-use.h>
 #include <src/page-manager.h>
+#include <src/preferences.h>
 #include <src/util/cast.h>
 #include <src/xml/repr.h>
 
@@ -488,6 +490,75 @@ TEST_F(PowerClipTest, containerOnlyMoveKeepsContents)
     EXPECT_EQ(clip_href(clip), "#box");
     EXPECT_EQ(contents->getClipObject(), clip);
 }
+
+// Parameterised over the three clone-compensation modes. Moving the container
+// alone through the Select-tool path (SPItem::move_rel, which fires clone
+// compensation on the clip <use>) must leave the live clip glued to the
+// container in every mode (AC-1), while a plain clone of the container keeps
+// its upstream compensation behaviour (AC-2).
+class ContainerMoveKeepsClipAligned
+    : public PowerClipTest,
+      public ::testing::WithParamInterface<int>
+{
+protected:
+    void TearDown() override
+    {
+        // The preference is global; restore the upstream default for the
+        // other tests in this binary.
+        Inkscape::Preferences::get()->setInt("/options/clonecompensation/value",
+                                             SP_CLONE_COMPENSATION_PARALLEL);
+        PowerClipTest::TearDown();
+    }
+};
+
+TEST_P(ContainerMoveKeepsClipAligned, ClipTracksContainerAndPlainClonesCompensate)
+{
+    Inkscape::Preferences::get()->setInt("/options/clonecompensation/value", GetParam());
+
+    auto const result = place({"red", "box"});
+    ASSERT_EQ(result.refusal, PowerClip::Refusal::None);
+    auto *contents = PowerClip::contents_of(result.frame);
+    ASSERT_NE(contents, nullptr);
+    auto *clip = contents->getClipObject();
+    ASSERT_NE(clip, nullptr);
+    auto *clip_use = cast<SPUse>(clip_child(clip));
+    ASSERT_NE(clip_use, nullptr);
+
+    // A plain clone of the container, outside the frame: upstream clone
+    // compensation must keep working for it (AC-2).
+    auto *clone_repr = doc->getReprDoc()->createElement("svg:use");
+    clone_repr->setAttribute("id", "plainclone");
+    clone_repr->setAttribute("href", "#box");
+    group("layer1")->getRepr()->appendChild(clone_repr);
+    Inkscape::GC::release(clone_repr);
+    doc->ensureUpToDate();
+    auto *plain = cast<SPUse>(item("plainclone"));
+    ASSERT_NE(plain, nullptr);
+    Geom::Rect const plain_before = bounds(plain);
+
+    // Move the container alone, exactly as the Select tool does.
+    item("box")->move_rel(Geom::Translate(-10, 0));
+    doc->ensureUpToDate();
+
+    // AC-1: the live clip stays aligned with the container in every mode.
+    expect_rect(bounds(clip_use), bounds(item("box")));
+    EXPECT_EQ(clip_href(clip), "#box");
+    EXPECT_EQ(contents->getClipObject(), clip);
+    EXPECT_TRUE(clip_use->transform.isIdentity(1e-9));
+
+    // AC-2: the plain clone still follows its original's compensation mode.
+    if (GetParam() == SP_CLONE_COMPENSATION_UNMOVED) {
+        expect_rect(bounds(plain), plain_before);
+    } else {
+        // NONE and PARALLEL both let the clone move with its original.
+        expect_rect(bounds(plain), transformed_bounds(plain_before, Geom::Translate(-10, 0)));
+    }
+}
+
+INSTANTIATE_TEST_SUITE_P(CompensationModes, ContainerMoveKeepsClipAligned,
+                         ::testing::Values(static_cast<int>(SP_CLONE_COMPENSATION_NONE),
+                                           static_cast<int>(SP_CLONE_COMPENSATION_PARALLEL),
+                                           static_cast<int>(SP_CLONE_COMPENSATION_UNMOVED)));
 
 TEST_F(PowerClipTest, normalizeRealignsCompensatedClipUse)
 {

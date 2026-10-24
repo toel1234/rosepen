@@ -41,6 +41,8 @@
 #include "style.h"
 #include "uri.h"
 
+#include "object/powerclip.h"                           // fork hook: live PowerClip clip uses
+
 #include "display/drawing-group.h"
 #include "xml/document.h"                            // for Document
 #include "xml/href-attribute-helper.h"               // for getHrefAttribute
@@ -502,6 +504,14 @@ void SPUse::move_compensate(Geom::Affine const *mp) {
 
     // never compensate uses which are used in flowtext
     if (parent && cast<SPFlowregion>(parent)) {
+        return;
+    }
+
+    // Fork hook (Rosepen): never compensate the <use> that forms the live clip
+    // of a PowerClip container. The clip already follows its original, so any
+    // compensation would detach the clip from the frame. Covers both branches
+    // below; see Inkscape::PowerClip::is_live_clip_use().
+    if (Inkscape::PowerClip::is_live_clip_use(this)) {
         return;
     }
 

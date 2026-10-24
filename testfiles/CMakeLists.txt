@@ -112,6 +112,8 @@ set(TEST_SOURCES
     # 05-03 artistic media
     artistic-media-geometry-test
     artistic-media-lpe-test
+    # 07-01 artistic media window→doc coordinate helper
+    desktop-coordinates-test
     # 05-04 smart fill
     smart-fill-geometry-test
     smart-fill-ops-test
@@ -200,6 +202,14 @@ foreach(test_source ${TEST_SOURCES})
     set_tests_properties(${testname} PROPERTIES ENVIRONMENT "${INKSCAPE_TEST_PROFILE_DIR_ENV}/${testname};${CMAKE_CTEST_ENV}")
     add_dependencies(tests ${testname})
 endforeach()
+
+# build-document.h exposes PdfBuilder::Document (used by the PDF/X tests to
+# build a real PDF), and its public header includes capypdf.hpp. capypdf's
+# include directories are PRIVATE to inkscape_base, so the test needs the
+# target to compile against the exporter's separation API.
+if(TARGET test_pdfx-export)
+    target_link_libraries(test_pdfx-export Inkscape::CapyPDF)
+endif()
 
 # 06-02 TraceDraw bridge: the static library is linked into the test itself,
 # for the C header's include path and so the ABI test does not depend on which

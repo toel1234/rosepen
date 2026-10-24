@@ -240,6 +240,14 @@ bool is_frame(SPObject const *object)
     return is<SPGroup>(object) && has_role(object, role_frame);
 }
 
+bool is_live_clip_use(SPUse const *use)
+{
+    // A live PowerClip clip is a <use> inside a clipPath whose original is the
+    // frame's container (duplicated frames share that clip until normalize).
+    // This is O(1): no document scan, no href string compare.
+    return use && cast<SPClipPath>(use->parent) && has_role(use->get_original(), role_container);
+}
+
 SPGroup *frame_of(SPObject *object)
 {
     for (auto *current = object; current; current = current->parent) {

@@ -31,6 +31,7 @@
 #include "object/sp-root.h"
 #include "preferences.h"
 #include "selection.h"
+#include "ui/tools/desktop-coordinates.h"
 #include "ui/widget/events/canvas-event.h"
 
 using Inkscape::LivePathEffect::ArtisticMedia::Mode;
@@ -238,7 +239,7 @@ bool ArtisticMediaTool::root_handler(CanvasEvent const &event)
 
             _points.clear();
             _dragging = false;
-            capture_point(_desktop->dt2doc(press.pos));
+            capture_point(doc_point_from_window(*_desktop, press.pos));
             saveDragOrigin(press.pos);
             grabCanvasEvents(EventType::KEY_PRESS | EventType::BUTTON_PRESS |
                              EventType::BUTTON_RELEASE | EventType::MOTION);
@@ -251,7 +252,7 @@ bool ArtisticMediaTool::root_handler(CanvasEvent const &event)
                 return; // still within the click tolerance
             }
             _dragging = true;
-            capture_point(_desktop->dt2doc(motion.pos));
+            capture_point(doc_point_from_window(*_desktop, motion.pos));
             update_preview();
             gobble_motion_events(GDK_BUTTON1_MASK);
             ret = true;

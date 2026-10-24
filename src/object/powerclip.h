@@ -25,6 +25,7 @@ class SPDocument;
 class SPGroup;
 class SPItem;
 class SPObject;
+class SPUse;
 
 namespace Inkscape {
 class ObjectSet;
@@ -40,6 +41,11 @@ inline constexpr char const *role_contents = "contents";
 
 /** True for an SPGroup carrying the frame role. */
 bool is_frame(SPObject const *object);
+
+/** True when `use` is the live clip of a PowerClip container: it sits inside
+ *  a clipPath and references the frame's container item. O(1); used by the
+ *  clone-compensation fork hook in SPUse::move_compensate. */
+bool is_live_clip_use(SPUse const *use);
 
 /** Nearest ancestor-or-self frame, or nullptr. */
 SPGroup *frame_of(SPObject *object);
