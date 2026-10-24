@@ -23,15 +23,19 @@
 #include <2geom/point.h>
 #include <2geom/rect.h>
 
+#include <src/colors/color.h>
 #include <src/colors/document-cms.h>
 #include <src/colors/spaces/cms.h>
 #include <src/document.h>
+#include <src/extension/internal/pdfoutput/build-document.h>
+#include <src/extension/internal/pdfoutput/build-page.h>
 #include <src/extension/internal/pdfoutput/pdfx.h>
 #include <src/inkscape.h>
 #include <src/object/color-profile.h>
 #include <src/object/sp-item.h>
 #include <src/object/sp-object.h>
 #include <src/object/sp-root.h>
+#include <src/page-manager.h>
 
 using namespace Inkscape::Extension::Internal::PdfX;
 
@@ -557,6 +561,164 @@ TEST_F(PdfXTest, preflightX4AllowsTransparency)
             EXPECT_FALSE(finding.error) << id << ": " << finding.reason;
         }
     }
+}
+
+// "All" and "None" are reserved PDF colorant names (case-sensitive). A user
+// spot ink with either name would be indistinguishable from the device
+// colorants a RIP reserves, so PDF/X refuses it and the default path warns
+// without renaming the swatch. A differently-cased name is a different ink.
+TEST_F(PdfXTest, preflightReservedSpotAll)
+{
+    auto const source = std::string(R"A(<?xml version="1.0"?>
+<svg xmlns="http://www.w3.org/2000/svg"
+     xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+     xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+     xmlns:xlink="http://www.w3.org/1999/xlink"
+     width="100mm" height="80mm" viewBox="0 0 100 80">
+  <sodipodi:namedview id="nv" inkscape:output-profile="cmyk-out" />
+  <defs>
+    <color-profile id="profile1" name="cmyk-out" xlink:href=")A") +
+                             INKSCAPE_TESTS_DIR "/data/colors/default_cmyk.icc" + R"A(" />
+    <linearGradient id="spot-all" inkscape:swatch="solid" inkscape:spot-name="All"
+                    x1="0" y1="0" x2="1" y2="0">
+      <stop id="spot-all-stop" offset="0" style="stop-color:device-cmyk(0 0.9 0.8 0)" />
+    </linearGradient>
+    <linearGradient id="spot-all-lower" inkscape:swatch="solid" inkscape:spot-name="all"
+                    x1="0" y1="0" x2="1" y2="0">
+      <stop id="spot-all-lower-stop" offset="0" style="stop-color:device-cmyk(0.9 0 0 0)" />
+    </linearGradient>
+    <view id="p1" viewBox="0 0 100 80" inkscape:bleed="3" />
+  </defs>
+</svg>)A";
+    auto doc = document(source);
+    ASSERT_TRUE(doc);
+
+    std::vector<Finding> errors;
+    for (auto const &finding : preflight(doc.get(), Mode::X4, false)) {
+        if (finding.error) {
+            errors.push_back(finding);
+        }
+    }
+    ASSERT_EQ(errors.size(), 1u) << "only the 'All' swatch is reserved, not 'all'";
+    EXPECT_EQ(errors[0].id, "spot-all");
+    EXPECT_NE(errors[0].reason.find("'All'"), std::string::npos) << errors[0].reason;
+    EXPECT_NE(errors[0].reason.find("reserved PDF colorant name"), std::string::npos)
+        << errors[0].reason;
+
+    // The default path cannot refuse, so the same finding is advisory.
+    auto const findings = preflight(doc.get(), Mode::None, false);
+    ASSERT_EQ(findings.size(), 1u);
+    EXPECT_FALSE(findings[0].error);
+    EXPECT_EQ(findings[0].id, "spot-all");
+    EXPECT_NE(findings[0].reason.find("reserved PDF colorant name"), std::string::npos);
+}
+
+// A user spot ink named "All" must never share the registration Separation the
+// crop marks use, or the printer would see one plate instead of two.
+TEST_F(PdfXTest, registrationDistinctFromSpotAll)
+{
+    auto doc = document(profile_doc("cmyk-out", INKSCAPE_TESTS_DIR "/data/colors/default_cmyk.icc"));
+    ASSERT_TRUE(doc);
+    auto const &pages = doc->getPageManager().getPages();
+    ASSERT_FALSE(pages.empty());
+
+    gchar *name = nullptr;
+    int const fd = g_file_open_tmp("rosepen-pdfx-separation-XXXXXX.pdf", &name, nullptr);
+    ASSERT_GE(fd, 0);
+    g_close(fd, nullptr);
+    // capypdf writes through its own temporary file; the target must be free.
+    ASSERT_EQ(g_unlink(name), 0);
+
+    {
+        capypdf::DocumentProperties properties;
+        Inkscape::Extension::Internal::PdfBuilder::Document pdf(name, properties);
+
+        auto const alternate = Inkscape::Colors::Color(Inkscape::Colors::Space::Type::CMYK,
+                                                       {0.0, 0.9, 0.8, 0.0});
+        auto const registration = pdf.registration_separation();
+        auto const spot = pdf.get_separation("All", alternate);
+        ASSERT_TRUE(registration.has_value());
+        ASSERT_TRUE(spot.has_value());
+        EXPECT_NE(registration->id, spot->id);
+
+        // Both lookups are cached, so a second call adds no third resource.
+        auto const registration_again = pdf.registration_separation();
+        auto const spot_again = pdf.get_separation("All", alternate);
+        ASSERT_TRUE(registration_again.has_value());
+        ASSERT_TRUE(spot_again.has_value());
+        EXPECT_EQ(registration_again->id, registration->id);
+        EXPECT_EQ(spot_again->id, spot->id);
+
+        {
+            Inkscape::Extension::Internal::PdfBuilder::PageContext page(pdf, pages.front());
+            pdf.add_page(page);
+        }
+        pdf.write();
+    }
+
+    gchar *data = nullptr;
+    gsize length = 0;
+    ASSERT_TRUE(g_file_get_contents(name, &data, &length, nullptr));
+    g_free(data);
+    g_unlink(name);
+    g_free(name);
+
+    // The document must still serialize with both colorants cached. The
+    // output-level distinctness check lives in the cli_pdfx spot-all-distinct
+    // scenario: /Separation resources only reach the PDF through content that
+    // uses them, which this unit level cannot synthesize.
+    EXPECT_GT(length, 0u);
+}
+
+// With filter rasterization off the exporter paints a filtered item without its
+// filter. Preflight must say so instead of dropping it silently, and X-1a's
+// locked "rasterized filter" Error must stay exactly as it was.
+TEST_F(PdfXTest, preflightFilterDroppedWarning)
+{
+    auto const source = std::string(R"A(<?xml version="1.0"?>
+<svg xmlns="http://www.w3.org/2000/svg"
+     xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+     xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+     xmlns:xlink="http://www.w3.org/1999/xlink"
+     width="100mm" height="80mm" viewBox="0 0 100 80">
+  <sodipodi:namedview id="nv" inkscape:output-profile="cmyk-out" />
+  <defs>
+    <color-profile id="profile1" name="cmyk-out" xlink:href=")A") +
+                             INKSCAPE_TESTS_DIR "/data/colors/default_cmyk.icc" + R"A(" />
+    <filter id="blur1" inkscape:label="Blur" x="-0.2" y="-0.2" width="1.4" height="1.4">
+      <feGaussianBlur id="blur-prim" stdDeviation="2" />
+    </filter>
+    <view id="p1" viewBox="0 0 100 80" inkscape:bleed="3" />
+  </defs>
+  <rect id="filtered" x="5" y="5" width="40" height="30" fill="#ffff00"
+        filter="url(#blur1)" />
+  <rect id="plain" x="55" y="5" width="40" height="30" fill="#00ffff" />
+</svg>)A";
+    auto doc = document(source);
+    ASSERT_TRUE(doc);
+
+    auto findings = preflight(doc.get(), Mode::X4, false);
+    ASSERT_EQ(findings.size(), 1u);
+    EXPECT_FALSE(findings[0].error);
+    EXPECT_EQ(findings[0].id, "filtered");
+    EXPECT_NE(findings[0].reason.find("filter will be dropped"), std::string::npos)
+        << findings[0].reason;
+
+    // Rasterization on keeps the filter, so there is nothing to report.
+    EXPECT_TRUE(preflight(doc.get(), Mode::X4, true).empty());
+
+    // X-1a: dropping is advisory, rasterizing is still the locked Error.
+    findings = preflight(doc.get(), Mode::X1a, false);
+    ASSERT_EQ(findings.size(), 1u);
+    EXPECT_FALSE(findings[0].error);
+    EXPECT_EQ(findings[0].id, "filtered");
+
+    findings = preflight(doc.get(), Mode::X1a, true);
+    ASSERT_EQ(findings.size(), 1u);
+    EXPECT_TRUE(findings[0].error);
+    EXPECT_EQ(findings[0].id, "filtered");
+    EXPECT_NE(findings[0].reason.find("rasterized with alpha"), std::string::npos)
+        << findings[0].reason;
 }
 
 /*

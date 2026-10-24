@@ -136,6 +136,13 @@ public:
                                     std::optional<double> opacity);
     std::optional<CapyPDF_SeparationId> get_separation(std::string const &name,
                                                        Colors::Color const &alternate);
+    /**
+     * The registration colorant Separation ("All", DeviceCMYK 1 1 1 1).
+     *
+     * Kept out of the name-keyed cache so a user spot ink that happens to be
+     * named "All" cannot alias the crop-mark registration colour.
+     */
+    std::optional<CapyPDF_SeparationId> registration_separation();
 
     std::optional<CapyPDF_PatternId> get_pattern(SPPaintServer const *paint, std::optional<double> opacity);
 
@@ -147,6 +154,9 @@ private:
      * values through exactly, and anything else is converted through lcms.
      */
     std::optional<std::array<double, 4>> to_output_cmyk(Colors::Color const &color) const;
+
+    std::optional<CapyPDF_SeparationId> create_separation(std::string const &name,
+                                                          Colors::Color const &alternate);
 
     std::optional<CapyPDF_PatternId> get_linear_pattern(SPLinearGradient const *linear, std::optional<double> opacity);
     std::optional<CapyPDF_PatternId> get_radial_pattern(SPRadialGradient const *radial, std::optional<double> opacity);
@@ -185,6 +195,8 @@ private:
     std::map<std::string, CapyPDF_IccColorSpaceId> _icc_cache;
     std::map<std::string, CapyPDF_SeparationId> _sep_cache;
     std::set<std::string> _sep_failed;
+    std::optional<CapyPDF_SeparationId> _registration_separation;
+    bool _registration_failed = false;
     std::map<ItemCacheKey, CapyPDF_TransparencyGroupId> _item_cache;
     std::map<std::string, CapyPDF_TransparencyGroupId> _mask_cache;
     std::map<std::string, CapyPDF_PatternId> _pattern_cache;

@@ -12,7 +12,8 @@ ISO 15930-4/-7 and the plan; it is not a veraPDF-style validator.
 
   export     the target exists and starts with %PDF, or for "refused"
              scenarios the target is absent and stderr carries exactly the
-             expected "PDF/X preflight: <id>: ..." lines.
+             expected "PDF/X preflight: <id>: ..." lines (a scenario may pin
+             the refusal exit code with refused_exit_code).
   header     %PDF-1.3 (X-1a) / 1.6 (X-4) / 2.0 (default); X-1a has a classic
              xref table and no object streams.
   intent     one OutputIntent, /S /GTS_PDFX, the UTF-16BE profile description
@@ -33,6 +34,9 @@ ISO 15930-4/-7 and the plan; it is not a veraPDF-style validator.
   structure  no /OCProperties and no /Annots; X-1a has no /S /Transparency.
              The default scenario instead asserts no OutputIntents, no
              /GTS_PDFXVersion, no /Metadata and an ArtBox on every page.
+  warnings   stderr carries (or does not carry) the listed substrings: the
+             advisory findings that never refuse an export, e.g. a filter
+             dropped because rasterization is off.
   color      only DeviceCMYK/DeviceGray/Separation reaches the file: no "rg"/
              "RG" operator, no /DeviceRGB and no ICCBased colour space that is
              reachable from content or resources.  capypdf always leaves one
@@ -115,7 +119,11 @@ def delete_stale(path):
 
 def seed_prefs(crop_marks):
     """Extension parameters live as dotted attributes on the extensions group
-    (pref_name() = /extensions/<id>.<param>), not in a nested group."""
+    (pref_name() = /extensions/<id>.<param>), not in a nested group.
+
+    Filter rasterization is not seeded here: the CLI PDF export overwrites
+    blurToBitmap from --export-ignore-filters, so a scenario uses that flag.
+    """
     profile = os.environ.get("INKSCAPE_PROFILE_DIR")
     if not profile:
         if crop_marks:
@@ -262,26 +270,53 @@ def stream_text(objects, num):
 # ----------------------------------------------------------------- stages ---
 
 def stage_export(binary, scenario, fixture, target, expect):
+    """Run the export and return its stderr for later warning assertions."""
     refused = scenario.get("refused", False)
     proc = export(binary, fixture, target, scenario.get("version"),
                   scenario.get("extra_args") or [])
-    check_stderr_fatal(proc.stderr or "")
+    stderr = proc.stderr or ""
+    check_stderr_fatal(stderr)
     if refused:
         if os.path.exists(target):
             fail("a refused PDF/X export wrote a target file")
-        got = sorted(preflight_ids(proc.stderr or ""))
+        expected_rc = scenario.get("refused_exit_code")
+        if expected_rc is not None and proc.returncode != expected_rc:
+            fail(f"a refused PDF/X export exited {proc.returncode}, expected {expected_rc}")
+        got = sorted(preflight_ids(stderr))
         wanted = sorted(scenario.get("refused_ids") or [])
         if got != wanted:
             fail(f"preflight ids are {got}, expected {wanted}")
-        return
+        return stderr
     if proc.returncode != 0:
-        tail = " ".join((proc.stderr or "").split())[-400:]
+        tail = " ".join(stderr.split())[-400:]
         fail(f"rosepen exited {proc.returncode}: {tail}")
     if not os.path.isfile(target):
         fail("pdf: the export did not create the target")
     with open(target, "rb") as f:
         if not f.read(8).startswith(b"%PDF"):
             fail("pdf: the target does not start with %PDF")
+    return stderr
+
+
+def stage_warnings(stderr, scenario):
+    """Advisory findings: substrings stderr must (not) carry."""
+    for needle in scenario.get("warnings") or []:
+        if needle not in stderr:
+            tail = " ".join(stderr.split())[-400:]
+            fail(f"stderr is missing {needle!r}: {tail}")
+    for needle in scenario.get("warnings_absent") or []:
+        if needle in stderr:
+            fail(f"stderr unexpectedly carries {needle!r}")
+
+
+def stage_separations(objects, scenario):
+    """Exact count of /Separation colorant resources (distinctness lock)."""
+    expected = scenario.get("separations")
+    if expected is None:
+        return
+    found = sum(dictionary.count("/Separation") for dictionary in object_dicts(objects))
+    if found != expected:
+        fail(f"pdf: found {found} /Separation colorants, expected {expected}")
 
 
 def stage_header(data, scenario):
@@ -850,12 +885,17 @@ def main(argv):
     delete_stale(target)
     seed_prefs(scenario.get("crop_marks", False))
 
-    if not run_stage("export",
-                     lambda: stage_export(binary, scenario, fixture, target, document)):
+    outcome = {}
+
+    def run_export():
+        outcome["stderr"] = stage_export(binary, scenario, fixture, target, document)
+
+    if not run_stage("export", run_export):
         return 1
     if scenario.get("refused"):
         return 0
 
+    stderr = outcome.get("stderr") or ""
     data, objects = load_pdf(target)
     colors = document.get("colors") or {}
     stages = scenario.get("stages") or []
@@ -866,6 +906,8 @@ def main(argv):
         "boxes": lambda: stage_boxes(data, objects, scenario),
         "marks": lambda: stage_marks(objects, scenario),
         "structure": lambda: stage_structure(data, objects, scenario),
+        "warnings": lambda: stage_warnings(stderr, scenario),
+        "separations": lambda: stage_separations(objects, scenario),
         "color": lambda: stage_color(objects, scenario),
         "masters": lambda: stage_masters(objects, scenario),
         "pixels": lambda: stage_pixels(binary, scenario, target, outdir, colors),

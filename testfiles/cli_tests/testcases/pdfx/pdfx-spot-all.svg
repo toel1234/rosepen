@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- invariant: one 100x80 mm page with a CMYK output profile and a user spot ink named "All" (a reserved PDF colorant name, case-sensitive) plus a lowercase "all" swatch that is a different ink and must not be reported -->
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd" xmlns:xlink="http://www.w3.org/1999/xlink" width="100mm" height="80mm" viewBox="0 0 100 80" version="1.1" id="svg1">
+  <sodipodi:namedview id="namedview1" pagecolor="#ffffff" bordercolor="#666666" inkscape:document-units="mm" inkscape:output-profile="cmyk-out" />
+  <defs id="defs1">
+    <color-profile id="profile1" name="cmyk-out" xlink:href="../../../data/colors/default_cmyk.icc" />
+    <linearGradient id="spot-all" inkscape:swatch="solid" inkscape:spot-name="All" x1="0" y1="0" x2="1" y2="0">
+      <stop id="spot-all-stop" offset="0" style="stop-color:device-cmyk(0 0.92 0.76 0)" />
+    </linearGradient>
+    <linearGradient id="spot-all-lower" inkscape:swatch="solid" inkscape:spot-name="all" x1="0" y1="0" x2="1" y2="0">
+      <stop id="spot-all-lower-stop" offset="0" style="stop-color:device-cmyk(0.9 0 0 0)" />
+    </linearGradient>
+    <view id="p1" viewBox="0 0 100 80" inkscape:label="Page 1" inkscape:bleed="3" />
+  </defs>
+  <g inkscape:groupmode="layer" inkscape:label="art" id="art">
+    <rect id="bg" x="-3" y="-3" width="106" height="86" fill="#ffffff" />
+    <rect id="spot-fill" x="5" y="5" width="40" height="30" style="fill:url(#spot-all)" />
+    <rect id="spot-lower-fill" x="55" y="5" width="40" height="30" style="fill:url(#spot-all-lower)" />
+  </g>
+</svg>

@@ -120,8 +120,7 @@ void PageContext::draw_crop_marks(std::vector<std::pair<Geom::Point, Geom::Point
 {
     _ctx.cmd_q();
 
-    auto const registration = Colors::Color(Colors::Space::Type::CMYK, {1.0, 1.0, 1.0, 1.0});
-    if (auto const separation = _doc.get_separation("All", registration)) {
+    if (auto const separation = _doc.registration_separation()) {
         SeparationColor color(*separation, 1.0);
         _ctx.set_stroke(color);
     } else {

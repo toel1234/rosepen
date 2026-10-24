@@ -232,7 +232,11 @@ InkFileExportCmd::do_export(SPDocument* doc, std::string filename_in)
                     } else if (type == "eps") {
                         do_export_ps_pdf(doc, filename_out, "image/x-e-postscript", *oext);
                     } else if (type == "pdf") {
-                        do_export_ps_pdf(doc, filename_out, "application/pdf", *oext);
+                        // A refused PDF/X export (preflight error) must fail the
+                        // process, exactly like the other extension exports.
+                        if (do_export_ps_pdf(doc, filename_out, "application/pdf", *oext) != 0) {
+                            _export_failed = true; // the process exits 1
+                        }
                     } else {
                         if (do_export_extension(doc, filename_out, oext) != 0) {
                             _export_failed = true; // the process exits 1

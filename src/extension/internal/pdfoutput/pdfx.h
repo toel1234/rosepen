@@ -78,13 +78,17 @@ struct Finding
 /**
  * PDF/X preflight.
  *
- * Document-level: the output profile (missing/non-CMYK/unloadable), an overlap
- * of one page's bleed with another page, and master layers that carry their own
- * clip/mask/filter. Per item, in document order: an image that cannot be
- * decoded (both modes, error), and on X-1a only each transparency construct
- * (opacity, fill/stroke-opacity, mask, blend mode, gradient/mesh transparency,
- * a rasterized filter when `rasterize_filters` is set, and image alpha). Errors
- * refuse the export; warnings are advisory.
+ * Document-level: a spot swatch named "All" or "None" (case-sensitive reserved
+ * PDF colorant names; an error on PDF/X, a warning on the default path,
+ * because the swatch is reported and never renamed), the output profile
+ * (missing/non-CMYK/unloadable), an overlap of one page's bleed with another
+ * page, and master layers that carry their own clip/mask/filter. Per item, in
+ * document order: an image that cannot be decoded (both modes, error), and on
+ * X-1a only each transparency construct (opacity, fill/stroke-opacity, mask,
+ * blend mode, gradient/mesh transparency, a rasterized filter when
+ * `rasterize_filters` is set, and image alpha). When rasterization is off, a
+ * filtered item is painted without its filter and preflight warns that the
+ * filter will be dropped. Errors refuse the export; warnings are advisory.
  */
 std::vector<Finding> preflight(SPDocument *doc, Mode mode, bool rasterize_filters);
 

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- invariant: one 100x80 mm page with a CMYK output profile and one filtered item; with filter rasterization off the item is painted without its filter and preflight must warn instead of dropping it silently -->
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd" xmlns:xlink="http://www.w3.org/1999/xlink" width="100mm" height="80mm" viewBox="0 0 100 80" version="1.1" id="svg1">
+  <sodipodi:namedview id="namedview1" pagecolor="#ffffff" bordercolor="#666666" inkscape:document-units="mm" inkscape:output-profile="cmyk-out" />
+  <defs id="defs1">
+    <color-profile id="profile1" name="cmyk-out" xlink:href="../../../data/colors/default_cmyk.icc" />
+    <filter id="blur1" inkscape:label="Blur" x="-0.2" y="-0.2" width="1.4" height="1.4">
+      <feGaussianBlur id="blur-prim" stdDeviation="2" />
+    </filter>
+    <view id="p1" viewBox="0 0 100 80" inkscape:label="Page 1" inkscape:bleed="3" />
+  </defs>
+  <g inkscape:groupmode="layer" inkscape:label="art" id="art">
+    <rect id="bg" x="-3" y="-3" width="106" height="86" fill="#ffffff" />
+    <rect id="filtered" x="5" y="5" width="40" height="30" fill="#ffff00" filter="url(#blur1)" />
+    <rect id="plain" x="55" y="5" width="40" height="30" fill="#00ffff" />
+  </g>
+</svg>

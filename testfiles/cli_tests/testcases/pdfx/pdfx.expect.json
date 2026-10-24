@@ -234,6 +234,36 @@
       "default_unchanged": true,
       "stages": ["export", "header", "structure"],
       "header": "%PDF-2.0"
+    },
+    "spot-reserved-all": {
+      "_note": "'All' and 'None' are reserved PDF colorant names (case-sensitive). A user spot ink named 'All' cannot be distinguished from the registration Separation a RIP reserves, so PDF/X preflight reports that swatch as an error and the export is refused atomically: exit code 1, no target file, and exactly the swatch id on stderr. The swatch is never renamed (that would silently change the plate the printer sees), and the lowercase 'all' swatch is a different ink name, so it must not be reported.",
+      "fixture": "pdfx-spot-all.svg",
+      "version": "X-4",
+      "refused": true,
+      "refused_exit_code": 1,
+      "refused_ids": ["spot-all"],
+      "stages": ["export"]
+    },
+    "filter-dropped": {
+      "_note": "With filter rasterization off (--export-ignore-filters, which the CLI turns into blurToBitmap=0) the exporter paints a filtered item without its filter. PDF/X-4 preflight must warn once per filtered item with the item id, instead of dropping the filter silently, and the export still succeeds and writes a normal PDF/X-4 file.",
+      "fixture": "pdfx-filter.svg",
+      "version": "X-4",
+      "crop_marks": false,
+      "extra_args": ["--export-ignore-filters"],
+      "stages": ["export", "header", "warnings"],
+      "warnings": ["PDF/X preflight warning: filtered: a filter will be dropped"],
+      "header": "%PDF-1.6"
+    },
+    "spot-all-distinct": {
+      "_note": "AC-1 default path: a user spot ink named 'All' must be a distinct /Separation resource from the registration Separation the crop marks draw with, so the default (non-PDF/X) export succeeds with a warning and writes exactly the two colorants; PDF/X instead refuses (spot-reserved-all). The lowercase 'all' swatch is a third, different ink and must not be reported.",
+      "fixture": "pdfx-spot-all.svg",
+      "version": null,
+      "crop_marks": true,
+      "stages": ["export", "header", "warnings", "separations"],
+      "header": "%PDF-2.0",
+      "warnings": ["spot colour 'All' is a reserved PDF colorant name"],
+      "warnings_absent": ["spot colour 'all'"],
+      "separations": 2
     }
   }
 }

@@ -527,35 +527,25 @@ capypdf::Color Document::get_device_color(Colors::Color const &color, CapyPDF_De
 }
 
 /**
- * Create (and cache) a PDF /Separation color space for a spot ink.
+ * Create an uncached PDF /Separation color space for an ink name.
  *
  * The tint transform is a PostScript type 4 function interpolating from no
  * ink at tint 0 to the alternate at tint 1. capypdf only accepts name
  * strings; it escapes spaces and other PDF name specials itself.
+ *
+ * The caller owns caching: get_separation() keys on the ink name, while
+ * registration_separation() keeps its own entry so the two can never alias.
  */
-std::optional<CapyPDF_SeparationId> Document::get_separation(std::string const &name,
-                                                             Colors::Color const &alternate)
+std::optional<CapyPDF_SeparationId> Document::create_separation(std::string const &name,
+                                                               Colors::Color const &alternate)
 {
-    auto const normalized = Colors::Spot::normalize_name(name);
-    if (!normalized) {
-        return {};
-    }
-    if (auto const it = _sep_cache.find(*normalized); it != _sep_cache.end()) {
-        return it->second;
-    }
-    if (_sep_failed.contains(*normalized)) {
-        return {};
-    }
-
     // capypdf only accepts ASCII separation names, and its C++ wrapper ignores
     // the error result. Calling it with a UTF-8 name would leave the id
     // uninitialized, so fall back to the alternate color instead.
-    bool const ascii = std::all_of(normalized->begin(), normalized->end(),
+    bool const ascii = std::all_of(name.begin(), name.end(),
                                    [](char c) { return static_cast<unsigned char>(c) < 0x80; });
     if (!ascii) {
-        g_warning("Spot ink '%s' is not ASCII; exporting its alternate color instead.",
-                  normalized->c_str());
-        _sep_failed.insert(*normalized);
+        g_warning("Spot ink '%s' is not ASCII; exporting its alternate color instead.", name.c_str());
         return {};
     }
 
@@ -602,15 +592,57 @@ std::optional<CapyPDF_SeparationId> Document::get_separation(std::string const &
         capypdf::Type4Function function(domain, 2, range.data(), static_cast<int32_t>(range.size()),
                                         code.str());
         auto const function_id = _gen.add_function(function);
-        auto const separation = _gen.add_separation(
-            *normalized, cmyk ? CAPY_DEVICE_CS_CMYK : CAPY_DEVICE_CS_RGB, function_id);
-        _sep_cache.emplace(*normalized, separation);
-        return separation;
+        return _gen.add_separation(name, cmyk ? CAPY_DEVICE_CS_CMYK : CAPY_DEVICE_CS_RGB,
+                                   function_id);
     } catch (std::exception const &error) {
-        _sep_failed.insert(*normalized);
-        g_warning("Couldn't create PDF separation for spot '%s': %s", normalized->c_str(), error.what());
+        g_warning("Couldn't create PDF separation for colorant '%s': %s", name.c_str(), error.what());
         return {};
     }
+}
+
+/**
+ * Create (and cache) a PDF /Separation color space for a user spot ink.
+ */
+std::optional<CapyPDF_SeparationId> Document::get_separation(std::string const &name,
+                                                             Colors::Color const &alternate)
+{
+    auto const normalized = Colors::Spot::normalize_name(name);
+    if (!normalized) {
+        return {};
+    }
+    if (auto const it = _sep_cache.find(*normalized); it != _sep_cache.end()) {
+        return it->second;
+    }
+    if (_sep_failed.contains(*normalized)) {
+        return {};
+    }
+
+    if (auto const separation = create_separation(*normalized, alternate)) {
+        _sep_cache.emplace(*normalized, *separation);
+        return separation;
+    }
+    _sep_failed.insert(*normalized);
+    return {};
+}
+
+/**
+ * The registration colorant, "All" with a DeviceCMYK (1,1,1,1) alternate.
+ *
+ * This deliberately bypasses the name-keyed spot cache: a user spot ink named
+ * "All" gets its own Separation resource, so the crop marks and the spot can
+ * never share a colourant.
+ */
+std::optional<CapyPDF_SeparationId> Document::registration_separation()
+{
+    if (!_registration_separation && !_registration_failed) {
+        auto const alternate = Colors::Color(Colors::Space::Type::CMYK, {1.0, 1.0, 1.0, 1.0});
+        if (auto const separation = create_separation("All", alternate)) {
+            _registration_separation = separation;
+        } else {
+            _registration_failed = true;
+        }
+    }
+    return _registration_separation;
 }
 
 std::optional<CapyPDF_IccColorSpaceId> Document::get_icc_profile(std::shared_ptr<Colors::Space::CMS> const &profile)

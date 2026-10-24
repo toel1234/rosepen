@@ -1339,6 +1339,7 @@ function(add_pdfx_test scenario)
     # Watching fixture + expectations means changes re-run cmake on change
     watch("${FIXTURES_DIR}/pdfx-basic.svg" "${FIXTURES_DIR}/pdfx-noprofile.svg"
           "${FIXTURES_DIR}/pdfx-transparency.svg" "${FIXTURES_DIR}/pdfx-master.svg"
+          "${FIXTURES_DIR}/pdfx-spot-all.svg" "${FIXTURES_DIR}/pdfx-filter.svg"
           "${EXPECT_JSON}")
     add_test(NAME cli_pdfx-${scenario}
         COMMAND python3 -I ${CMAKE_CURRENT_SOURCE_DIR}/check_pdfx.py
@@ -1365,6 +1366,9 @@ if(WITH_CAPYPDF)
     add_pdfx_test(x4-master)
     add_pdfx_test(x4-page2-only)
     add_pdfx_test(x1a-master)
+    add_pdfx_test(spot-reserved-all)
+    add_pdfx_test(filter-dropped)
+    add_pdfx_test(spot-all-distinct)
 endif()
 
 # 04-01 classic toolbox: validate the shipped group data against the upstream toolbar (orchestrator integration point)

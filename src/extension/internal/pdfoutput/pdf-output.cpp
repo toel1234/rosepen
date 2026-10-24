@@ -319,6 +319,14 @@ void PdfOutput::save(Inkscape::Extension::Output *mod, SPDocument *doc, char con
             g_warning("Couldn't set up the PDF/X document: %s", ex.what());
             throw Inkscape::Extension::Output::save_failed();
         }
+    } else {
+        // The default path cannot refuse an export, but a spot ink named "All"
+        // or "None" still aliases a colorant the RIP reserves, so report the
+        // swatch and export anyway. Mode::None preflight returns only that
+        // warning, so nothing else can appear on stderr from here.
+        for (auto const &finding : PdfX::preflight(doc, mode, false)) {
+            g_warning("PDF preflight warning: %s: %s", finding.id.c_str(), finding.reason.c_str());
+        }
     }
 
     auto pdf = pdfx ? make_pdfx_document(filename, opt) : PdfBuilder::Document(filename, opt);

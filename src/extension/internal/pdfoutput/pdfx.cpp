@@ -22,9 +22,11 @@
 #include "colors/cms/profile.h"
 #include "colors/document-cms.h"
 #include "colors/spaces/cms.h"
+#include "colors/spot-swatch.h"
 #include "display/cairo-utils.h"
 #include "document.h"
 #include "object/master-layer.h"
+#include "object/sp-gradient.h"
 #include "object/sp-image.h"
 #include "object/sp-item-group.h"
 #include "object/sp-item.h"
@@ -201,6 +203,9 @@ struct ItemWalk
     std::set<SPObject const *> visited;
     // Items already reported; a clone shares its original's repr.
     std::set<Inkscape::XML::Node const *> reported;
+    // Items already warned; kept apart from `reported` so a warning can never
+    // consume (or be consumed by) an Error deduped on the same repr.
+    std::set<Inkscape::XML::Node const *> warned;
 };
 
 void collect_children(SPObject const *object, ItemWalk &walk);
@@ -213,6 +218,13 @@ void collect_item(SPItem const *item, ItemWalk &walk)
     if (auto const reason = item_pdfx_reason(item, walk.pdfx_1a, walk.rasterize_filters); !reason.empty()) {
         if (walk.reported.insert(item->getRepr()).second) {
             walk.findings.push_back({item_id(item), reason, true});
+        }
+    } else if (!walk.rasterize_filters && item->isFiltered()) {
+        // Filter rasterization is off, so the exporter paints the item without
+        // its filter. Say so rather than dropping it silently.
+        if (walk.warned.insert(item->getRepr()).second) {
+            walk.findings.push_back(
+                {item_id(item), "a filter will be dropped because filter rasterization is off", false});
         }
     }
     collect_children(item, walk);
@@ -363,11 +375,30 @@ std::string xmp_packet(Mode mode, std::string const &title, std::string const &i
 std::vector<Finding> preflight(SPDocument *doc, Mode mode, bool rasterize_filters)
 {
     std::vector<Finding> findings;
-    if (mode == Mode::None) {
+    if (!doc) {
+        if (mode != Mode::None) {
+            findings.push_back({"document", "no document", true});
+        }
         return findings;
     }
-    if (!doc) {
-        findings.push_back({"document", "no document", true});
+
+    // "All" and "None" are reserved PDF colorant names (case-sensitive). A user
+    // spot ink with either name cannot be distinguished from the device
+    // colorants a RIP reserves, so it is refused on PDF/X and merely reported on
+    // the default path, which cannot refuse. The swatch is never renamed here:
+    // that would silently change the separation the printer sees.
+    for (auto const *swatch : Colors::Spot::list_spots(doc)) {
+        auto const spot = Colors::Spot::get_spot_name(swatch);
+        if (!spot || (*spot != "All" && *spot != "None")) {
+            continue;
+        }
+        std::string const id = swatch->getId() ? swatch->getId() : *spot;
+        findings.push_back(
+            {id, "spot colour '" + *spot + "' is a reserved PDF colorant name; rename the spot colour",
+             mode != Mode::None});
+    }
+
+    if (mode == Mode::None) {
         return findings;
     }
 
