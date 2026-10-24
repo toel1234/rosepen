@@ -198,6 +198,7 @@ ALLOW=(
     # 05-01 PowerClip
     "src/object/powerclip.h"
     "src/object/powerclip.cpp"
+    "src/object/sp-use.cpp"
     "src/actions/actions-powerclip.h"
     "src/actions/actions-powerclip.cpp"
     # 05-02 dimension tools
@@ -230,6 +231,7 @@ ALLOW=(
     "src/actions/actions-artistic-media.cpp"
     "src/ui/tools/artistic-media-tool.h"
     "src/ui/tools/artistic-media-tool.cpp"
+    "src/ui/tools/desktop-coordinates.h"
     "src/ui/toolbar/artistic-media-toolbar.h"
     "src/ui/toolbar/artistic-media-toolbar.cpp"
     # Rosepen MCP server (committed after the 05-03 plan was written)
@@ -282,9 +284,12 @@ ALLOW=(
     "src/rust/tracecdr-ffi/include/tracecdr-ffi.h"
     "src/rust/tracecdr-ffi/SCHEMA.md"
     "src/rust/tracecdr-ffi/THIRD-PARTY.md"
+    "src/rust/tracecdr-ffi/.gitignore"
     "src/extension/init.cpp"
     "src/extension/internal/cdr-crate-import.h"
     "src/extension/internal/cdr-crate-import.cpp"
+    # 07-02 vsdx import locale fix
+    "src/extension/internal/vsd-input.cpp"
     "src/extension/internal/cdr-import-policy.h"
     "src/extension/internal/cdr-import-policy.cpp"
     "src/extension/internal/cdr-source-colors.h"
